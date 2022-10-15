@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.mfs.entities.MFSLedgerAccount" abstract="true" table="mfs_ledger_accounts">
+        <id name="id" type="long">
+            <column name="id" sql-type="integer"/>
+            <generator class="identity"/>
+        </id>
+        <property name="accountId" column="account_id" type="long" not-null="true"/>
+        <property name="parentId" column="parent_id" type="long" not-null="true"/>
+        <property name="code" column="code" type="string" not-null="true"/>
+        <property name="level" column="ledger_level" type="string" not-null="true"/>
+        <property name="category" column="category" type="string" not-null="true"/>
+        <property name="description" column="description" type="string" />
+        <property name="type" column="type" type="string" not-null="true"/>
+        <property name="onlyParent" column="is_only_parent" type="boolean" not-null="false"/>
+        <property name="active" column="is_active" type="boolean" not-null="true"/>
+        <property name="createDate" column="create_date" type="calendar" not-null="true"/>
+    </class>
+</hibernate-mapping>

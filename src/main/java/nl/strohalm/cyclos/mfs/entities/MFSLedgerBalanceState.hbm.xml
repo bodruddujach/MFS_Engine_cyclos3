@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.mfs.entities.MFSLedgerBalanceState" abstract="true" table="mfs_ledger_accounts">
+        <id name="id" type="long">
+            <column name="id" sql-type="integer"/>
+            <generator class="identity"/>
+        </id>
+        <property name="accountId" column="account_id" type="integer" not-null="true"/>
+        <property name="ledgerId" column="ledger_id" type="integer" not-null="true"/>
+        <property name="code" column="code" type="string" not-null="true"/>
+        <property name="balance" column="balance" type="big_decimal"  precision="19" scale="6" not-null="true"/>
+        <property name="balanceDate" column="balance_date" type="date" not-null="true"/>
+    </class>
+</hibernate-mapping>

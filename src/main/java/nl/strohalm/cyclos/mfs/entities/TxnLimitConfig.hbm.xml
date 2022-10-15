@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.mfs.entities.TxnLimitConfig" abstract="true" table="txn_limit_configs">
+        <id name="id" type="long">
+            <column name="id" sql-type="integer"/>
+            <generator class="native"/>
+        </id>
+        <property name="walletHolder" column="wallet_holder" type="string" not-null="true"/>
+        <property name="txnType" column="txn_type" type="string" not-null="true"/>
+        <property name="enable" column="is_enable" type="string" not-null="true"/>
+        <property name="dailyLimit" column="daily_limit" type="big_decimal" not-null="true"/>
+        <property name="monthlyLimit" column="monthly_limit" type="big_decimal" not-null="true"/>
+        <property name="min" column="min_amount" type="big_decimal" not-null="true"/>
+        <property name="max" column="max_amount" type="big_decimal" not-null="true"/>
+        <property name="dailyLimitCount" column="daily_limit_count" type="int" not-null="true"/>
+        <property name="monthlyLimitCount" column="monthly_limit_count" type="int" not-null="true"/>
+    </class>
+
+</hibernate-mapping>
