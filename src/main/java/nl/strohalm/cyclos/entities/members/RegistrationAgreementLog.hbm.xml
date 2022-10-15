@@ -16,7 +16,7 @@
 		<many-to-one name="registrationAgreement" class="nl.strohalm.cyclos.entities.members.RegistrationAgreement">
 		    <column name="registration_agreement_id" sql-type="integer" not-null="true"/>
 		</many-to-one>
-        <property name="date" column="date" not-null="true" />
+        <property name="date" column="datetime" not-null="true" />
 		<property name="remoteAddress" column="remote_address" length="100" />
 	</class>
 	

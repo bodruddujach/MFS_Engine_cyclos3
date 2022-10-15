@@ -18,7 +18,7 @@
 		<property name="arg2" not-null="false" column="arg2" type="string"/>
 		<property name="arg3" not-null="false" column="arg3" type="string"/>
 		<property name="arg4" not-null="false" column="arg4" type="string"/>
-		<property name="date" not-null="true" column="date" type="calendar"/>
+		<property name="date" not-null="true" column="datetime" type="calendar"/>
     </class>
     
 </hibernate-mapping>

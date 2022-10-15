@@ -5,6 +5,8 @@ import com.google.common.base.MoreObjects;
 import nl.strohalm.cyclos.mfs.models.enums.TransactionType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -20,12 +22,10 @@ public class TxnRequest implements Serializable {
   @NotNull
   private String toAc;
   private String byAc;
-  private String fromType;
-  private String toType;
-  private String fromAcAlias;
-  private String toAcAlias;
+
+  @NotBlank
+  @Length(min = 4)
   private String pin;
-  private String password;
 
   @NotNull
   private BigDecimal amount;
@@ -33,14 +33,14 @@ public class TxnRequest implements Serializable {
   @NotNull
   private TransactionType txnType;
 
-  private String requestId; // from client side
+  private String requestId;
   private String userType;
-  private String invoiceNo; // txn specific
+  private String invoiceNo;
   private String tokenNo;
   private String channel;
   private String maker;
   private String checker;
-  private String customerRefId; //customer specific
+  private String customerRefId;
   private BigDecimal rate;
   private BigDecimal minRate;
   private BigDecimal maxRate;
@@ -71,56 +71,12 @@ public class TxnRequest implements Serializable {
     return byAc;
   }
 
-  public String getFromType() {
-    return fromType;
-  }
-
-  public void setFromType(String fromType) {
-    this.fromType = fromType;
-  }
-
-  public String getToType() {
-    return toType;
-  }
-
-  public void setToType(String toType) {
-    this.toType = toType;
-  }
-
-  public void setByAc(String byAc) {
-    this.byAc = byAc;
-  }
-
-  public String getFromAcAlias() {
-    return fromAcAlias;
-  }
-
-  public void setFromAcAlias(String fromAcAlias) {
-    this.fromAcAlias = fromAcAlias;
-  }
-
-  public String getToAcAlias() {
-    return toAcAlias;
-  }
-
-  public void setToAcAlias(String toAcAlias) {
-    this.toAcAlias = toAcAlias;
-  }
-
   public String getPin() {
     return pin;
   }
 
   public void setPin(String pin) {
     this.pin = pin;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
   }
 
   public BigDecimal getAmount() {

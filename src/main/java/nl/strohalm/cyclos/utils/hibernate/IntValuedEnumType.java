@@ -29,6 +29,8 @@ import nl.strohalm.cyclos.utils.IntValuedEnum;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.Type;
 
 /**
@@ -82,5 +84,81 @@ public class IntValuedEnumType<EnumType> extends AbstractEnumType<EnumType> {
 
     public int[] sqlTypes() {
         return new int[] { Types.INTEGER };
+    }
+
+    @Override
+    public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
+        final int value = rs.getInt(names[0]);
+        if (!rs.wasNull()) {
+            for (final EnumType item : getEnumValues()) {
+                final IntValuedEnum intValuedEnum = (IntValuedEnum) item;
+                if (value == intValuedEnum.getValue()) {
+                    return item;
+                }
+            }
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Returning " + value + " as column " + names[0]);
+        }
+
+        return null;
+    }
+
+    @Override
+    public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
+        if (value == null) {
+            st.setNull(index, Types.INTEGER);
+        } else {
+            int val;
+            if (value instanceof IntValuedEnum) {
+                val = ((IntValuedEnum) value).getValue();
+            } else {
+                val = ((Number) value).intValue();
+            }
+            st.setInt(index, val);
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Binding " + value + " to parameter: " + index);
+        }
+    }
+
+    @Override
+    public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor sessionImplementor, Object o) throws HibernateException, SQLException {
+        final int value = rs.getInt(names[0]);
+        if (!rs.wasNull()) {
+            for (final EnumType item : getEnumValues()) {
+                final IntValuedEnum intValuedEnum = (IntValuedEnum) item;
+                if (value == intValuedEnum.getValue()) {
+                    return item;
+                }
+            }
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Returning " + value + " as column " + names[0]);
+        }
+
+        return null;
+    }
+
+    @Override
+    public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor sessionImplementor) throws HibernateException, SQLException {
+        if (value == null) {
+            st.setNull(index, Types.INTEGER);
+        } else {
+            int val;
+            if (value instanceof IntValuedEnum) {
+                val = ((IntValuedEnum) value).getValue();
+            } else {
+                val = ((Number) value).intValue();
+            }
+            st.setInt(index, val);
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Binding " + value + " to parameter: " + index);
+        }
     }
 }

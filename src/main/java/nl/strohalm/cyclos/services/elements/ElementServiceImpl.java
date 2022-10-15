@@ -2035,7 +2035,7 @@ public class ElementServiceImpl implements ElementServiceLocal {
         }
 
         // Reindex the element
-        elementDao.addToIndex(element);
+        //elementDao.addToIndex(element);
 
         return element;
     }

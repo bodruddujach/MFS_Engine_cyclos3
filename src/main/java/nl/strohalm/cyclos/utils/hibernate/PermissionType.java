@@ -29,6 +29,8 @@ import nl.strohalm.cyclos.access.Permission;
 import nl.strohalm.cyclos.utils.access.PermissionHelper;
 
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 
 /**
@@ -63,12 +65,7 @@ public class PermissionType implements UserType {
     }
 
     @Override
-    public boolean isMutable() {
-        return false;
-    }
-
-    @Override
-    public Object nullSafeGet(final ResultSet rs, final String[] names, final Object owner) throws HibernateException, SQLException {
+    public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
         final String qualifiedPermissionName = rs.getString(names[0]);
         if (!rs.wasNull()) {
             return PermissionHelper.getPermission(qualifiedPermissionName);
@@ -78,7 +75,7 @@ public class PermissionType implements UserType {
     }
 
     @Override
-    public void nullSafeSet(final PreparedStatement st, final Object value, final int index) throws HibernateException, SQLException {
+    public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
         if (value == null || !(value instanceof Enum)) {
             st.setNull(index, Types.VARCHAR);
         } else {
@@ -86,6 +83,32 @@ public class PermissionType implements UserType {
             st.setString(index, permission.getQualifiedName());
         }
     }
+
+
+    public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor sessionImplementor, Object o) throws HibernateException, SQLException {
+        final String qualifiedPermissionName = rs.getString(names[0]);
+        if (!rs.wasNull()) {
+            return PermissionHelper.getPermission(qualifiedPermissionName);
+        }
+
+        return null;
+    }
+
+
+    public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor sessionImplementor) throws HibernateException, SQLException {
+        if (value == null || !(value instanceof Enum)) {
+            st.setNull(index, Types.VARCHAR);
+        } else {
+            Permission permission = (Permission) value;
+            st.setString(index, permission.getQualifiedName());
+        }
+    }
+
+    @Override
+    public boolean isMutable() {
+        return false;
+    }
+
 
     @Override
     public Object replace(final Object original, final Object target, final Object owner) throws HibernateException {

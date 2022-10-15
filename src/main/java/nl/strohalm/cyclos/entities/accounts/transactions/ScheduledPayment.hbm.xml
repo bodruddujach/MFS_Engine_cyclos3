@@ -19,7 +19,7 @@
 		<many-to-one name="type" class="nl.strohalm.cyclos.entities.accounts.transactions.TransferType">
 		    <column name="type_id" not-null="true" sql-type="integer"/>
 		</many-to-one>
-		<property name="date" column="date" not-null="true" type="calendar"/>
+		<property name="date" column="datetime" not-null="true" type="calendar"/>
 		<property name="amount" column="amount" type="big_decimal" precision="15" scale="6" not-null="true"/>
         <property name="status" column="status" length="1" not-null="true">
             <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">

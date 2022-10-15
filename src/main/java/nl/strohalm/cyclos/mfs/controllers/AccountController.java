@@ -1,12 +1,13 @@
 package nl.strohalm.cyclos.mfs.controllers;
 
 import nl.strohalm.cyclos.entities.accounts.MemberAccount;
+
+import nl.strohalm.cyclos.mfs.models.accounts.AcRegRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.AccountActivationRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.BalanceResponse;
 import nl.strohalm.cyclos.mfs.models.accounts.ChangePinRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.CheckPinRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.LoginResponse;
-import nl.strohalm.cyclos.mfs.models.accounts.MerchantRegRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.RegResponse;
 import nl.strohalm.cyclos.mfs.models.accounts.UpdateAcStatus;
 import nl.strohalm.cyclos.mfs.models.accounts.UpdateAccountRequest;
@@ -39,10 +40,8 @@ public class AccountController {
 
   @RequestMapping(value = "/register", method = RequestMethod.POST, headers = HEADER_JSON)
   @ResponseBody
-  public RegResponse doRegister(@Validated @RequestBody MerchantRegRequest regRequest, HttpServletRequest servletRequest) {
-    RegResponse regResponse = null;
-    regResponse = accountService.processRegistration(regRequest);
-    return regResponse;
+  public RegResponse doRegister(@Validated @RequestBody AcRegRequest regRequest) {
+    return accountService.processRegistration(regRequest);
   }
 
   @RequestMapping(value = "/activate", method = RequestMethod.PUT, headers = HEADER_JSON)

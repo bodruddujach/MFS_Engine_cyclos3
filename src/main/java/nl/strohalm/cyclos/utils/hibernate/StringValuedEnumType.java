@@ -29,6 +29,8 @@ import nl.strohalm.cyclos.utils.StringValuedEnum;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.Type;
 
 /**
@@ -44,9 +46,14 @@ public class StringValuedEnumType<EnumType> extends AbstractEnumType<EnumType> {
         return getType(StringValuedEnumType.class, enumClass);
     }
 
-    public Object nullSafeGet(final ResultSet rs, final String[] names, final Object owner) throws HibernateException, SQLException {
-        final String value = rs.getString(names[0]);
-        if (!rs.wasNull()) {
+    public int[] sqlTypes() {
+        return new int[] { Types.VARCHAR };
+    }
+
+    @Override
+    public Object nullSafeGet(ResultSet resultSet, String[] strings, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
+        final String value = resultSet.getString(strings[0]);
+        if (!resultSet.wasNull()) {
             for (final EnumType item : getEnumValues()) {
                 final StringValuedEnum stringValuedEnum = (StringValuedEnum) item;
                 if (value.equals(stringValuedEnum.getValue())) {
@@ -56,15 +63,16 @@ public class StringValuedEnumType<EnumType> extends AbstractEnumType<EnumType> {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Returning " + value + " as column " + names[0]);
+            LOG.debug("Returning " + value + " as column " + strings[0]);
         }
 
         return null;
     }
 
-    public void nullSafeSet(final PreparedStatement st, final Object value, final int index) throws HibernateException, SQLException {
+    @Override
+    public void nullSafeSet(PreparedStatement preparedStatement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
         if (value == null) {
-            st.setNull(index, Types.VARCHAR);
+            preparedStatement.setNull(index, Types.VARCHAR);
         } else {
             String str;
             if (value instanceof StringValuedEnum) {
@@ -72,7 +80,7 @@ public class StringValuedEnumType<EnumType> extends AbstractEnumType<EnumType> {
             } else {
                 str = value.toString();
             }
-            st.setString(index, str);
+            preparedStatement.setString(index, str);
         }
 
         if (LOG.isDebugEnabled()) {
@@ -80,7 +88,41 @@ public class StringValuedEnumType<EnumType> extends AbstractEnumType<EnumType> {
         }
     }
 
-    public int[] sqlTypes() {
-        return new int[] { Types.VARCHAR };
+    @Override
+    public Object nullSafeGet(ResultSet resultSet, String[] strings, SessionImplementor sessionImplementor, Object o) throws HibernateException, SQLException {
+        final String value = resultSet.getString(strings[0]);
+        if (!resultSet.wasNull()) {
+            for (final EnumType item : getEnumValues()) {
+                final StringValuedEnum stringValuedEnum = (StringValuedEnum) item;
+                if (value.equals(stringValuedEnum.getValue())) {
+                    return item;
+                }
+            }
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Returning " + value + " as column " + strings[0]);
+        }
+
+        return null;
+    }
+
+    @Override
+    public void nullSafeSet(PreparedStatement preparedStatement, Object value, int index, SessionImplementor sessionImplementor) throws HibernateException, SQLException {
+        if (value == null) {
+            preparedStatement.setNull(index, Types.VARCHAR);
+        } else {
+            String str;
+            if (value instanceof StringValuedEnum) {
+                str = ((StringValuedEnum) value).getValue();
+            } else {
+                str = value.toString();
+            }
+            preparedStatement.setString(index, str);
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Binding " + value + " to parameter: " + index);
+        }
     }
 }

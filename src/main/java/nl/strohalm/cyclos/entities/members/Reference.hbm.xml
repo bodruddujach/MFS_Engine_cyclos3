@@ -23,7 +23,7 @@
                 <param name="enumClassName">nl.strohalm.cyclos.entities.members.Reference$Level</param>
             </type>
 		</property>
-		<property name="date" column="date" not-null="true" type="calendar"/>
+		<property name="date" column="datetime" not-null="true" type="calendar"/>
 		<property name="comments" column="comments" not-null="true" type="text"/>
 	</class>
 	

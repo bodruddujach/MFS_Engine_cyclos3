@@ -32,6 +32,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 
 /**
@@ -67,33 +69,31 @@ public class AmountType implements UserType, Serializable {
         return arg0.hashCode();
     }
 
-    public boolean isMutable() {
-        return true;
-    }
-
-    public Object nullSafeGet(final ResultSet rs, final String[] names, final Object owner) throws HibernateException, SQLException {
+    @Override
+    public Object nullSafeGet(ResultSet resultSet, String[] strings, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
         final Amount amount = new Amount();
         // If value or type are null, return null
-        final BigDecimal value = rs.getBigDecimal(names[0]);
-        if (rs.wasNull()) {
+        final BigDecimal value = resultSet.getBigDecimal(strings[0]);
+        if (resultSet.wasNull()) {
             return null;
         }
         amount.setValue(value);
-        final String type = rs.getString(names[1]);
+        final String type = resultSet.getString(strings[1]);
         if (type == null) {
             return null;
         }
         amount.setType(Amount.Type.getFromValue(type));
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Returning " + value + " as column " + names[0]);
-            LOG.debug("Returning " + type + " as column " + names[1]);
+            LOG.debug("Returning " + value + " as column " + strings[0]);
+            LOG.debug("Returning " + type + " as column " + strings[1]);
         }
 
         return amount;
     }
 
-    public void nullSafeSet(final PreparedStatement ps, final Object object, final int index) throws HibernateException, SQLException {
+    @Override
+    public void nullSafeSet(PreparedStatement ps, Object object, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
         final Amount amount = (Amount) object;
         BigDecimal value = null;
         Amount.Type type = null;
@@ -116,8 +116,62 @@ public class AmountType implements UserType, Serializable {
             LOG.debug("Binding " + value + " to parameter: " + (index));
             LOG.debug("Binding " + (type == null ? null : type.getValue()) + " to parameter: " + (index + 1));
         }
-
     }
+
+
+    public Object nullSafeGet(ResultSet resultSet, String[] strings, SessionImplementor sessionImplementor, Object o) throws HibernateException, SQLException {
+        final Amount amount = new Amount();
+        // If value or type are null, return null
+        final BigDecimal value = resultSet.getBigDecimal(strings[0]);
+        if (resultSet.wasNull()) {
+            return null;
+        }
+        amount.setValue(value);
+        final String type = resultSet.getString(strings[1]);
+        if (type == null) {
+            return null;
+        }
+        amount.setType(Amount.Type.getFromValue(type));
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Returning " + value + " as column " + strings[0]);
+            LOG.debug("Returning " + type + " as column " + strings[1]);
+        }
+
+        return amount;
+    }
+
+
+    public void nullSafeSet(PreparedStatement ps, Object object, int index, SessionImplementor sessionImplementor) throws HibernateException, SQLException {
+        final Amount amount = (Amount) object;
+        BigDecimal value = null;
+        Amount.Type type = null;
+        if (amount != null) {
+            value = amount.getValue();
+            type = amount.getType();
+        }
+        if (value == null) {
+            ps.setNull(index, Types.NUMERIC);
+        } else {
+            ps.setBigDecimal(index, value);
+        }
+        if (type == null) {
+            ps.setNull(index + 1, Types.CHAR);
+        } else {
+            ps.setString(index + 1, type.getValue());
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Binding " + value + " to parameter: " + (index));
+            LOG.debug("Binding " + (type == null ? null : type.getValue()) + " to parameter: " + (index + 1));
+        }
+    }
+
+    public boolean isMutable() {
+        return true;
+    }
+
+
 
     public Object replace(final Object original, final Object target, final Object owner) throws HibernateException {
         return deepCopy(original);

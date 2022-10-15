@@ -38,6 +38,7 @@ public class CyclosConfiguration {
     private static final String TRANSACTION_MAX_POOL_SIZE            = "cyclos.transaction.maxPoolSize";
     private static final String TRANSACTION_CORE_POOL_SIZE           = "cyclos.transaction.corePoolSize";
     private static final String HIBERNATE_C3P0_MAX_POOL_SIZE         = "hibernate.c3p0.maxPoolSize";
+    private static final String DB_SCHEMA                            = "hibernate.default_schema";
 
     private static final int    HIBERNATE_C3P0_MAX_POOL_SIZE_DEFAULT = 20;
 

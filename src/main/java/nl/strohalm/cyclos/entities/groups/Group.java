@@ -22,6 +22,7 @@ package nl.strohalm.cyclos.entities.groups;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 import nl.strohalm.cyclos.access.Permission;
 import nl.strohalm.cyclos.entities.Entity;
@@ -301,4 +302,13 @@ public abstract class Group extends Entity implements Comparable<Group> {
         return getId() + " - " + name;
     }
 
+//    @Override
+//    public boolean equals(Group o) {
+//       return Objects.equals(this.getId(), o.getId());
+//    }
+
+    @Override
+    public int hashCode() {
+       return this.getId().intValue();
+    }
 }

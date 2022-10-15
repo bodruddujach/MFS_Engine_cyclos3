@@ -16,7 +16,9 @@
 	<!-- Enable MVC annotations -->
 	<mvc:annotation-driven conversion-service="restConversionService">
 		<mvc:message-converters>
-			<bean id="customJacksonMessageConverter" class="nl.strohalm.cyclos.webservices.rest.CustomJacksonMessageConverter" />
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter"/>
+			<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
+<!--			<bean id="customJacksonMessageConverter" class="nl.strohalm.cyclos.webservices.rest.CustomJacksonMessageConverter" />-->
 		</mvc:message-converters>
 	</mvc:annotation-driven>
 	<bean id="restConversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">

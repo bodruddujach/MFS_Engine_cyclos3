@@ -31,7 +31,8 @@ import nl.strohalm.cyclos.utils.Period;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
-import org.hibernate.engine.SessionImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.Type;
 import org.hibernate.usertype.CompositeUserType;
 
@@ -44,18 +45,74 @@ public abstract class BasePeriodType implements CompositeUserType, Serializable 
 
     public BasePeriodType() {
     }
+    @Override
+    public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
+        final Timestamp begin = rs.getTimestamp(names[BEGIN]);
+        final Timestamp end = rs.getTimestamp(names[END]);
+        if (getLog().isDebugEnabled()) {
+            getLog().debug("Returning " + begin + " as column " + names[BEGIN]);
+            getLog().debug("Returning " + end + " as column " + names[END]);
+        }
+        if (begin == null && end == null) {
+            return null;
+        }
+        final Period period = new Period();
+        if (begin == null) {
+            period.setBegin(null);
+        } else {
+            final Calendar cal = Calendar.getInstance();
+            cal.setTime(begin);
+            period.setBegin(cal);
+        }
+        if (end == null) {
+            period.setEnd(null);
+        } else {
+            final Calendar cal = Calendar.getInstance();
+            cal.setTime(end);
+            period.setEnd(cal);
+        }
+        return period;
+    }
 
-    public Object assemble(final Serializable value, final SessionImplementor session, final Object owner) throws HibernateException {
+    @Override
+    public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
+        final Period period = (Period) value;
+        Timestamp begin = null;
+        Timestamp end = null;
+        if (period != null && period.getBegin() != null) {
+            begin = new Timestamp(period.getBegin().getTimeInMillis());
+        }
+        if (period != null && period.getEnd() != null) {
+            end = new Timestamp(period.getEnd().getTimeInMillis());
+        }
+        st.setTimestamp(index + BEGIN, begin);
+        st.setTimestamp(index + END, end);
+        if (getLog().isDebugEnabled()) {
+            getLog().debug("Binding " + begin + " to parameter: " + (index + BEGIN));
+            getLog().debug("Binding " + end + " to parameter: " + (index + END));
+        }
+    }
+
+    @Override
+    public Serializable disassemble(Object value, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException {
         return value == null ? null : ((Period) value).clone();
     }
+
+    @Override
+    public Object assemble(Serializable serializable, SharedSessionContractImplementor sharedSessionContractImplementor, Object value) throws HibernateException {
+        return value == null ? null : ((Period) value).clone();
+    }
+
+    @Override
+    public Object replace(Object original, Object target, SharedSessionContractImplementor sharedSessionContractImplementor, Object o2) throws HibernateException {
+        return original == null ? null : ((Period) original).clone();
+    }
+
 
     public Object deepCopy(final Object value) throws HibernateException {
         return value == null ? null : ((Period) value).clone();
     }
 
-    public Serializable disassemble(final Object value, final SessionImplementor session) throws HibernateException {
-        return value == null ? null : ((Period) value).clone();
-    }
 
     public boolean equals(final Object x, final Object y) throws HibernateException {
         return ObjectUtils.equals(x, y);
@@ -85,57 +142,7 @@ public abstract class BasePeriodType implements CompositeUserType, Serializable 
     public boolean isMutable() {
         return true;
     }
-
-    public Object nullSafeGet(final ResultSet rs, final String[] names, final SessionImplementor session, final Object owner) throws HibernateException, SQLException {
-        final Timestamp begin = rs.getTimestamp(names[BEGIN]);
-        final Timestamp end = rs.getTimestamp(names[END]);
-        if (getLog().isDebugEnabled()) {
-            getLog().debug("Returning " + begin + " as column " + names[BEGIN]);
-            getLog().debug("Returning " + end + " as column " + names[END]);
-        }
-        if (begin == null && end == null) {
-            return null;
-        }
-        final Period period = new Period();
-        if (begin == null) {
-            period.setBegin(null);
-        } else {
-            final Calendar cal = Calendar.getInstance();
-            cal.setTime(begin);
-            period.setBegin(cal);
-        }
-        if (end == null) {
-            period.setEnd(null);
-        } else {
-            final Calendar cal = Calendar.getInstance();
-            cal.setTime(end);
-            period.setEnd(cal);
-        }
-        return period;
-    }
-
-    public void nullSafeSet(final PreparedStatement st, final Object value, final int index, final SessionImplementor session) throws HibernateException, SQLException {
-        final Period period = (Period) value;
-        Timestamp begin = null;
-        Timestamp end = null;
-        if (period != null && period.getBegin() != null) {
-            begin = new Timestamp(period.getBegin().getTimeInMillis());
-        }
-        if (period != null && period.getEnd() != null) {
-            end = new Timestamp(period.getEnd().getTimeInMillis());
-        }
-        st.setTimestamp(index + BEGIN, begin);
-        st.setTimestamp(index + END, end);
-        if (getLog().isDebugEnabled()) {
-            getLog().debug("Binding " + begin + " to parameter: " + (index + BEGIN));
-            getLog().debug("Binding " + end + " to parameter: " + (index + END));
-        }
-    }
-
-    public Object replace(final Object original, final Object target, final SessionImplementor session, final Object owner) throws HibernateException {
-        return original == null ? null : ((Period) original).clone();
-    }
-
+    
     public Class<?> returnedClass() {
         return Period.class;
     }

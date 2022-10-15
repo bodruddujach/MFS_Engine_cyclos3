@@ -466,12 +466,6 @@ public class AccountServiceImpl implements AccountServiceLocal {
     public AccountStatus getCurrentStatus(final AccountDTO params) {
         final Account account = getAccount(params);
         AccountStatus status = getStatus(account, null);
-
-        // Member accounts could also have reserved amounts for volume account fees
-        if (account instanceof MemberAccount) {
-            BigDecimal diff = accountFeeService.calculateReservedAmountForVolumeFee((MemberAccount) account);
-            status.setReservedAmount(status.getReservedAmount().add(diff));
-        }
         return status;
     }
 

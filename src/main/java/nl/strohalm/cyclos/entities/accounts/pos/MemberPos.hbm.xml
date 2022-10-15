@@ -14,7 +14,7 @@
 		
 	    <property name="posName" column="pos_name" type="string" length="64" />
 	    <property name="posPin" column="pos_pin" type="string" length="64" />
-        <property name="date" column="date" type="calendar" not-null="true"/>
+        <property name="date" column="datetime" type="calendar" not-null="true"/>
         <property name="allowMakePayment" column="allow_make_payment" type="boolean" not-null="true"/>
         <property name="maxSchedulingPayments" column="max_scheduling_payments" type="integer" not-null="true"/>
         <property name="numberOfCopies" column="number_of_copies" type="integer" not-null="true"/>

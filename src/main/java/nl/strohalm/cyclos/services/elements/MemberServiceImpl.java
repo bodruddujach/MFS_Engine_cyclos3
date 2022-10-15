@@ -298,16 +298,16 @@ public class MemberServiceImpl implements MemberServiceLocal {
         final User user = LoggedUser.user();
         final Calendar lastLogin = user.getLastLogin();
         final boolean isOperator = LoggedUser.isOperator();
-
+        status.setUnreadMessages(0);
         // Count the unread messages
-        if (permissionService.hasPermission(isOperator ? OperatorPermission.MESSAGES_VIEW : MemberPermission.MESSAGES_VIEW)) {
-            final MessageQuery messages = new MessageQuery();
-            messages.setGetter(member);
-            messages.setMessageBox(MessageBox.INBOX);
-            messages.setRead(false);
-            messages.setPageForCount();
-            status.setUnreadMessages(PageHelper.getTotalCount(messageService.search(messages)));
-        }
+//        if (permissionService.hasPermission(isOperator ? OperatorPermission.MESSAGES_VIEW : MemberPermission.MESSAGES_VIEW)) {
+//            final MessageQuery messages = new MessageQuery();
+//            messages.setGetter(member);
+//            messages.setMessageBox(MessageBox.INBOX);
+//            messages.setRead(false);
+//            messages.setPageForCount();
+//            status.setUnreadMessages(0);
+//        }
 
         // Count the new payments since the last login
         group = fetchService.fetch(group, MemberGroup.Relationships.ACCOUNT_SETTINGS);

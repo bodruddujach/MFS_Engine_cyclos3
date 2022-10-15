@@ -217,23 +217,23 @@ public class LoginHelper {
             singleAccount = accounts.size() == 1;
             if (isMember) {
                 // Check if the member has documents
-                if (permissionService.hasPermission(MemberPermission.DOCUMENTS_VIEW)) {
-                    hasDocuments = true;
-                } else {
-                    final DocumentQuery documentQuery = new DocumentQuery();
-                    documentQuery.setNatures(Collections.singleton(Document.Nature.MEMBER));
-                    documentQuery.setMember(member);
-                    documentQuery.setPageForCount();
-                    hasDocuments = PageHelper.hasResults(documentService.search(documentQuery));
-                }
+//                if (permissionService.hasPermission(MemberPermission.DOCUMENTS_VIEW)) {
+//                    hasDocuments = true;
+//                } else {
+//                    final DocumentQuery documentQuery = new DocumentQuery();
+//                    documentQuery.setNatures(Collections.singleton(Document.Nature.MEMBER));
+//                    documentQuery.setMember(member);
+//                    documentQuery.setPageForCount();
+//                    hasDocuments = PageHelper.hasResults(documentService.search(documentQuery));
+//                }
                 // Check if the member has loan groups
-                final LoanGroupQuery lgq = new LoanGroupQuery();
-                lgq.setPageForCount();
-                lgq.setMember(member);
-                hasLoanGroups = PageHelper.hasResults(loanGroupService.search(lgq));
-
-                // Check if the member has commission contracts
-                hasCommissionContracts = commissionService.hasBrokerCommissionContracts();
+//                final LoanGroupQuery lgq = new LoanGroupQuery();
+//                lgq.setPageForCount();
+//                lgq.setMember(member);
+//                hasLoanGroups = PageHelper.hasResults(loanGroupService.search(lgq));
+//
+//                // Check if the member has commission contracts
+//                hasCommissionContracts = commissionService.hasBrokerCommissionContracts();
             }
             // Check if the user has references
             final Collection<Nature> referenceNatures = referenceService.getNaturesByGroup(memberGroup);
@@ -241,15 +241,15 @@ public class LoginHelper {
             hasTransactionFeedbacks = referenceNatures.contains(Nature.TRANSACTION);
 
             // Check if the user can have guarantees
-            try {
-                final Collection<GuaranteeType.Model> guaranteeModels = guaranteeService.getRelatedGuaranteeModels();
-                session.setAttribute("loggedMemberHasGuarantees", guaranteeModels.size() > 0);
-            } catch (final Exception e) {
-                // Ignore
-            }
+//            try {
+//                final Collection<GuaranteeType.Model> guaranteeModels = guaranteeService.getRelatedGuaranteeModels();
+//                session.setAttribute("loggedMemberHasGuarantees", guaranteeModels.size() > 0);
+//            } catch (final Exception e) {
+//                // Ignore
+//            }
 
             // Check if the user has cards
-            hasCards = member.getCards().isEmpty() ? false : true;
+          //  hasCards = member.getCards().isEmpty() ? false : true;
         }
 
         if (isAdmin || isBroker) {

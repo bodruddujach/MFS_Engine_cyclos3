@@ -38,7 +38,6 @@ import nl.strohalm.cyclos.utils.conversion.LocaleConverter;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -69,6 +68,7 @@ public class Setup {
      * The external entry point
      */
     public static void main(final String... args) throws IOException {
+        System.out.println("Entry Point-------------------------");
         DataBaseConfiguration.SKIP = true;
         Locale locale = resolveLocale();
         final Setup setup = Arguments.buildSetupFromArguments(locale, args);
@@ -114,63 +114,64 @@ public class Setup {
         this.sessionFactory = sessionFactory;
     }
 
-    public boolean execute() {
-        checkBundle();
-
-        if (!isValid()) {
-            throw new IllegalStateException("Nothing to execute");
-        }
-
-        // Prompt for confirmation if not forced
-        if (!force && !promptConfirm()) {
-            return false;
-        }
-
-        // Configure Hibernate if necessary
-        if (configuration == null || sessionFactory == null) {
-            throw new IllegalStateException("Persistence not configured");
-        }
-        // Execute the actions
-        session = sessionFactory.openSession();
-        final Transaction transaction = session.beginTransaction();
-        try {
-            if (createDataBase) {
-                new CreateDataBase(this).run();
-            }
-            if (exportScriptTo != null) {
-                new ExportScript(this, exportScriptTo).run();
-            }
-            if (createSetupData) {
-                new CreateBasicData(this, true).run();
-            }
-            if (createBasicData) {
-                new CreateBasicData(this, false).run();
-            }
-            if (createInitialData) {
-                new CreateInitialData(this).run();
-            }
-            if (createSmsData) {
-                new CreateSmsData(this).run();
-            }
-            transaction.commit();
-            out.println(bundle.getString("setup.end"));
-
-            if (Boolean.getBoolean("cyclos.standalone")) {
-                System.out.println(bundle.getString("setup.standalone.starting"));
-            }
-
-            return true;
-        } catch (final Exception e) {
-            transaction.rollback();
-            e.printStackTrace(out);
-            return false;
-        } finally {
-            try {
-                session.close();
-            } catch (final Exception e) {
-                out.println("Error closing session: " + e);
-            }
-        }
+    public void execute() {
+//        checkBundle();
+//
+//        if (!isValid()) {
+//            throw new IllegalStateException("Nothing to execute");
+//        }
+//
+//        // Prompt for confirmation if not forced
+//        if (!force && !promptConfirm()) {
+//            return false;
+//        }
+//
+//        // Configure Hibernate if necessary
+//        if (configuration == null || sessionFactory == null) {
+//            throw new IllegalStateException("Persistence not configured");
+//        }
+//        // Execute the actions
+//        session = sessionFactory.openSession();
+//        final Transaction transaction = session.beginTransaction();
+//        try {
+//            if (createDataBase) {
+//                new CreateDataBase(this).run();
+//            }
+//            if (exportScriptTo != null) {
+//                new ExportScript(this, exportScriptTo).run();
+//            }
+//            if (createSetupData) {
+//                new CreateBasicData(this, true).run();
+//            }
+//            if (createBasicData) {
+//                new CreateBasicData(this, false).run();
+//            }
+//            if (createInitialData) {
+//                new CreateInitialData(this).run();
+//            }
+//            if (createSmsData) {
+//                new CreateSmsData(this).run();
+//            }
+//            transaction.commit();
+//            out.println(bundle.getString("setup.end"));
+//
+//            if (Boolean.getBoolean("cyclos.standalone")) {
+//                System.out.println(bundle.getString("setup.standalone.starting"));
+//            }
+//
+//            return true;
+//        } catch (final Exception e) {
+//            transaction.rollback();
+//            e.printStackTrace(out);
+//            return false;
+//        } finally {
+//            try {
+//                session.close();
+//            } catch (final Exception e) {
+//                out.println("Error closing session: " + e);
+//            }
+//        }
+        return ;
     }
 
     public ResourceBundle getBundle() {

@@ -112,7 +112,7 @@ public class MfsAccountService {
     try {
       MemberUser user = cyclosMiddleware.getMemberUser(checkPinRequest.getWalletNo());
       if (user == null) {
-        throw new MFSCommonException(INVALID_PIN, ERROR_MAP.get(ErrorConstants.INVALID_PIN), HttpStatus.UNAUTHORIZED);
+        throw new MFSCommonException("401", "Invalid credentials", HttpStatus.UNAUTHORIZED);
       }
       Channel channel = new Channel();
       channel.setInternalName("rest");

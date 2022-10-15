@@ -64,7 +64,7 @@ public class AlertDAOImpl extends BaseDAOImpl<Alert> implements AlertDAO {
 
     @Override
     public int getCount(final Type type) {
-        final Integer count = uniqueResult("select count(*) from " + type.getEntityType().getName() + " a where a.removed=false", null);
+        final Integer count = ((Long)uniqueResult("select count(*) from " + type.getEntityType().getName() + " a where a.removed=false", null)).intValue();
         return count;
     }
 

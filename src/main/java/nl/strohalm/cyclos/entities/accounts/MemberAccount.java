@@ -65,6 +65,8 @@ public class MemberAccount extends Account {
     public static enum Status implements StringValuedEnum {
         ACTIVE("ACTIVE"),
         PENDING("PENDING"),
+        PIN_SET("PIN_SET"),
+        PRE_ACTIVE("PRE_ACTIVE"),
         SUSPENDED("SUSPENDED"),
         CLOSED("CLOSED"),
         INACTIVE("INACTIVE");

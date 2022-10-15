@@ -13,7 +13,7 @@
        	<many-to-one name="by" class="nl.strohalm.cyclos.entities.members.Administrator">
 		    <column name="by_id" sql-type="integer" not-null="true"/>
 		</many-to-one>
-		<property name="date" column="date" type="calendar" not-null="true" />
+		<property name="date" column="datetime" type="calendar" not-null="true" />
         <many-to-one name="group" not-null="true" class="nl.strohalm.cyclos.entities.groups.MemberGroup">
             <column name="group_id" not-null="true" sql-type="integer"/>
     	</many-to-one>

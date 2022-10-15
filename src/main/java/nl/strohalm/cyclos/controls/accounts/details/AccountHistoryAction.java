@@ -418,10 +418,10 @@ public class AccountHistoryAction extends BaseQueryAction {
         }
 
         // Get the custom fields
-        final List<PaymentCustomField> customFieldsForSearch = paymentCustomFieldService.listForSearch(account, false);
-        final List<PaymentCustomField> customFieldsForList = paymentCustomFieldService.listForList(account, false);
-        request.setAttribute("customFieldsForSearch", customFieldHelper.buildEntries(customFieldsForSearch, query.getCustomValues()));
-        request.setAttribute("customFieldsForList", customFieldsForList);
+//        final List<PaymentCustomField> customFieldsForSearch = paymentCustomFieldService.listForSearch(account, false);
+//        final List<PaymentCustomField> customFieldsForList = paymentCustomFieldService.listForList(account, false);
+//        request.setAttribute("customFieldsForSearch", customFieldHelper.buildEntries(customFieldsForSearch, query.getCustomValues()));
+//        request.setAttribute("customFieldsForList", customFieldsForList);
 
         // Determine where to go back
         String backTo = null;

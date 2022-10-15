@@ -15,7 +15,7 @@
                 <param name="enumClassName">nl.strohalm.cyclos.entities.accounts.external.ExternalTransfer$Status</param>
             </type>
 		</property>
-        <property name="date" column="date" type="calendar_date" />
+        <property name="date" column="datetime" type="calendar_date" />
         <property name="amount" column="amount" precision="15" scale="6" type="big_decimal" />
 		<property name="description" column="description" type="text"/>
 		<property name="lineNumber" column="line_number" type="integer"/>

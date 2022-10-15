@@ -21,11 +21,15 @@ package nl.strohalm.cyclos.utils.hibernate;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.type.Type;
 import org.hibernate.type.TypeFactory;
 import org.hibernate.usertype.ParameterizedType;
@@ -43,7 +47,7 @@ public abstract class AbstractEnumType<EnumType> implements UserType, Parameteri
     protected static <E extends AbstractEnumType<?>, T extends Enum<?>> Type getType(final Class<E> enumType, final Class<T> enumClass) {
         final Properties properties = new Properties();
         properties.setProperty("enumClassName", enumClass.getName());
-        return new TypeFactory().custom((Class) enumType, properties);
+        return new TypeFactory(null).custom((Class) enumType, properties);
     }
 
     private Class<EnumType> enumType;
@@ -117,4 +121,8 @@ public abstract class AbstractEnumType<EnumType> implements UserType, Parameteri
     protected EnumType[] getEnumValues() {
         return this.enumValues;
     }
+
+    public abstract Object nullSafeGet(ResultSet resultSet, String[] strings, SessionImplementor sessionImplementor, Object o) throws HibernateException, SQLException;
+
+    public abstract void nullSafeSet(PreparedStatement preparedStatement, Object o, int i, SessionImplementor sessionImplementor) throws HibernateException, SQLException;
 }

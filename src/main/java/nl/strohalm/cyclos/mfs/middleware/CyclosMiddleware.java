@@ -111,7 +111,7 @@ public class CyclosMiddleware {
           fromAc = ac;
         }
         if (fromAc == null) {
-          throw new MFSCommonException(ErrorConstants.ACCOUNT_NOT_FOUND,ErrorConstants.ERROR_MAP.get(ErrorConstants.ACCOUNT_NOT_FOUND), HttpStatus.NOT_FOUND);
+          throw new MFSCommonException("4040", "Account Not found", HttpStatus.NOT_FOUND);
         }
         validateStatus((MemberAccount) fromAc, true);
       } else {

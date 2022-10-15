@@ -25,8 +25,8 @@ public class WalletStatementDetail implements Serializable {
   private String transactionNumber;
   private String parentTransactionNumber;
   private String typeName;
-  private Boolean canReverse = true;
-  private Boolean isReversedTxn;
+  private Integer chargeBankOfId ;
+  private Integer chargeBackById ;
   private String description;
   private String txnType;
   private String invoiceNo;
@@ -149,20 +149,20 @@ public class WalletStatementDetail implements Serializable {
     this.typeName = typeName;
   }
 
-  public Boolean getCanReverse() {
-    return canReverse;
+  public Integer getChargeBankOfId() {
+    return chargeBankOfId;
   }
 
-  public void setCanReverse(Boolean canReverse) {
-    this.canReverse = canReverse;
+  public void setChargeBankOfId(Integer chargeBankOfId) {
+    this.chargeBankOfId = chargeBankOfId;
   }
 
-  public Boolean getReversedTxn() {
-    return isReversedTxn;
+  public Integer getChargeBackById() {
+    return chargeBackById;
   }
 
-  public void setReversedTxn(Boolean reversedTxn) {
-    isReversedTxn = reversedTxn;
+  public void setChargeBackById(Integer chargeBackById) {
+    this.chargeBackById = chargeBackById;
   }
 
   public String getTxnType() {
@@ -243,8 +243,6 @@ public class WalletStatementDetail implements Serializable {
         .add("transactionNumber", transactionNumber)
         .add("parentTransactionNumber", parentTransactionNumber)
         .add("typeName", typeName)
-        .add("canReverse", canReverse)
-        .add("isReversedTxn", isReversedTxn)
         .add("description", description)
         .add("txnType", txnType)
         .add("invoiceNo", invoiceNo)

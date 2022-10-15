@@ -19,6 +19,7 @@
  */
 package nl.strohalm.cyclos.dao.accounts.transactions;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import nl.strohalm.cyclos.CyclosConfiguration;
 import nl.strohalm.cyclos.dao.BaseDAOImpl;
 import nl.strohalm.cyclos.dao.accounts.AccountDAO;
 import nl.strohalm.cyclos.entities.Relationship;
@@ -112,8 +114,8 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         selectSql.addScalar("typeName", StandardBasicTypes.STRING);
         selectSql.addScalar("transactionNumber", StandardBasicTypes.STRING);
         selectSql.addScalar("description", StandardBasicTypes.STRING);
-        selectSql.addScalar("canReverse", StandardBasicTypes.BOOLEAN);
-        selectSql.addScalar("reversedTxn", StandardBasicTypes.BOOLEAN);
+        selectSql.addScalar("chargeBankOfId", StandardBasicTypes.INTEGER);
+        selectSql.addScalar("chargeBackById", StandardBasicTypes.INTEGER);
         selectSql.addScalar("fromAcId", StandardBasicTypes.INTEGER);
         selectSql.addScalar("toAcId", StandardBasicTypes.INTEGER);
 
@@ -136,8 +138,8 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
                 txn.setTypeName((String) input[9]);
                 txn.setTransactionNumber((String) input[10]);
                 txn.setDescription((String) input[11]);
-                txn.setCanReverse((Boolean) input[12]);
-                txn.setReversedTxn((Boolean) input[13]);
+                txn.setChargeBankOfId((Integer) input[12]);
+                txn.setChargeBackById((Integer) input[13]);
                 txn.setFromAcId((Integer) input[14]);
                 txn.setToAcId((Integer) input[15]);
                 return txn;
@@ -156,33 +158,36 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         return response;
     }
     private String searchStatementQuery(StatementParams query, boolean countOnly) {
+        String dbSchema = "MFS_CORE";
+        try {
+            dbSchema = CyclosConfiguration.getCyclosProperties().getProperty("hibernate.default_schema", "MFS_CORE");
+        }catch (IOException ioException){ }
+
         StringBuilder sql = new StringBuilder();
-        if (countOnly) {
-            sql.append("SELECT count(*) as row_count FROM ( ");
-        } else {
-            sql.append("SELECT * FROM ( ");
+        if (!countOnly) {
+            sql.append("SELECT t.id, t.parent_id AS parentId, t.amount, ");
+            sql.append("fa.owner_name  AS fromWallet, ");
+            sql.append("fm.name AS fromName, ");
+            sql.append("ta.owner_name AS toWallet, ");
+            sql.append("tm.name AS toName, ");
+            sql.append("t.process_date AS txnTime, ");
+            sql.append("t.type_id AS typeId, ");
+            sql.append("t.transaction_number AS transactionNumber, ");
+            sql.append("ty.name AS typeName, ");
+            sql.append("t.description, ");
+            sql.append("t.chargeback_of_id AS chargeBankOfId, ");
+            sql.append("t.chargedback_by_id AS chargeBackById, ");
+            sql.append("t.from_account_id AS 'fromAcId', ");
+            sql.append("t.to_account_id 'toAcId' ");
+        }else {
+            sql.append("select count(*) AS row_count ");
         }
-        sql.append("SELECT t.id, t.parent_id AS parentId, t.amount, ");
-        sql.append("fa.owner_name AS 'fromWallet', ");
-        sql.append("fm.name AS 'fromName', ");
-        sql.append(" ta.owner_name AS 'toWallet', ");
-        sql.append("tm.name AS 'toName', ");
-        sql.append("t.process_date AS 'txnTime', ");
-        sql.append("t.type_id AS 'typeId', ");
-        sql.append("t.transaction_number AS 'transactionNumber', ");
-        sql.append("case when t.transaction_fee_id is null then ty.name else tf.name end AS 'typeName', ");
-        sql.append("t.description, ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NULL AND t.chargedback_by_id IS NULL AND ty.name='PAYMENT' THEN TRUE ELSE FALSE END AS 'canReverse', ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN TRUE ELSE FALSE END AS 'reversedTxn', ");
-        sql.append("t.from_account_id AS 'fromAcId', ");
-        sql.append("t.to_account_id 'toAcId' ");
-        sql.append("FROM transfers t ");
-        sql.append("LEFT JOIN accounts fa ON t.from_account_id = fa.id ");
-        sql.append("LEFT JOIN members fm ON fa.member_id = fm.id ");
-        sql.append("LEFT JOIN accounts ta ON t.to_account_id = ta.id ");
-        sql.append("LEFT JOIN members tm ON ta.member_id = tm.id ");
-        sql.append("LEFT JOIN transfer_types ty ON t.type_id = ty.id ");
-        sql.append("LEFT JOIN transaction_fees tf ON t.transaction_fee_id = tf.id ");
+        sql.append("from "+dbSchema+".transfers t ");
+        sql.append("LEFT JOIN "+dbSchema+".accounts fa ON t.from_account_id = fa.id ");
+        sql.append("LEFT JOIN "+dbSchema+".members fm ON fa.member_id = fm.id ");
+        sql.append("LEFT JOIN "+dbSchema+".accounts ta ON t.to_account_id = ta.id ");
+        sql.append("LEFT JOIN "+dbSchema+".members tm ON ta.member_id = tm.id ");
+        sql.append("LEFT JOIN "+dbSchema+".transfer_types ty ON t.type_id = ty.id ");
         sql.append("WHERE (t.from_account_id = :accountId OR t.to_account_id = :accountId) ");
         if (query.getBeginDate() != null) {
             sql.append("AND t.process_date >= :fromDate ");
@@ -196,9 +201,9 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         sql.append(") as statement ");
         if (!countOnly) {
             if (query.getReverseOrder()) {
-                sql.append("ORDER BY txnTime DESC ");
+                sql.append("ORDER BY t.process_date DESC ");
             } else {
-                sql.append("ORDER BY txnTime ASC ");
+                sql.append("ORDER BY t.process_date ASC ");
             }
         }
         return sql.toString();
@@ -526,7 +531,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.from", account);
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.type", transferType);
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.by", operator);
-        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "ifnull(t.processDate, t.date)", Period.day(date));
+        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "t.processDate", Period.day(date));
         BigDecimal sum = uniqueResult(hql.toString(), namedParameters);
         return BigDecimalHelper.nvl(sum);
     }
@@ -792,7 +797,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
             hql.append("      and ghl.group in (:groups) ");
             hql.append("      and ghl.period.begin < :end ");
             hql.append("      and (ghl.period.end is null or ghl.period.end >= :begin) ");
-            hql.append("      and t.processDate between ghl.period.begin and ifnull(ghl.period.end, t.processDate) ");
+            hql.append("      and t.processDate between ghl.period.begin and t.processDate ");
             hql.append("    ) ");
             namedParameters.put("groups", dto.getGroups());
             namedParameters.put("begin", dto.getPeriod().getBegin());
@@ -810,7 +815,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.loanPayment", query.getLoanPayment());
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.parent", query.getParent());
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.type", query.getTransferType());
-        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "ifnull(t.processDate, t.date)", query.getPeriod());
+        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "t.processDate", query.getPeriod());
         if (query.isRootOnly()) {
             hql.append(" and t.parent is null");
         }
@@ -937,7 +942,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
             final List<String> orders = new ArrayList<String>();
 
             // Order by date ...
-            String order = "ifnull(t.processDate, t.date)";
+            String order = "t.processDate";
             if (query.isReverseOrder()) {
                 order += " desc";
             }

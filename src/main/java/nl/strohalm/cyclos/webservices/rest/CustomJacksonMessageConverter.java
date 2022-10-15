@@ -30,13 +30,13 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
-import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 /**
  * Custom Jackson converter used to customize the {@link ObjectMapper}
  * @author luis
  */
-public class CustomJacksonMessageConverter extends MappingJacksonHttpMessageConverter {
+public class CustomJacksonMessageConverter extends MappingJackson2HttpMessageConverter {
 
     /**
      * Custom object mapper which handles empty input as null objects
@@ -60,7 +60,7 @@ public class CustomJacksonMessageConverter extends MappingJacksonHttpMessageConv
                 .disable(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS)
                 .disable(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES);
         objectMapper.setSerializationInclusion(Inclusion.NON_EMPTY);
-        setObjectMapper(objectMapper);
+       // setObjectMapper(objectMapper);
     }
 
 }

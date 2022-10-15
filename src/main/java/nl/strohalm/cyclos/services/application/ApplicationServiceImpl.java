@@ -469,9 +469,10 @@ public class ApplicationServiceImpl implements ApplicationServiceLocal, Applicat
             @Override
             protected void doInTransactionWithoutResult(final TransactionStatus status) {
                 alertService.create(SystemAlert.Alerts.APPLICATION_SHUTDOWN, instanceHandler.getId());
+                applicationDao.shutdownDBIfNeeded();
             }
         });
-        applicationDao.shutdownDBIfNeeded();
+
     }
 
     private int countOpenInvoices() {

@@ -14,7 +14,7 @@
 		    <column name="account_id" index="ix_cldacctbal_account_date" sql-type="integer" not-null="true"/>
 		</many-to-one>
         <property name="date" update="false" type="calendar_date">
-        	<column name="date" index="ix_cldacctbal_account_date" not-null="true" />
+        	<column name="datetime" index="ix_cldacctbal_account_date" not-null="true" />
         </property>
         <property name="balance" update="false" type="big_decimal">
         	<column name="balance" precision="21" scale="6" not-null="true" default="0"/>

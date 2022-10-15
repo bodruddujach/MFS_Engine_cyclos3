@@ -40,8 +40,9 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
-import org.hibernate.connection.ConnectionProvider;
-import org.hibernate.connection.DatasourceConnectionProvider;
+import org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+
 
 /**
  * Class used to manage database configuration, validate the connection, generate the database when in embedded mode and apply automatic schema
@@ -119,7 +120,7 @@ public class DataBaseConfiguration {
         String connectionLocation;
         if (dataSource != null) {
             // Use Hibernate's own DatasourceConnectionProvider when using a JNDI datasource
-            final ConnectionProvider provider = new DatasourceConnectionProvider();
+            final DatasourceConnectionProviderImpl provider = new DatasourceConnectionProviderImpl();
             provider.configure(properties);
             try {
                 connection = provider.getConnection();
@@ -415,8 +416,11 @@ public class DataBaseConfiguration {
     private Connection validateConnection(final String url, final String username, final String password) {
         Connection connection = null;
         try {
+            System.out.println(url);
+            System.out.println(username);
+            System.out.println(password);
             connection = DriverManager.getConnection(url, username, password);
-            connection.setAutoCommit(false);
+            connection.setAutoCommit(true);
         } catch (final SQLException e) {
             final String msg = "Error connecting to database at " + url;
             LOG.error(msg);

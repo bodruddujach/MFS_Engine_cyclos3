@@ -21,18 +21,10 @@ package nl.strohalm.cyclos.utils.hibernate;
 
 import nl.strohalm.cyclos.utils.transaction.CurrentTransactionData;
 
-import org.hibernate.event.PostCollectionRecreateEvent;
-import org.hibernate.event.PostCollectionRecreateEventListener;
-import org.hibernate.event.PostCollectionRemoveEvent;
-import org.hibernate.event.PostCollectionRemoveEventListener;
-import org.hibernate.event.PostCollectionUpdateEvent;
-import org.hibernate.event.PostCollectionUpdateEventListener;
-import org.hibernate.event.PostDeleteEvent;
-import org.hibernate.event.PostDeleteEventListener;
-import org.hibernate.event.PostInsertEvent;
-import org.hibernate.event.PostInsertEventListener;
-import org.hibernate.event.PostUpdateEvent;
-import org.hibernate.event.PostUpdateEventListener;
+
+import org.hibernate.event.spi.*;
+import org.hibernate.persister.entity.EntityPersister;
+
 
 /**
  * A listener for events which change the databasse
@@ -46,6 +38,11 @@ public class WriteDetectEventListener implements PostDeleteEventListener, PostIn
     @Override
     public void onPostDelete(final PostDeleteEvent event) {
         markWrite();
+    }
+
+    @Override
+    public boolean requiresPostCommitHanding(EntityPersister entityPersister) {
+        return true;
     }
 
     @Override

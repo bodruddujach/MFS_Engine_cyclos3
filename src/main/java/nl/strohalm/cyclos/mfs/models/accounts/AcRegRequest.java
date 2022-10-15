@@ -3,9 +3,14 @@ package nl.strohalm.cyclos.mfs.models.accounts;
 import nl.strohalm.cyclos.mfs.models.enums.AccountStatus;
 import nl.strohalm.cyclos.mfs.models.enums.AccountType;
 
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
+
 import java.io.Serializable;
 
 public class AcRegRequest implements Serializable {
+  @NotBlank
+  @Length(min = 11,max = 12)
   private String walletNo;
   private String fullName;
   private String mobile;

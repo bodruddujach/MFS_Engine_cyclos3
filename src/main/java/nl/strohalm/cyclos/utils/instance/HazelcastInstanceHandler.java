@@ -24,7 +24,8 @@ import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.Properties;
 
-import org.hibernate.util.StringHelper;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -53,7 +54,7 @@ public class HazelcastInstanceHandler implements InstanceHandler, InitializingBe
         }
         Config config = new UrlXmlConfig(xml);
         String instanceName = cyclosProperties == null ? null : cyclosProperties.getProperty("cyclos.instanceHandler.instanceName");
-        if (StringHelper.isEmpty(instanceName)) {
+        if (StringUtils.isEmpty(instanceName)) {
             instanceName = "cyclos";
         }
         config.setInstanceName(instanceName);

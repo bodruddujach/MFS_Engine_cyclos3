@@ -89,7 +89,8 @@ public class WrongCredentialAttemptsDAOImpl extends BaseDAOImpl<WrongCredentialA
         params.put("limit", limit);
         params.put("user", user);
         params.put("credentialType", credentialType);
-        return this.<Integer> uniqueResult("select count(*) from WrongCredentialAttempt a where a.date >= :limit and a.user = :user and a.credentialType = :credentialType", params);
+        Long count = this.<Long> uniqueResult("select count(*) from WrongCredentialAttempt a where a.date >= :limit and a.user = :user and a.credentialType = :credentialType", params);
+        return count.intValue();
     }
 
     @Override

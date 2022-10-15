@@ -204,14 +204,14 @@ public class LifecycleListener implements ServletContextListener, HttpSessionLis
      * Run a single initialization inside a transaction if it is required
      */
     private void run(final LocalWebInitialization initialization) {
-        LOG.debug(String.format("Running web initialization (%s)...", initialization.getName()));
+        System.out.println(String.format("Running web initialization (%s)...", initialization.getName()));
         transactionHelper.runInCurrentThread(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(final TransactionStatus status) {
                 try {
                     initialization.initialize();
                 } catch (final RuntimeException e) {
-                    LOG.error(String.format("Error running web initialization: %s", initialization.getName()), e);
+                    e.printStackTrace();
                     throw e;
                 }
             }

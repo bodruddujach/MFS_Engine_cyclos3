@@ -67,10 +67,10 @@ public class ExportScript implements Runnable {
 
         Setup.out.println(bundle.getString("export-script.start"));
 
-        final SchemaExport schemaExport = new SchemaExport(configuration);
-        schemaExport.setDelimiter(";");
-        schemaExport.setOutputFile(fileName);
-        schemaExport.create(true, false);
+//        final SchemaExport schemaExport = new SchemaExport(configuration);
+//        schemaExport.setDelimiter(";");
+//        schemaExport.setOutputFile(fileName);
+//        schemaExport.create(true, false);
 
         Setup.out.println(bundle.getString("export-script.end") + " " + fileName);
     }

@@ -34,7 +34,8 @@ import nl.strohalm.cyclos.services.fetch.FetchServiceLocal;
 import nl.strohalm.cyclos.utils.RelationshipHelper;
 import nl.strohalm.cyclos.utils.notifications.MemberNotificationHandler;
 
-import com.mysql.jdbc.StringUtils;
+import org.springframework.util.StringUtils;
+
 
 /**
  * 
@@ -62,7 +63,7 @@ public class MemberPosServiceImpl implements MemberPosServiceLocal {
     @Override
     public MemberPos changePin(final MemberPos memberPos, final String pin) {
         boolean generateLog = false;
-        if (memberPos.getPosPin() == null || StringUtils.isEmptyOrWhitespaceOnly(memberPos.getPosPin())) {
+        if (memberPos.getPosPin() == null || StringUtils.isEmpty(memberPos.getPosPin())) {
             memberPos.setStatus(MemberPos.Status.ACTIVE);
             generateLog = true;
         }

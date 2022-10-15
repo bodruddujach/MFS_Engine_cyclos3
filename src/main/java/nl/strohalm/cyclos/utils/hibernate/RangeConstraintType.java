@@ -29,6 +29,8 @@ import nl.strohalm.cyclos.utils.RangeConstraint;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 
 /**
@@ -64,17 +66,15 @@ public class RangeConstraintType implements UserType, Serializable {
         return x == null ? 0 : x.hashCode();
     }
 
-    public boolean isMutable() {
-        return false;
-    }
-
-    public Object nullSafeGet(final ResultSet rs, final String[] names, final Object owner) throws HibernateException, SQLException {
+    @Override
+    public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
         final int min = rs.getInt(names[0]);
         final int max = rs.getInt(names[1]);
         return RangeConstraint.between(min, max);
     }
 
-    public void nullSafeSet(final PreparedStatement ps, final Object object, final int index) throws HibernateException, SQLException {
+    @Override
+    public void nullSafeSet(PreparedStatement ps, Object object, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
         final RangeConstraint range = (RangeConstraint) object;
         if (range == null) {
             ps.setNull(index, Types.INTEGER);
@@ -83,6 +83,29 @@ public class RangeConstraintType implements UserType, Serializable {
             ps.setInt(index, range.getMin());
             ps.setInt(index + 1, range.getMax());
         }
+    }
+
+
+    public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor sessionImplementor, Object o) throws HibernateException, SQLException {
+        final int min = rs.getInt(names[0]);
+        final int max = rs.getInt(names[1]);
+        return RangeConstraint.between(min, max);
+    }
+
+
+    public void nullSafeSet(PreparedStatement ps, Object object, int index, SessionImplementor sessionImplementor) throws HibernateException, SQLException {
+        final RangeConstraint range = (RangeConstraint) object;
+        if (range == null) {
+            ps.setNull(index, Types.INTEGER);
+            ps.setNull(index + 1, Types.INTEGER);
+        } else {
+            ps.setInt(index, range.getMin());
+            ps.setInt(index + 1, range.getMax());
+        }
+    }
+
+    public boolean isMutable() {
+        return false;
     }
 
     public Object replace(final Object original, final Object target, final Object owner) throws HibernateException {

@@ -44,7 +44,8 @@ import nl.strohalm.cyclos.utils.DataIteratorHelper;
 import nl.strohalm.cyclos.utils.hibernate.HibernateHelper;
 import nl.strohalm.cyclos.utils.query.QueryParameters.ResultType;
 
-import org.hibernate.util.StringHelper;
+import org.apache.commons.lang.StringUtils;
+
 
 /**
  * Implementation class for custom field DAO
@@ -134,7 +135,7 @@ public class CustomFieldDAOImpl extends BaseDAOImpl<CustomField> implements Cust
     @Override
     public PaymentCustomField loadPaymentFieldByInternalName(final String internalName, final Relationship[] fetch) {
         PaymentCustomField field = null;
-        if (StringHelper.isNotEmpty(internalName)) {
+        if (StringUtils.isNotEmpty(internalName)) {
             Map<String, Object> params = new HashMap<String, Object>();
             StringBuilder hql = HibernateHelper.getInitialQuery(PaymentCustomField.class, "f", Arrays.asList(fetch));
             HibernateHelper.addParameterToQuery(hql, params, "name", internalName);
