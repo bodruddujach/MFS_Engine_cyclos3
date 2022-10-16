@@ -124,7 +124,7 @@ public class CyclosMiddleware {
           toMember = elementServiceLocal.loadByPrincipal(principalType, txnRequest.getToAc(),
             Element.Relationships.USER, Element.Relationships.GROUP);
         } catch (EntityNotFoundException e) {
-          throw new MFSCommonException(ErrorConstants.TO_AC_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.FROM_AC_NOT_FOUND), HttpStatus.BAD_REQUEST);
+          throw new MFSCommonException(ErrorConstants.TO_AC_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.TO_AC_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         doPaymentDTO.setTo(toMember);
         //check status
