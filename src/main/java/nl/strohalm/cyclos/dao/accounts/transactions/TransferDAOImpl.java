@@ -60,6 +60,7 @@ import nl.strohalm.cyclos.mfs.models.accounts.StatementParams;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementDetail;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementResp;
 import nl.strohalm.cyclos.services.stats.general.KeyDevelopmentsStatsPerMonthVO;
+import nl.strohalm.cyclos.services.transactions.TransactionSummaryVO;
 import nl.strohalm.cyclos.utils.BigDecimalHelper;
 import nl.strohalm.cyclos.utils.DataIteratorHelper;
 import nl.strohalm.cyclos.utils.Pair;
@@ -191,7 +192,16 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
             sql.append("AND t.process_date <= :endDate ");
         }
         if(StringUtils.isNotEmpty(query.getTxnId())){
-            sql.append(" AND t.transaction_number = :txnId");
+            sql.append(" AND ty.transaction_number = :txnId");
+        }
+        if(query.getTxnTypes() != null && !query.getTxnTypes().isEmpty()) {
+            sql.append(" AND ty.name in (");
+            for(String type: query.getTxnTypes()) {
+                sql.append("'");
+                sql.append(type).append("',");
+            }
+            sql.deleteCharAt(sql.length()-1);
+            sql.append(")");
         }
         sql.append(") as statement ");
         if (!countOnly) {
@@ -516,11 +526,16 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
     }
 
     @Override
+    public Pair<Long, BigDecimal> getTransactionedCountAndAmountBetweenPeriod(final Period period, final Account account, final boolean isDestinationAc, final TransferType transferType) {
+        return getTransactionedCountAndAmountBetweenPeriod(period, null, account, isDestinationAc, transferType);
+    }
+
+    @Override
     public BigDecimal getTransactionedAmountAt(Calendar date, final Operator operator, final Account account, final TransferType transferType) {
         if (date == null) {
             date = Calendar.getInstance();
         }
-        final Map<String, Object> namedParameters = new HashMap<String, Object>();
+        final Map<String, Object> namedParameters = new HashMap<>();
         StringBuilder hql = new StringBuilder("select sum(t.amount) from Transfer t where 1=1 ");
         HibernateHelper.addInParameterToQuery(hql, namedParameters, "t.status", Payment.Status.PROCESSED, Payment.Status.PENDING, Payment.Status.SCHEDULED);
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.from", account);
@@ -529,6 +544,28 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "ifnull(t.processDate, t.date)", Period.day(date));
         BigDecimal sum = uniqueResult(hql.toString(), namedParameters);
         return BigDecimalHelper.nvl(sum);
+    }
+
+    @Override
+    public Pair<Long, BigDecimal> getTransactionedCountAndAmountBetweenPeriod(Period period, final Operator operator, final Account account, final boolean isDestinationAc, final TransferType transferType) {
+        final Map<String, Object> namedParameters = new HashMap<String, Object>();
+        final StringBuilder hql = new StringBuilder();
+        //final StringBuilder hql = new StringBuilder("select new " + Pair.class.getName());
+        hql.append("select count(*), sum(t.amount) from Transfer t where 1=1 ");
+        HibernateHelper.addInParameterToQuery(hql, namedParameters, "t.status", Payment.Status.PROCESSED, Payment.Status.PENDING, Payment.Status.SCHEDULED);
+        if (isDestinationAc) {
+          HibernateHelper.addParameterToQuery(hql, namedParameters, "t.to", account);
+        } else {
+          HibernateHelper.addParameterToQuery(hql, namedParameters, "t.from", account);
+        }
+        HibernateHelper.addParameterToQuery(hql, namedParameters, "t.type", transferType);
+        HibernateHelper.addParameterToQuery(hql, namedParameters, "t.by", operator);
+        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "ifnull(t.processDate, t.date)", period);
+        TransactionSummaryVO txnSummary = buildSummary(uniqueResult(hql.toString(), namedParameters));
+        Pair<Long, BigDecimal> txnCountAndSum = Pair.of(Long.valueOf(txnSummary.getCount()), txnSummary.getAmount());
+        if (txnCountAndSum != null)
+            txnCountAndSum.setSecond(BigDecimalHelper.nvl(txnCountAndSum.getSecond()));
+        return txnCountAndSum;
     }
 
     @Override
@@ -956,4 +993,10 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         return true;
     }
 
+    private TransactionSummaryVO buildSummary(final Object object) {
+        final Object[] row = (Object[]) object;
+        final int count = row[0] == null ? 0 : (Integer) row[0];
+        final BigDecimal amount = row[1] == null ? BigDecimal.ZERO : (BigDecimal) row[1];
+        return new TransactionSummaryVO(count, amount);
+    }
 }

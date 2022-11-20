@@ -42,6 +42,17 @@ public class GlobalExceptionHandler {
     logger.error("Exception",ex);
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
+
+  @ExceptionHandler(MFSLimitException.class)
+  @ResponseBody
+  public ResponseEntity<ErrorResponse> handleMfsLimitException(final MFSLimitException ex){
+      ErrorResponse errorResponse = new ErrorResponse();
+      errorResponse.setCode(ex.getErrorCode());
+      errorResponse.setMessage(ex.getMessage());
+      logger.error("Exception", ex);
+      return new ResponseEntity<>(errorResponse, ex.httpStatus);
+  }
+
   @ExceptionHandler(MFSCommonException.class)
   @ResponseBody
   public ResponseEntity<ErrorResponse> handleMFSCommonException(final MFSCommonException ex){

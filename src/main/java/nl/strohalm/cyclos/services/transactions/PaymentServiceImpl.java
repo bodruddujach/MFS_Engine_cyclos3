@@ -19,6 +19,8 @@
  */
 package nl.strohalm.cyclos.services.transactions;
 
+import static nl.strohalm.cyclos.mfs.exceptions.ErrorConstants.ERROR_MAP;
+
 import java.awt.Color;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -97,6 +99,9 @@ import nl.strohalm.cyclos.entities.settings.LocalSettings;
 import nl.strohalm.cyclos.entities.settings.LocalSettings.TransactionNumber;
 import nl.strohalm.cyclos.exceptions.ApplicationException;
 import nl.strohalm.cyclos.exceptions.PermissionDeniedException;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig;
+import nl.strohalm.cyclos.mfs.exceptions.ErrorConstants;
+import nl.strohalm.cyclos.mfs.exceptions.MFSLimitException;
 import nl.strohalm.cyclos.mfs.models.accounts.StatementParams;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementDetail;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementResp;
@@ -134,6 +139,7 @@ import nl.strohalm.cyclos.utils.DataIteratorHelper;
 import nl.strohalm.cyclos.utils.DateHelper;
 import nl.strohalm.cyclos.utils.MessageProcessingHelper;
 import nl.strohalm.cyclos.utils.MessageResolver;
+import nl.strohalm.cyclos.utils.Pair;
 import nl.strohalm.cyclos.utils.Period;
 import nl.strohalm.cyclos.utils.RelationshipHelper;
 import nl.strohalm.cyclos.utils.TimePeriod;
@@ -180,6 +186,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jfree.chart.plot.CategoryMarker;
 import org.jfree.chart.plot.Marker;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -1350,6 +1357,51 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
     }
   }
 
+  private void validateTxnLimits(final Calendar date, final Account from, final Account to, final TransferType transferType, final BigDecimal amount, LockHandler lockHandler) {
+    final Collection<? extends MfsTxnLimitConfig> mfstxnLimitConfigs = transferType.getMfsTransactionLimitConfigs();
+    if (mfstxnLimitConfigs != null && !mfstxnLimitConfigs.isEmpty()) {
+      for(MfsTxnLimitConfig config: mfstxnLimitConfigs) {
+        if (config.isEnable()) {
+          BigDecimal minAmountPerTxn = config.getMinAmountPerTxn();
+          BigDecimal maxAmountPerTxn = config.getMaxAmountPerTxn();
+          Long maxNumberOfTxnPerDay = config.getMaxNumberOfTxnPerDay();
+          BigDecimal maxAmountPerDay = config.getMaxAmountPerDay();
+          Long maxNumberOfTxnPerMonth = config.getMaxNumberOfTxnPerMonth();
+          BigDecimal maxAmountPerMonth = config.getMaxAmountPerMonth();
+          boolean isApplyOnDestination = config.getApplyOn() == MfsTxnLimitConfig.LimitSubject.DESTINATION;
+          if (minAmountPerTxn != null && amount.compareTo(minAmountPerTxn) < 0) {
+            throw new MFSLimitException(ErrorConstants.MIN_AMOUNT_PER_TXN_NOT_MET, String.format("%s_%s_FOR_%s", config.getApplyOn(), ERROR_MAP.get(ErrorConstants.MIN_AMOUNT_PER_TXN_NOT_MET), transferType.getName()));
+          }
+          if (maxAmountPerTxn != null && amount.compareTo(maxAmountPerTxn) > 0) {
+            throw new MFSLimitException(ErrorConstants.MAX_AMOUNT_PER_TXN_EXCEEDED, String.format("%s_%s_FOR_%s", config.getApplyOn(), ERROR_MAP.get(ErrorConstants.MAX_AMOUNT_PER_TXN_EXCEEDED), transferType.getName()));
+          }
+
+          if (isApplyOnDestination) {
+            lockHandler.lock(to);
+          }
+          // Get the txn count and amount on today
+          Pair<Long, BigDecimal> txnCountAndAmountAtDay = transferDao.getTransactionedCountAndAmountBetweenPeriod(Period.day(date), selectAccountFromLimitConfig(from, to, config), isApplyOnDestination, transferType);
+          if (maxNumberOfTxnPerDay != null && (txnCountAndAmountAtDay.getFirst() + 1) > maxNumberOfTxnPerDay) {
+            throw new MFSLimitException(ErrorConstants.MAX_NUMBER_OF_TXN_PER_DAY_EXCEEDED, String.format("%s_%s_FOR_%s", config.getApplyOn(), ERROR_MAP.get(ErrorConstants.MAX_NUMBER_OF_TXN_PER_DAY_EXCEEDED), transferType.getName()));
+          }
+          if (maxAmountPerDay != null && txnCountAndAmountAtDay.getSecond().add(amount).compareTo(maxAmountPerDay) > 0) {
+            throw new MFSLimitException(ErrorConstants.MAX_AMOUNT_PER_DAY_EXCEEDED, String.format("%s_%s_FOR_%s", config.getApplyOn(), ERROR_MAP.get(ErrorConstants.MAX_AMOUNT_PER_DAY_EXCEEDED), transferType.getName()));
+          }
+
+          // Get txn count and amount for this month
+          Period monthOfDate = Period.monthOfDate(date);
+          Pair<Long, BigDecimal> txnCountAndAmountOnMonthOfDate = transferDao.getTransactionedCountAndAmountBetweenPeriod(monthOfDate, selectAccountFromLimitConfig(from, to, config), isApplyOnDestination, transferType);
+          if (maxNumberOfTxnPerMonth != null && (txnCountAndAmountOnMonthOfDate.getFirst() + 1) > maxNumberOfTxnPerMonth.longValue()) {
+            throw new MFSLimitException(ErrorConstants.MAX_NUMBER_OF_TXN_PER_MONTH_EXCEEDED, String.format("%s_%s_FOR_%s", config.getApplyOn(), ERROR_MAP.get(ErrorConstants.MAX_NUMBER_OF_TXN_PER_MONTH_EXCEEDED), transferType.getName()));
+          }
+          if (maxAmountPerMonth != null && txnCountAndAmountAtDay.getSecond().add(amount).compareTo(maxAmountPerMonth) > 0) {
+            throw new MFSLimitException(ErrorConstants.MAX_AMOUNT_PER_MONTH_EXCEEDED, String.format("%s_%s_FOR_%s", config.getApplyOn(), ERROR_MAP.get(ErrorConstants.MAX_AMOUNT_PER_MONTH_EXCEEDED), transferType.getName()));
+          }
+        }
+      }
+    }
+  }
+
   @Override
   public boolean wouldRequireAuthorization(final DoPaymentDTO params) {
     AuthorizationLevel firstAuthorizationLevel = null;
@@ -2185,7 +2237,8 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
 
     // Validate the max amount today
     if (!dto.isForced()) {
-      validateMaxAmountAtDate(null, fromAccount, transferType, null, transfer.getAmount());
+      validateMaxAmountAtDate(Calendar.getInstance(), fromAccount, transferType, null, transfer.getAmount());
+      validateTxnLimits(Calendar.getInstance(), fromAccount, toAccount, transferType, transfer.getAmount(), lockHandler);
     }
     // Insert the transfer and pay fees
     transfer = insertTransferAndPayFees(lockHandler, transfer, dto.isForced(), simulation, new HashSet<ChargedFee>());
@@ -2402,4 +2455,7 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
     }
   }
 
+  private Account selectAccountFromLimitConfig(final Account from, final Account to, MfsTxnLimitConfig limitConfig) {
+    return MfsTxnLimitConfig.LimitSubject.DESTINATION == limitConfig.getApplyOn() ? to : from; 
+  }
 }

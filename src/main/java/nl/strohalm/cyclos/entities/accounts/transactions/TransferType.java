@@ -39,6 +39,7 @@ import nl.strohalm.cyclos.entities.customization.fields.PaymentCustomField;
 import nl.strohalm.cyclos.entities.groups.Group;
 import nl.strohalm.cyclos.entities.members.Member;
 import nl.strohalm.cyclos.entities.members.Reference.Level;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig;
 import nl.strohalm.cyclos.utils.StringValuedEnum;
 import nl.strohalm.cyclos.utils.TimePeriod;
 
@@ -98,7 +99,7 @@ public class TransferType extends Entity {
     }
 
     public static enum Relationships implements Relationship {
-        FROM("from"), GROUPS("groups"), GROUPS_AS_MEMBER("groupsAsMember"), TO("to"), TRANSACTION_FEES("transactionFees"), GENERATED_BY_TRANSACTION_FEES("generatedByTransactionFees"), GENERATED_BY_ACCOUNT_FEES("generatedByAccountFees"), PAYMENT_FILTERS("paymentFilters"), AUTHORIZATION_LEVELS("authorizationLevels"), CUSTOM_FIELDS("customFields"), LINKED_CUSTOM_FIELDS("linkedCustomFields"), CHANNELS("channels");
+        FROM("from"), GROUPS("groups"), GROUPS_AS_MEMBER("groupsAsMember"), TO("to"), TRANSACTION_FEES("transactionFees"), GENERATED_BY_TRANSACTION_FEES("generatedByTransactionFees"), GENERATED_BY_ACCOUNT_FEES("generatedByAccountFees"), PAYMENT_FILTERS("paymentFilters"), AUTHORIZATION_LEVELS("authorizationLevels"), CUSTOM_FIELDS("customFields"), LINKED_CUSTOM_FIELDS("linkedCustomFields"), CHANNELS("channels"), MFS_TRANSACTION_LIMIT_CONFIGS("mfsTransactionLimitConfigs");
         private final String name;
 
         private Relationships(final String name) {
@@ -152,6 +153,7 @@ public class TransferType extends Entity {
     private BigDecimal                           minAmount;
     private LoanParameters                       loan;
     private Collection<? extends TransactionFee> transactionFees;
+    private Collection<? extends MfsTxnLimitConfig> mfsTransactionLimitConfigs;
     private Collection<? extends TransactionFee> generatedByTransactionFees;
     private Collection<? extends AccountFee>     generatedByAccountFees;
     private Collection<? extends Group>          groups;
@@ -330,6 +332,10 @@ public class TransferType extends Entity {
 
     public Collection<? extends TransactionFee> getTransactionFees() {
         return transactionFees;
+    }
+
+    public Collection<? extends MfsTxnLimitConfig> getMfsTransactionLimitConfigs() {
+    	return mfsTransactionLimitConfigs;
     }
 
     public TransactionHierarchyVisibility getTransactionHierarchyVisibility() {
@@ -578,6 +584,10 @@ public class TransferType extends Entity {
 
     public void setTransactionFees(final Collection<? extends TransactionFee> transactionFees) {
         this.transactionFees = transactionFees;
+    }
+
+    public void setMfsTransactionLimitConfigs(final Collection<? extends MfsTxnLimitConfig> mfsTransactionLimitConfigs) {
+        this.mfsTransactionLimitConfigs = mfsTransactionLimitConfigs;
     }
 
     public void setTransactionHierarchyVisibility(final TransactionHierarchyVisibility transactionHierarchyVisibility) {

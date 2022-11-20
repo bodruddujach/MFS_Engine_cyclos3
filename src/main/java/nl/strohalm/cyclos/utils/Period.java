@@ -48,6 +48,17 @@ public class Period implements Serializable, Cloneable {
         return new Period(begin, end);
     }
 
+    public static Period monthOfDate(final Calendar date) {
+        Calendar begin = (Calendar) date.clone();
+        begin.set(Calendar.DAY_OF_MONTH, begin.getActualMinimum(Calendar.DAY_OF_MONTH));
+        setTimeToBeginningOfDay(begin);
+        Calendar end = (Calendar) date.clone();
+        end.set(Calendar.DAY_OF_MONTH, end.getActualMaximum(Calendar.DAY_OF_MONTH));
+        setTimeToEndofDay(end);
+        Period month = Period.between(begin, end).useTime();
+        return month.useTime();
+    }
+
     public static Period betweenOneYear(final int year) {
         final Calendar begin = new GregorianCalendar(year, 0, 1);
         final Calendar end = new GregorianCalendar(year, 11, 31, 23, 59, 59);
@@ -235,6 +246,20 @@ public class Period implements Serializable, Cloneable {
 
     public void setUseTime(final boolean useTime) {
         this.useTime = useTime;
+    }
+
+    public static void setTimeToBeginningOfDay(Calendar calendar) {
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+    }
+
+    public static void setTimeToEndofDay(Calendar calendar) {
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
     }
 
     @Override

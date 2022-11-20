@@ -179,12 +179,23 @@ public interface TransferDAO extends BaseDAO<Transfer>, InsertableDAO<Transfer>,
     BigDecimal getTransactionedAmountAt(Calendar date, Account account, TransferType transferType);
 
     /**
+     * Returns total amount of transfers and transfer count at the given date from the given account, with the given transfer type. Only payments in the following
+     * status are considered: {@link Payment.Status#PROCESSED}, {@link Payment.Status#PENDING} and {@link Payment.Status#SCHEDULED}.
+     */
+    Pair<Long, BigDecimal> getTransactionedCountAndAmountBetweenPeriod(Period period, final Account account, boolean isDestinationAc, final TransferType transferType);
+    /**
      * Returns the total amount of transfers today from the given account, with the given transfer type, performed by the given operator. Only
      * payments in the following status are considered: {@link Payment.Status#PROCESSED}, {@link Payment.Status#PENDING} and
      * {@link Payment.Status#SCHEDULED}.
      */
     BigDecimal getTransactionedAmountAt(Calendar date, Operator operator, Account account, TransferType transferType);
 
+    /**
+     * Returns the total amount of transfers and count of transfers between specific period from the given account, with the given transfer type, performed by the given operator. Only
+     * payments in the following status are considered: {@link Payment.Status#PROCESSED}, {@link Payment.Status#PENDING} and
+     * {@link Payment.Status#SCHEDULED}.
+     */
+    Pair<Long, BigDecimal> getTransactionedCountAndAmountBetweenPeriod(Period period, Operator operator, Account account, boolean isDestinationAc, TransferType transferType);
     /**
      * gets a List of Transfers, depending on the parameters. Each parameter may be null, in which case it is ignored. Transfers which have not been
      * processed (so with <code>processDate</code> is null) are always excluded.
