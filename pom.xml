@@ -311,36 +311,36 @@
             <groupId>com.google.code</groupId>
             <artifactId>kaptcha</artifactId>
             <version>2.3</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/miscLibs/WEB-INF/lib/kaptcha-2.3.jar</systemPath>
+<!--             <scope>system</scope> -->
+<!--             <systemPath>${project.basedir}/miscLibs/WEB-INF/lib/kaptcha-2.3.jar</systemPath> -->
         </dependency>
         <dependency>
             <groupId>javastat</groupId>
             <artifactId>javastat</artifactId>
             <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/miscLibs/WEB-INF/lib/javastat.jar</systemPath>
+<!--             <scope>system</scope> -->
+<!--             <systemPath>${project.basedir}/miscLibs/WEB-INF/lib/javastat.jar</systemPath> -->
         </dependency>
         <dependency>
             <groupId>com.mullassery</groupId>
             <artifactId>imaging</artifactId>
             <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/miscLibs/WEB-INF/lib/pmiw.jar</systemPath>
+<!--             <scope>system</scope> -->
+<!--             <systemPath>${project.basedir}/miscLibs/WEB-INF/lib/pmiw.jar</systemPath> -->
         </dependency>
         <dependency>
             <groupId>JSci</groupId>
             <artifactId>JSci-core</artifactId>
             <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/miscLibs/WEB-INF/lib/JSci-core.jar</systemPath>
+<!--             <scope>system</scope> -->
+<!--             <systemPath>${project.basedir}/miscLibs/WEB-INF/lib/JSci-core.jar</systemPath> -->
         </dependency>
         <dependency>
             <groupId>com.cj.toggle</groupId>
             <artifactId>toggleTag</artifactId>
             <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/miscLibs/WEB-INF/lib/toggletag.jar</systemPath>
+<!--             <scope>system</scope> -->
+<!--             <systemPath>${project.basedir}/miscLibs/WEB-INF/lib/toggletag.jar</systemPath> -->
         </dependency>
         <dependency>
             <groupId>junit</groupId>
