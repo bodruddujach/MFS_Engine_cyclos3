@@ -6,6 +6,7 @@ import nl.strohalm.cyclos.mfs.entities.MfsTxnType;
 import nl.strohalm.cyclos.mfs.entities.TxnLimitConfig;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnLimitRequest;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnLimitResponse;
+import nl.strohalm.cyclos.mfs.models.transactions.UpdateTxnLimitRequest;
 import nl.strohalm.cyclos.mfs.services.MfsTxnTypeService;
 import nl.strohalm.cyclos.mfs.services.TxnLimitService;
 import nl.strohalm.cyclos.services.transfertypes.TransferTypeServiceLocal;
@@ -30,7 +31,7 @@ public class TxnLimitController {
 
     @RequestMapping(value = "/config/{id}", method = RequestMethod.GET)
     @ResponseBody
-    public MfsTxnLimitConfig loadTxnLimitConfig(@PathVariable Long id) {
+    public TxnLimitResponse loadTxnLimitConfig(@PathVariable Long id) {
         return txnLimitService.loadMfsTxnLimitConfig(id);
     }
 
@@ -54,7 +55,7 @@ public class TxnLimitController {
 
     @RequestMapping(value = "/config", method = RequestMethod.PUT)
     @ResponseBody
-    public TxnLimitResponse updateTxnLimitConfig(@Validated @RequestBody MfsTxnLimitConfig txnLimitConfig) {
+    public TxnLimitResponse updateTxnLimitConfig(@Validated @RequestBody UpdateTxnLimitRequest txnLimitConfig) {
         return txnLimitService.updateMfsTxnLimitConfig(txnLimitConfig);
     }
 

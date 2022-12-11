@@ -3,8 +3,10 @@ package nl.strohalm.cyclos.mfs.services;
 import nl.strohalm.cyclos.mfs.dao.MfsTxnLimitConfigDAO;
 import nl.strohalm.cyclos.mfs.dao.TxnLimitConfigDAO;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnType;
 import nl.strohalm.cyclos.mfs.entities.TxnLimitConfig;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnLimitResponse;
+import nl.strohalm.cyclos.mfs.models.transactions.UpdateTxnLimitRequest;
 
 import java.util.Calendar;
 
@@ -27,8 +29,8 @@ public class TxnLimitService {
     }
 
     @Transactional
-    public MfsTxnLimitConfig loadMfsTxnLimitConfig(Long txnLimitConfigId) {
-        return mfsTxnLimitConfigDAO.load(txnLimitConfigId);
+    public TxnLimitResponse loadMfsTxnLimitConfig(Long txnLimitConfigId) {
+        return convertToTxnLimitResponse(mfsTxnLimitConfigDAO.load(txnLimitConfigId, MfsTxnLimitConfig.Relationships.TransferType));
     }
 
     @Transactional
@@ -50,9 +52,11 @@ public class TxnLimitService {
     }
 
     @Transactional
-    public TxnLimitResponse updateMfsTxnLimitConfig(MfsTxnLimitConfig txnLimitConfig) {
-        txnLimitConfig.setLastModifiedDate(Calendar.getInstance());
-        MfsTxnLimitConfig persistedConfig = mfsTxnLimitConfigDAO.update(txnLimitConfig);
+    public TxnLimitResponse updateMfsTxnLimitConfig(UpdateTxnLimitRequest txnLimitConfigReq) {
+        MfsTxnLimitConfig dbTxnLimitConfig = mfsTxnLimitConfigDAO.load(txnLimitConfigReq.getId(), MfsTxnLimitConfig.Relationships.TransferType);
+        dbTxnLimitConfig.setLastModifiedDate(Calendar.getInstance());
+        convertToMfsTxnLimitConfig(txnLimitConfigReq, dbTxnLimitConfig);
+        MfsTxnLimitConfig persistedConfig = mfsTxnLimitConfigDAO.update(dbTxnLimitConfig);
         return convertToTxnLimitResponse(persistedConfig);
     }
 
@@ -65,6 +69,18 @@ public class TxnLimitService {
     public int deleteMfsTxnLimitConfig(Long txnLimitConfigId) {
         return mfsTxnLimitConfigDAO.delete(txnLimitConfigId);
     }
+
+    private MfsTxnLimitConfig convertToMfsTxnLimitConfig(UpdateTxnLimitRequest txnLimitUpdateReq, MfsTxnLimitConfig txnLimitConfig) {
+    	txnLimitConfig.setMinAmountPerTxn(txnLimitUpdateReq.getMinAmountPerTxn());
+    	txnLimitConfig.setMaxAmountPerTxn(txnLimitUpdateReq.getMaxAmountPerTxn());
+    	txnLimitConfig.setMaxNumberOfTxnPerDay(txnLimitUpdateReq.getMaxNumberOfTxnPerDay());
+    	txnLimitConfig.setMaxAmountPerDay(txnLimitUpdateReq.getMaxAmountPerDay());
+    	txnLimitConfig.setMaxNumberOfTxnPerMonth(txnLimitUpdateReq.getMaxNumberOfTxnPerMonth());
+    	txnLimitConfig.setMaxAmountPerMonth(txnLimitUpdateReq.getMaxAmountPerMonth());
+    	txnLimitConfig.setApplyOn(txnLimitUpdateReq.getApplyOn());
+    	txnLimitConfig.setEnable(txnLimitUpdateReq.isEnable());
+        return txnLimitConfig;
+      }
 
     private TxnLimitResponse convertToTxnLimitResponse(MfsTxnLimitConfig txnLimitConfig) {
       TxnLimitResponse response = new TxnLimitResponse();

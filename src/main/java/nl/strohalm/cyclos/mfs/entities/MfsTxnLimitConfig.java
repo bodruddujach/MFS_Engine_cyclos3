@@ -8,6 +8,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonManagedReference;
 
 import nl.strohalm.cyclos.entities.Entity;
+import nl.strohalm.cyclos.entities.Relationship;
 import nl.strohalm.cyclos.entities.access.User;
 import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
 import nl.strohalm.cyclos.utils.StringValuedEnum;
@@ -29,6 +30,20 @@ public class MfsTxnLimitConfig extends Entity {
 			return value;
 		}
 	}
+
+    public static enum Relationships implements Relationship {
+    	TransferType("transferType");
+        private final String name;
+
+        private Relationships(final String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+    }
 
 	private BigDecimal minAmountPerTxn;
 
