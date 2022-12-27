@@ -192,7 +192,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
             sql.append("AND t.process_date <= :endDate ");
         }
         if(StringUtils.isNotEmpty(query.getTxnId())){
-            sql.append(" AND ty.transaction_number = :txnId");
+            sql.append(" AND t.transaction_number = :txnId");
         }
         if(query.getTxnTypes() != null && !query.getTxnTypes().isEmpty()) {
             sql.append(" AND ty.name in (");
