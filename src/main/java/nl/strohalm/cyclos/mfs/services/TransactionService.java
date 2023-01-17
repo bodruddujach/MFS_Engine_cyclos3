@@ -101,6 +101,9 @@ public class TransactionService {
         if (fee instanceof SimpleTransactionFee && fee.getAmount().isPercentage()) {
           final BigDecimal feeValue = fee.getAmount().getValue();
           feeTotalAmount = request.getAmount().multiply(feeValue).divide(BigDecimal.valueOf(100));
+          if(fee.getInitialAmount() != null && feeTotalAmount.compareTo(fee.getInitialAmount()) == -1 ){
+            feeTotalAmount = fee.getInitialAmount();
+          }
         } else {
           feeTotalAmount = fee.getAmount().getValue();
         }
