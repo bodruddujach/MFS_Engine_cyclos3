@@ -4,6 +4,7 @@ import nl.strohalm.cyclos.dao.members.ElementDAO;
 import nl.strohalm.cyclos.entities.access.Channel;
 import nl.strohalm.cyclos.entities.access.MemberUser;
 import nl.strohalm.cyclos.entities.accounts.Account;
+import nl.strohalm.cyclos.entities.accounts.AccountStatus;
 import nl.strohalm.cyclos.entities.accounts.MemberAccount;
 import nl.strohalm.cyclos.entities.accounts.SystemAccount;
 import nl.strohalm.cyclos.entities.exceptions.EntityNotFoundException;
@@ -20,6 +21,8 @@ import nl.strohalm.cyclos.mfs.models.accounts.ChangePinRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.CheckPinRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.LoginResponse;
 import nl.strohalm.cyclos.mfs.models.accounts.RegResponse;
+import nl.strohalm.cyclos.mfs.models.accounts.RunningWalletStatementRequest;
+import nl.strohalm.cyclos.mfs.models.accounts.RunningWalletStatementResp;
 import nl.strohalm.cyclos.mfs.models.accounts.StatementParams;
 import nl.strohalm.cyclos.mfs.models.accounts.UpdateAccountRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletInfoResponse;
@@ -33,6 +36,7 @@ import nl.strohalm.cyclos.services.access.AccessServiceImpl;
 import nl.strohalm.cyclos.services.access.exceptions.BlockedCredentialsException;
 import nl.strohalm.cyclos.services.access.exceptions.CredentialsAlreadyUsedException;
 import nl.strohalm.cyclos.services.access.exceptions.InvalidCredentialsException;
+import nl.strohalm.cyclos.services.accounts.AccountDTO;
 import nl.strohalm.cyclos.services.accounts.AccountDateDTO;
 import nl.strohalm.cyclos.services.accounts.AccountServiceLocal;
 import nl.strohalm.cyclos.services.accounts.MemberAccountHandler;
@@ -50,6 +54,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -130,7 +135,7 @@ public class MfsAccountService {
     return response;
   }
 
-  public BalanceResponse getCurrentBalance(final String walletNo) {
+  public BalanceResponse getCurrentBalance(final String walletNo, Calendar date){
     BalanceResponse balanceResult = new BalanceResponse();
     final Member member = cyclosMiddleware.getMember(walletNo);
     if (member == null) {
@@ -144,6 +149,7 @@ public class MfsAccountService {
       throw new MFSCommonException(ErrorConstants.ACCOUNT_NOT_FOUND, ERROR_MAP.get(ErrorConstants.ACCOUNT_NOT_FOUND), HttpStatus.NOT_FOUND);
     }
     AccountDateDTO dtoParams = new AccountDateDTO(account);
+    dtoParams.setDate(date);
     balanceResult.setBalance(accountServiceLocal.getBalance(dtoParams));
     balanceResult.setStatus(MfsConstant.STATUS_SUCCESS);
     balanceResult.setAvailableBalance(balanceResult.getBalance());
@@ -291,6 +297,83 @@ public class MfsAccountService {
     response.setStatus(MfsConstant.STATUS_SUCCESS);
     return response;
   }
+
+  public RunningWalletStatementResp runningWalletStatement(RunningWalletStatementRequest statementRequest) {
+	    if (statementRequest.getPageSize() == null || statementRequest.getPageSize() <= 0) {
+	      statementRequest.setPageSize(-1);
+	    }
+	    statementRequest.setPageSize(-1);
+	    statementRequest.setCurrentPage(0);
+	    Account account = null;
+	    logger.info("Statement Request: " + statementRequest);
+	    if (org.apache.commons.lang.StringUtils.isNotEmpty(statementRequest.getWalletNo())) {
+	      account = cyclosMiddleware.getAccount(statementRequest.getWalletNo());
+	    }
+	    if (org.apache.commons.lang.StringUtils.isNotEmpty(statementRequest.getLedgerCode())) {
+	      MFSLedgerAccount ledgerAccount = ledgerService.getLedgerByCode(statementRequest.getLedgerCode());
+	      if (MFSLedgerAccount.LedgerType.MEMBER.name().equalsIgnoreCase(ledgerAccount.getType())) {
+	        throw new MFSCommonException(STATEMENT_NOT_SUPPORTED, ERROR_MAP.get(STATEMENT_NOT_SUPPORTED), HttpStatus.BAD_REQUEST);
+	      }
+	      account = new SystemAccount();
+	      account.setId(ledgerAccount.getAccountId());
+	      statementRequest.setWalletNo(null);
+	    }
+	    Account accountDetail = accountServiceLocal.getAccount(new AccountDTO(account));
+	    AccountStatus accountStatus = accountServiceLocal.getCurrentStatus(new AccountDTO(account));
+	    AccountDateDTO dtoParams = new AccountDateDTO(account, statementRequest.getBeginDate());
+	    BigDecimal openingBalance = accountServiceLocal.getExclusiveBalance(dtoParams);
+	    BigDecimal runnigBalance = openingBalance;
+
+	    StatementParams query = new StatementParams();
+	    query.setAccountNo(account.getId());
+	    query.setBeginDate(statementRequest.getBeginDate());
+	    query.setEndDate(statementRequest.getEndDate());
+	    query.setCurrentPage(statementRequest.getCurrentPage());
+	    query.setPageSize(statementRequest.getPageSize());
+	    query.setReverseOrder(false);
+	    WalletStatementResp response = paymentServiceLocal.searchStatement(query);
+
+	    for (WalletStatementDetail statementDetail : response.getWalletStatementDetailList()) {
+	      MfsTxnType mfsTxnType = mfsTxnTypeService.findByCoreId(statementDetail.getTypeId().longValue());
+	      TransactionType type = null;
+	      if (mfsTxnType != null) {
+	        type = TransactionType.valueOf(mfsTxnType.getName());
+	      }
+
+	      statementDetail.setTxnType(type != null ? type.name() : "");
+
+	      if (!StringUtils.isEmpty(statementRequest.getWalletNo())) {
+	        if (statementRequest.getWalletNo().equalsIgnoreCase(statementDetail.getFromWallet())) {
+	          statementDetail.setActionType(WalletStatementDetail.TxnActionType.DEBIT);
+	          runnigBalance = runnigBalance.subtract(statementDetail.getAmount());
+	        } else {
+	          statementDetail.setActionType(WalletStatementDetail.TxnActionType.CREDIT);
+	          runnigBalance = runnigBalance.add(statementDetail.getAmount());
+	        }
+	      }
+	      if (!StringUtils.isEmpty(statementRequest.getLedgerCode())) {
+	        if (account.getId().intValue() == statementDetail.getFromAcId()) {
+	          statementDetail.setActionType(WalletStatementDetail.TxnActionType.DEBIT);
+	          runnigBalance = runnigBalance.subtract(statementDetail.getAmount());
+	        } else {
+	          statementDetail.setActionType(WalletStatementDetail.TxnActionType.CREDIT);
+	          runnigBalance = runnigBalance.add(statementDetail.getAmount());
+	        }
+	      }
+	      statementDetail.setRunningBalance(runnigBalance);
+	    }
+	    RunningWalletStatementResp runningResponse = new RunningWalletStatementResp();
+	    runningResponse.setAccountName(accountDetail.getOwnerName());
+	    runningResponse.setOpenigBalance(openingBalance);
+	    runningResponse.setClosingBalance(runnigBalance);
+	    runningResponse.setCurrentBalance(accountStatus.getBalance());
+	    runningResponse.setFromDate(statementRequest.getBeginDate());
+	    runningResponse.setToDate(statementRequest.getEndDate());
+	    runningResponse.setWalletStatementDetailList(response.getWalletStatementDetailList());
+	    runningResponse.setTotalCount(response.getTotalCount());
+	    runningResponse.setStatus(MfsConstant.STATUS_SUCCESS);
+	    return runningResponse;
+	  }
 
   public Response changePin(ChangePinRequest changePinRequest, boolean isReset) {
     if (!isReset) isValidPin(changePinRequest.getOldPin());

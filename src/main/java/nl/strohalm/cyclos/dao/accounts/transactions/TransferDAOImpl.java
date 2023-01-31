@@ -206,9 +206,9 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         sql.append(") as statement ");
         if (!countOnly) {
             if (query.getReverseOrder()) {
-                sql.append("ORDER BY txnTime DESC ");
+                sql.append("ORDER BY txnTime DESC, id DESC ");
             } else {
-                sql.append("ORDER BY txnTime ASC ");
+                sql.append("ORDER BY txnTime ASC, id ASC ");
             }
         }
         return sql.toString();
