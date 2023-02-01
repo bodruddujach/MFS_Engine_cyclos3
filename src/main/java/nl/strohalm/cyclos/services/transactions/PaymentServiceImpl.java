@@ -32,8 +32,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -101,6 +103,7 @@ import nl.strohalm.cyclos.exceptions.ApplicationException;
 import nl.strohalm.cyclos.exceptions.PermissionDeniedException;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig;
 import nl.strohalm.cyclos.mfs.exceptions.ErrorConstants;
+import nl.strohalm.cyclos.mfs.exceptions.MFSCommonException;
 import nl.strohalm.cyclos.mfs.exceptions.MFSLimitException;
 import nl.strohalm.cyclos.mfs.models.accounts.StatementParams;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementDetail;
@@ -536,13 +539,21 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
 
   public WalletStatementResp getTransactionDetails(String txnId){
     Transfer parent = transferDao.loadTransferByTxnNumber(txnId);
-    List<Transfer> childs = transferDao.loadTransferByParent(parent);
-    WalletStatementResp walletStatementResp = new WalletStatementResp();
-    List<WalletStatementDetail> details = new ArrayList<>();
-    details.add(adaptStatementDetail(parent));
-    for(Transfer child :childs){
-      details.add(adaptStatementDetail(child));
+    if (parent == null) {
+      throw new MFSCommonException(ErrorConstants.TRANSACTION_NOT_FOUND, String.format("TRANSACTION_DETAIL_NOT_FOUND: ID %s", txnId), HttpStatus.NOT_FOUND);
     }
+    Queue<Transfer> queue = new LinkedList<>();
+    List<WalletStatementDetail> details = new ArrayList<>();
+    queue.add(parent);
+    while (!queue.isEmpty()) {
+      Transfer current = queue.poll();
+      details.add(adaptStatementDetail(current));
+      List<Transfer> childs = transferDao.loadTransferByParent(current);
+      for(Transfer child :childs){
+        queue.add(child);
+      }
+    }
+    WalletStatementResp walletStatementResp = new WalletStatementResp();
     walletStatementResp.setWalletStatementDetailList(details);
     return walletStatementResp;
   }
