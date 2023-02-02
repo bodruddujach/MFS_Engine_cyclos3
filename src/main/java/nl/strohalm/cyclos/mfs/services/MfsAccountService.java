@@ -319,6 +319,9 @@ public class MfsAccountService {
 	      statementRequest.setWalletNo(null);
 	    }
 	    Account accountDetail = accountServiceLocal.getAccount(new AccountDTO(account));
+	    if (statementRequest.getBeginDate() == null) {
+	      statementRequest.setBeginDate(accountDetail.getCreationDate());
+	    }
 	    AccountStatus accountStatus = accountServiceLocal.getCurrentStatus(new AccountDTO(account));
 	    AccountDateDTO dtoParams = new AccountDateDTO(account, statementRequest.getBeginDate());
 	    BigDecimal openingBalance = accountServiceLocal.getExclusiveBalance(dtoParams);
