@@ -42,6 +42,7 @@ public class ErrorConstants {
   public static final String MAX_AMOUNT_PER_DAY_EXCEEDED = "4020";
   public static final String MAX_NUMBER_OF_TXN_PER_MONTH_EXCEEDED = "4030";
   public static final String MAX_AMOUNT_PER_MONTH_EXCEEDED = "4031";
+  public static final String TXN_LIMIT_CONFIGURATION_EXISTS = "4032";
 
 
 
@@ -84,6 +85,7 @@ public class ErrorConstants {
     ERROR_MAP.put(MAX_AMOUNT_PER_DAY_EXCEEDED, "MAX_AMOUNT_PER_DAY_LIMIT_EXCEEDED");
     ERROR_MAP.put(MAX_NUMBER_OF_TXN_PER_MONTH_EXCEEDED, "MAX_NUMBER_OF_TRANSACTION_PER_MONTH_EXCEEDED");
     ERROR_MAP.put(MAX_AMOUNT_PER_MONTH_EXCEEDED, "MAX_AMOUNT_PER_MONTH_LIMIT_EXCEEDED");
+    ERROR_MAP.put(TXN_LIMIT_CONFIGURATION_EXISTS, "Transaction Limit Configuration Already Exists ");
   }
 
 }

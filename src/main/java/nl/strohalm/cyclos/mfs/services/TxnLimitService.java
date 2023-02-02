@@ -5,12 +5,16 @@ import nl.strohalm.cyclos.mfs.dao.TxnLimitConfigDAO;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnType;
 import nl.strohalm.cyclos.mfs.entities.TxnLimitConfig;
+import nl.strohalm.cyclos.mfs.exceptions.ErrorConstants;
+import nl.strohalm.cyclos.mfs.exceptions.MFSCommonException;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnLimitResponse;
 import nl.strohalm.cyclos.mfs.models.transactions.UpdateTxnLimitRequest;
 
 import java.util.Calendar;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +45,10 @@ public class TxnLimitService {
     @Transactional
     public TxnLimitResponse saveMfsTxnLimitConfig(MfsTxnLimitConfig txnLimitConfig) {
         txnLimitConfig.setCreatedAt(Calendar.getInstance());
+        List<MfsTxnLimitConfig> existingConfigs = mfsTxnLimitConfigDAO.loadMfsTxnLimitConfigByTransferTypeAndApplyOn(txnLimitConfig.getTransferType(), txnLimitConfig.getApplyOn());
+        if (existingConfigs != null) {
+          throw new MFSCommonException(ErrorConstants.TXN_LIMIT_CONFIGURATION_EXISTS, String.format("Transaction Limit Configuration Already Exists For TransferType: %s, ApplyOn: %s", txnLimitConfig.getTransferType().getName(), txnLimitConfig.getApplyOn()), HttpStatus.BAD_REQUEST);
+        }
         MfsTxnLimitConfig persisitedConfig = mfsTxnLimitConfigDAO.insert(txnLimitConfig);
         return convertToTxnLimitResponse(persisitedConfig);
     }
