@@ -33,3 +33,6 @@ build/
 .vscode/
 
 logs
+
+### MFS CORE FILES ###
+mfs_core.sql

@@ -293,7 +293,7 @@ public class ApplicationServiceImpl implements ApplicationServiceLocal, Applicat
                 taskRunner.runInitializations(beanNames);
 
                 // Start both scheduling and polling tasks handlers
-             //   schedulingHandler.start();
+                schedulingHandler.start();
              //   pollingTasksHandler.start();
             }
 

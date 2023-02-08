@@ -20,6 +20,7 @@
 package nl.strohalm.cyclos.scheduling.tasks;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import nl.strohalm.cyclos.services.accounts.AccountServiceLocal;
 
@@ -42,6 +43,7 @@ public class CloseBalancesScheduledTask extends BaseScheduledTask {
 
     @Override
     protected void doRun(final Calendar time) {
+        System.out.println("********** : Calling closed balance scheduling at: *********" + new Date());
         accountService.closeBalances(time);
     }
 
