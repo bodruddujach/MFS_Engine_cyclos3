@@ -7,6 +7,7 @@ import nl.strohalm.cyclos.entities.accounts.fees.transaction.TransactionFee;
 import nl.strohalm.cyclos.entities.accounts.fees.transaction.TransactionFeeQuery;
 import nl.strohalm.cyclos.entities.accounts.transactions.Payment;
 import nl.strohalm.cyclos.entities.accounts.transactions.Transfer;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnType.TxnTypeTag;
 import nl.strohalm.cyclos.mfs.exceptions.ErrorConstants;
 import nl.strohalm.cyclos.mfs.exceptions.MFSCommonException;
 import nl.strohalm.cyclos.mfs.middleware.CyclosMiddleware;
@@ -173,6 +174,10 @@ public class TransactionService {
     txnReversalResponse.setMessage("Reverse Txn Successful");
     txnReversalResponse.setTxnId(chargebackTransfer.getTransactionNumber());
     return txnReversalResponse;
+  }
+
+  public Transfer getTransfer(String txnId) {
+    return paymentServiceLocal.findByTxnId(txnId);
   }
 
   private void validateReversalTxn(TxnReversalRequest request, Transfer transfer) {

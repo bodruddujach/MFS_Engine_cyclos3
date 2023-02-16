@@ -2,6 +2,7 @@ package nl.strohalm.cyclos.mfs.services;
 
 import nl.strohalm.cyclos.mfs.dao.MfsTxnTypeDao;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnType;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnType.TxnTypeTag;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,10 @@ public class MfsTxnTypeService {
 
   public MfsTxnType findByName(String name){
      return mfsTxnTypeDao.findByName(name);
+  }
+
+  public MfsTxnType findByNameAndTypeTag(String name, TxnTypeTag typeTag){
+     return mfsTxnTypeDao.findByNameAndTypeTag(name, typeTag);
   }
 
   public MfsTxnType findByCoreId(Long txnTypeId){

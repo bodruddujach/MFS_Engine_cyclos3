@@ -92,7 +92,6 @@ public class AccountController {
     return accountService.getWalletInfo(walletNo);
   }
 
-
   @RequestMapping(value = "/balance/{walletNo}", method = RequestMethod.GET)
   @ResponseBody
   public BalanceResponse getBalance(@PathVariable String walletNo) {

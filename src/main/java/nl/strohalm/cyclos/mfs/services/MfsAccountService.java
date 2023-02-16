@@ -7,6 +7,7 @@ import nl.strohalm.cyclos.entities.accounts.Account;
 import nl.strohalm.cyclos.entities.accounts.AccountStatus;
 import nl.strohalm.cyclos.entities.accounts.MemberAccount;
 import nl.strohalm.cyclos.entities.accounts.SystemAccount;
+import nl.strohalm.cyclos.entities.accounts.transactions.Transfer;
 import nl.strohalm.cyclos.entities.exceptions.EntityNotFoundException;
 import nl.strohalm.cyclos.entities.members.Member;
 import nl.strohalm.cyclos.entities.members.RegisteredMember;
@@ -410,6 +411,24 @@ public class MfsAccountService {
     return changePin(changePinRequest, true);
   }
 
+  public BalanceResponse getBalanceAtTransfer(final String walletNo, final Transfer transfer){
+	    BalanceResponse balanceResult = new BalanceResponse();
+	    final Member member = cyclosMiddleware.getMember(walletNo);
+	    if (member == null) {
+	      throw new MFSCommonException(ErrorConstants.ACCOUNT_NOT_FOUND, ERROR_MAP.get(ErrorConstants.ACCOUNT_NOT_FOUND), HttpStatus.NOT_FOUND);
+	    }
+	    Account account = null;
+	    for (final Account ac : accountServiceLocal.getAccounts(member)) {
+	      account = ac;
+	    }
+	    if (account == null) {
+	      throw new MFSCommonException(ErrorConstants.ACCOUNT_NOT_FOUND, ERROR_MAP.get(ErrorConstants.ACCOUNT_NOT_FOUND), HttpStatus.NOT_FOUND);
+	    }
+	    balanceResult.setBalance(accountServiceLocal.getBalanceAtTransfer(account, transfer, false, true));
+	    balanceResult.setStatus(MfsConstant.STATUS_SUCCESS);
+	    balanceResult.setAvailableBalance(balanceResult.getBalance());
+	    return balanceResult;
+	  }
   private void isValidPin(String pin) {
     if (StringUtils.isEmpty(pin) || pin.length() < 4) {
       throw new MFSCommonException(ErrorConstants.INVALID_PIN, ERROR_MAP.get(ErrorConstants.INVALID_PIN), HttpStatus.BAD_REQUEST);

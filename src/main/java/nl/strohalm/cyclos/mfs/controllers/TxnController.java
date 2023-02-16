@@ -1,11 +1,15 @@
 package nl.strohalm.cyclos.mfs.controllers;
 
+import nl.strohalm.cyclos.entities.accounts.transactions.Transfer;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnType.TxnTypeTag;
+import nl.strohalm.cyclos.mfs.models.accounts.BalanceResponse;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementResp;
 import nl.strohalm.cyclos.mfs.models.transactions.BulkTxnRequest;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnRequest;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnResponse;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnReversalRequest;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnReversalResponse;
+import nl.strohalm.cyclos.mfs.services.MfsAccountService;
 import nl.strohalm.cyclos.mfs.services.TransactionService;
 import nl.strohalm.cyclos.webservices.rest.BaseRestController;
 
@@ -21,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Controller
@@ -31,6 +36,8 @@ public class TxnController extends BaseRestController {
   @Autowired
   TransactionService transactionService;
 
+  @Autowired
+  MfsAccountService accountService;
 
   @RequestMapping(value = "/ping",method = RequestMethod.GET)
   @ResponseBody
@@ -45,6 +52,7 @@ public class TxnController extends BaseRestController {
     long s = System.currentTimeMillis();
     logger.info(String.format("Txn Request From: %s | To Ac: %s | Txn Type: %s | Amount: %s",
         request.getFromAc(), request.getToAc(), request.getTxnType(), request.getAmount()));
+    request.setTxnTypeTag(TxnTypeTag.MFS);
     TxnResponse result = transactionService.processTransaction(request);
     long e = System.currentTimeMillis();
     logger.info(String.format("Txn Resp: Status: %s | TxnID: %s | From: %s | To : %s | Type: %s | Amount: %s | Latency Time: %s ms",
@@ -99,5 +107,22 @@ public class TxnController extends BaseRestController {
     return result;
   }
 
+  @RequestMapping(value = "/add-money", method = RequestMethod.POST, headers = "Content-type=application/json")
+  @ResponseBody
+  public TxnResponse performAddMoney(@Validated @RequestBody final TxnRequest request) {
+    long s = System.currentTimeMillis();
+    logger.info(String.format("Txn Request From: %s | To Ac: %s | Txn Type: %s | Amount: %s",
+        request.getFromAc(), request.getToAc(), request.getTxnType(), request.getAmount()));
+    request.setTxnTypeTag(TxnTypeTag.I_BANKING);
+    TxnResponse result = transactionService.processTransaction(request);
+    Transfer transfer = transactionService.getTransfer(result.getTxnId());
+    BalanceResponse toAccountBalance = accountService.getBalanceAtTransfer(result.getToAccount(), transfer);
+    long e = System.currentTimeMillis();
+    logger.info(String.format("Txn Resp: Status: %s | TxnID: %s | From: %s | To : %s | Type: %s | Amount: %s | Latency Time: %s ms",
+        result.getStatus(), result.getTxnId(), request.getFromAc(), request.getToAc(),
+        request.getTxnType(), request.getAmount(), (e - s)));
+    result.setBalanceTo(toAccountBalance.getAvailableBalance());
+    return result;
+  }
 
 }

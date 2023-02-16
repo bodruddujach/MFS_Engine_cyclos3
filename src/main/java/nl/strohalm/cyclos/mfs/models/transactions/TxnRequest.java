@@ -2,6 +2,7 @@ package nl.strohalm.cyclos.mfs.models.transactions;
 
 import com.google.common.base.MoreObjects;
 
+import nl.strohalm.cyclos.mfs.entities.MfsTxnType.TxnTypeTag;
 import nl.strohalm.cyclos.mfs.models.enums.TransactionType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -48,8 +49,8 @@ public class TxnRequest implements Serializable {
   private String externalCustomer;
   private String note;
   private String txnTag;
-
   private String parentTxnNumber;
+  private TxnTypeTag txnTypeTag;
 
   public String getFromAc() {
     return fromAc;
@@ -269,8 +270,17 @@ public class TxnRequest implements Serializable {
     this.parentTxnNumber = parentTxnNumber;
   }
 
+  
 
-  @Override
+  public TxnTypeTag getTxnTypeTag() {
+    return txnTypeTag;
+  }
+
+  public void setTxnTypeTag(TxnTypeTag txnTypeTag) {
+    this.txnTypeTag = txnTypeTag;
+  }
+
+@Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
         .add("fromAc", fromAc)

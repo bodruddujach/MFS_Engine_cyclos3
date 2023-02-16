@@ -18,7 +18,8 @@ public enum TransactionType {
   SEND_MONEY("Send Money"),
   MOBILE_RECHARGE("Mobile Recharge"),
   MERCHANT_TO_MERCHANT("Merchant To Merchant Payment"),
-  REVERSE("Reverse Txn");
+  REVERSE("Reverse Txn"),
+  ADD_MONEY("Add Money From Bank");
 
 
 

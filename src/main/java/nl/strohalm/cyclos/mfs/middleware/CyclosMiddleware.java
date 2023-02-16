@@ -18,6 +18,7 @@ import nl.strohalm.cyclos.entities.members.Element;
 import nl.strohalm.cyclos.entities.members.Member;
 import nl.strohalm.cyclos.mfs.entities.MfsGroupConfig;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnType;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnType.TxnTypeTag;
 import nl.strohalm.cyclos.mfs.exceptions.ErrorConstants;
 import nl.strohalm.cyclos.mfs.exceptions.MFSCommonException;
 import nl.strohalm.cyclos.mfs.models.accounts.AcRegRequest;
@@ -139,13 +140,8 @@ public class CyclosMiddleware {
       } else {
         doPaymentDTO.setTo(SystemAccountOwner.instance());
       }
-
-      MfsTxnType mfsTxnType = mfsTxnTypeService.findByName(txnRequest.getTxnType().name());
-      TransferType transferType = transferTypeServiceLocal.load(mfsTxnType.getCoreTxnTypeId());
-
-      if (transferType == null) {
-        throw new MFSCommonException(ErrorConstants.TXN_TYPE_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.TXN_TYPE_NOT_FOUND), HttpStatus.BAD_REQUEST);
-      }
+      
+      TransferType transferType = resolveCoreTxnType(txnRequest);
 
       doPaymentDTO.setTransferType(transferType);
       doPaymentDTO.setDescription(getPaymentDescription(txnRequest, transferType, fromMember, toMember));
@@ -332,5 +328,22 @@ public class CyclosMiddleware {
 
     }
     return account;
+  }
+
+  private TransferType resolveCoreTxnType(TxnRequest txnRequest) {
+    MfsTxnType mfsTxnType = null;
+    if (txnRequest.getTxnTypeTag() == null) {
+      mfsTxnType  = mfsTxnTypeService.findByName(txnRequest.getTxnType().name());
+    } else {
+      mfsTxnType = mfsTxnTypeService.findByNameAndTypeTag(txnRequest.getTxnType().name(), txnRequest.getTxnTypeTag());
+    }
+    if (mfsTxnType == null) {
+      throw new MFSCommonException(ErrorConstants.TXN_TYPE_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.TXN_TYPE_NOT_FOUND), HttpStatus.BAD_REQUEST);
+    }  
+    TransferType transferType = transferTypeServiceLocal.load(mfsTxnType.getCoreTxnTypeId());
+    if (transferType == null) {
+      throw new MFSCommonException(ErrorConstants.TXN_TYPE_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.TXN_TYPE_NOT_FOUND), HttpStatus.BAD_REQUEST);
+    }
+    return transferType;
   }
 }
