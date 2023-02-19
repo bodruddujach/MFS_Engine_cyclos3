@@ -36,9 +36,6 @@ public class TxnController extends BaseRestController {
   @Autowired
   TransactionService transactionService;
 
-  @Autowired
-  MfsAccountService accountService;
-
   @RequestMapping(value = "/ping",method = RequestMethod.GET)
   @ResponseBody
   public String ping() {
@@ -115,13 +112,10 @@ public class TxnController extends BaseRestController {
         request.getFromAc(), request.getToAc(), request.getTxnType(), request.getAmount()));
     request.setTxnTypeTag(TxnTypeTag.I_BANKING);
     TxnResponse result = transactionService.processTransaction(request);
-    Transfer transfer = transactionService.getTransfer(result.getTxnId());
-    BalanceResponse toAccountBalance = accountService.getBalanceAtTransfer(result.getToAccount(), transfer);
     long e = System.currentTimeMillis();
     logger.info(String.format("Txn Resp: Status: %s | TxnID: %s | From: %s | To : %s | Type: %s | Amount: %s | Latency Time: %s ms",
         result.getStatus(), result.getTxnId(), request.getFromAc(), request.getToAc(),
         request.getTxnType(), request.getAmount(), (e - s)));
-    result.setBalanceTo(toAccountBalance.getAvailableBalance());
     return result;
   }
 

@@ -400,12 +400,7 @@ public class TransactionFeeServiceImpl implements TransactionFeeServiceLocal {
                 amount = feeValue;
                 break;
             case PERCENTAGE:
-                {
-                    amount = Amount.percentage(feeValue).apply(transferAmount);
-                    if(fee.getInitialAmount() != null && amount.compareTo(fee.getInitialAmount()) == -1 ){
-                        amount = fee.getInitialAmount();
-                    }
-                }
+                amount = Amount.percentage(feeValue).apply(transferAmount);
                 break;
             case A_RATE:
             case MIXED_A_D_RATES:

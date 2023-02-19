@@ -11,6 +11,7 @@ import nl.strohalm.cyclos.mfs.entities.MfsTxnType.TxnTypeTag;
 import nl.strohalm.cyclos.mfs.exceptions.ErrorConstants;
 import nl.strohalm.cyclos.mfs.exceptions.MFSCommonException;
 import nl.strohalm.cyclos.mfs.middleware.CyclosMiddleware;
+import nl.strohalm.cyclos.mfs.models.accounts.BalanceResponse;
 import nl.strohalm.cyclos.mfs.models.accounts.CheckPinRequest;
 
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementResp;
@@ -61,6 +62,7 @@ public class TransactionService {
     // update limit
     TxnResponse txnResponse = cyclosMiddleware.convertTxnResult(payment, request);
     updateFeeInfo(request, txnResponse);
+    includeBalances(request, txnResponse);
     return txnResponse;
   }
 
@@ -102,9 +104,6 @@ public class TransactionService {
         if (fee instanceof SimpleTransactionFee && fee.getAmount().isPercentage()) {
           final BigDecimal feeValue = fee.getAmount().getValue();
           feeTotalAmount = request.getAmount().multiply(feeValue).divide(BigDecimal.valueOf(100));
-          if(fee.getInitialAmount() != null && feeTotalAmount.compareTo(fee.getInitialAmount()) == -1 ){
-            feeTotalAmount = fee.getInitialAmount();
-          }
         } else {
           feeTotalAmount = fee.getAmount().getValue();
         }
@@ -187,6 +186,15 @@ public class TransactionService {
     }
     if (request.getAmount().compareTo(transfer.getAmount()) != 0) {
       throw new MFSCommonException(AMOUNT_NOT_MATCHED, ERROR_MAP.get(AMOUNT_NOT_MATCHED), HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  private void includeBalances(TxnRequest request, TxnResponse txnResponse) {
+    if (request.getTxnType() == TransactionType.ADD_MONEY
+        || request.getTxnType() == TransactionType.ADD_MONEY_SSL) { //Include to account balance
+        Transfer transfer = paymentServiceLocal.findByTxnId(txnResponse.getTxnId());
+        BalanceResponse toAccountBalance = accountService.getBalanceAtTransfer(txnResponse.getToAccount(), transfer);
+        txnResponse.setBalanceTo(toAccountBalance.getAvailableBalance());
     }
   }
 }

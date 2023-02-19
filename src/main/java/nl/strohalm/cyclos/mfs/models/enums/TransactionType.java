@@ -19,7 +19,9 @@ public enum TransactionType {
   MOBILE_RECHARGE("Mobile Recharge"),
   MERCHANT_TO_MERCHANT("Merchant To Merchant Payment"),
   REVERSE("Reverse Txn"),
-  ADD_MONEY("Add Money From Bank");
+  ADD_MONEY("Add Money From Bank"),
+  ADD_MONEY_SSL("Add Money From SSL"),
+  UTILITY_BILL_PAYMENT_WASA_SSL("Wasa Bill Payment Via SSL");
 
 
 
