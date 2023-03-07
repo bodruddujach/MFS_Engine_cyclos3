@@ -17,12 +17,10 @@ public class MfsTxnTypeDaoImpl extends BaseDAOImpl<MfsTxnType> implements MfsTxn
   }
 
   public List<MfsTxnType> get() {
-    final Map<String, Object> namedParameters = new HashMap<String, Object>();
     final StringBuilder hql = new StringBuilder();
-    hql.append(" select t");
-    hql.append(" from MfsTxnType ");
-    hql.append(" where 1=1");
-    return list(hql.toString(), namedParameters);
+    hql.append(" select mtt");
+    hql.append(" from MfsTxnType mtt");
+    return list(hql.toString(), null);
   }
 
   public MfsTxnType findByName(String name) {

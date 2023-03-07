@@ -21,8 +21,9 @@ public enum TransactionType {
   REVERSE("Reverse Txn"),
   ADD_MONEY("Add Money From Bank"),
   ADD_MONEY_SSL("Add Money From SSL"),
-  UTILITY_BILL_PAYMENT_WASA_SSL("Wasa Bill Payment Via SSL");
-
+  UTILITY_BILL_PAYMENT_WASA_SSL("Wasa Bill Payment Via SSL"),
+  PAY_DISTRIBUTOR_COMMISSION("Pay Distributor Commission"),
+  SETTLEMENT_ADD_MONEY("Settlement Add Money From Bank");
 
 
   private String description;

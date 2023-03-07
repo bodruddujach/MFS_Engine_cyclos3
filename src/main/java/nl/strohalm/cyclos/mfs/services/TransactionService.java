@@ -81,7 +81,8 @@ public class TransactionService {
       || request.getTxnType() == TransactionType.PAYMENT
       || request.getTxnType() == TransactionType.CASH_OUT_TO_MFS_AGENT
       || request.getTxnType() == TransactionType.BILL_PAYMENT
-      || request.getTxnType() == TransactionType.AGENT_ASSISTED_PAYMENT) {
+      || request.getTxnType() == TransactionType.AGENT_ASSISTED_PAYMENT
+      || request.getTxnType() == TransactionType.UTILITY_BILL_PAYMENT_WASA_SSL) {
 
       TxnResponse feeResponse = estimate(request);
       txnResponse.setFee(feeResponse.getFee());
