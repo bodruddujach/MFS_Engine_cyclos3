@@ -92,6 +92,7 @@ public class CyclosMiddleware {
     DoPaymentDTO doPaymentDTO = new DoPaymentDTO();
     Member fromMember = null;
     Member toMember = null;
+    Member byMember = null;
     String fromAcType = null;
     String toAcType = null;
 
@@ -140,6 +141,26 @@ public class CyclosMiddleware {
       } else {
         doPaymentDTO.setTo(SystemAccountOwner.instance());
       }
+      // By Ac check
+      if (StringUtils.isNotBlank(txnRequest.getByAc()) && !"SYSTEM".equalsIgnoreCase(txnRequest.getByAc())) {
+          try {
+            byMember = elementServiceLocal.loadByPrincipal(principalType, txnRequest.getByAc(),
+              Element.Relationships.USER, Element.Relationships.GROUP);
+          } catch (EntityNotFoundException ex) {
+            throw new MFSCommonException(ErrorConstants.BY_AC_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.BY_AC_NOT_FOUND), HttpStatus.BAD_REQUEST);
+          }
+          doPaymentDTO.setBy(byMember);
+
+          //check status
+          Account byAc = null;
+          for (final Account ac : accountServiceLocal.getAccounts(byMember)) {
+            byAc = ac;
+          }
+          if (byAc == null) {
+            throw new MFSCommonException(ErrorConstants.ACCOUNT_NOT_FOUND,ErrorConstants.ERROR_MAP.get(ErrorConstants.ACCOUNT_NOT_FOUND), HttpStatus.NOT_FOUND);
+          }
+          //validateStatus((MemberAccount) byAc, true);
+        } 
       
       TransferType transferType = resolveCoreTxnType(txnRequest);
 

@@ -61,7 +61,7 @@ public class DoPaymentDTO extends DataObject implements CustomFieldsContainer<Pa
     private String note;
     private String invoiceNo;
     private String customerRefId;
-
+    private Element                             by;
     /**
      * @see #getTraceData()
      */
@@ -237,4 +237,13 @@ public class DoPaymentDTO extends DataObject implements CustomFieldsContainer<Pa
     public void setCustomerRefId(String customerRefId) {
         this.customerRefId = customerRefId;
     }
+
+    public Element getBy() {
+        return by;
+    }
+
+    public void setBy(Element by) {
+        this.by = by;
+    }
+
 }

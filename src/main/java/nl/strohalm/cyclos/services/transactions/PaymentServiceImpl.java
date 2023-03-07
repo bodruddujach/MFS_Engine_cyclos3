@@ -2398,6 +2398,8 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
 
     if (LoggedUser.hasUser() && !LoggedUser.isWebService()) {
       dto.setBy(LoggedUser.element());
+    } else if (Channel.REST.equalsIgnoreCase(params.getChannel()) && params.getBy() != null) { //for mfs rest DO Accounts
+      dto.setBy(params.getBy());
     }
 
     dto.setToOwner(params.getTo());

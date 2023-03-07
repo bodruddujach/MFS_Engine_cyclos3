@@ -43,7 +43,7 @@ public class ErrorConstants {
   public static final String MAX_NUMBER_OF_TXN_PER_MONTH_EXCEEDED = "4030";
   public static final String MAX_AMOUNT_PER_MONTH_EXCEEDED = "4031";
   public static final String TXN_LIMIT_CONFIGURATION_EXISTS = "4032";
-
+  public static final String BY_AC_NOT_FOUND = "4033";
 
 
 
@@ -63,6 +63,7 @@ public class ErrorConstants {
     ERROR_MAP.put(INVALID_TXN_TYPE, "INVALID_TXN_TYPE");
     ERROR_MAP.put(FROM_AC_NOT_FOUND, "FROM_AC_NOT_FOUND");
     ERROR_MAP.put(TO_AC_NOT_FOUND, "TO_AC_NOT_FOUND");
+    ERROR_MAP.put(BY_AC_NOT_FOUND, "BY_AC_NOT_FOUND");
     ERROR_MAP.put(TXN_TYPE_NOT_FOUND, "TXN_TYPE_NOT_FOUND");
     ERROR_MAP.put(FROM_AC_IS_NOT_ACTIVE, "FROM_AC_IS_NOT_ACTIVE");
     ERROR_MAP.put(TO_AC_IS_SUSPENDED_OR_CLOSE, "TO_AC_IS_SUSPENDED_OR_CLOSE");

@@ -27,7 +27,7 @@ import nl.strohalm.cyclos.services.transactions.DoPaymentDTO;
 import nl.strohalm.cyclos.services.transactions.PaymentServiceLocal;
 import nl.strohalm.cyclos.services.transfertypes.TransactionFeeServiceLocal;
 
-
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -54,7 +54,10 @@ public class TransactionService {
   public TxnResponse processTransaction(TxnRequest request) {
     DoPaymentDTO doPaymentDTO = cyclosMiddleware.getValidateCyclosDoPaymentDTO(request);
 
-    if (!"SYSTEM".equalsIgnoreCase(request.getFromAc()) && checkPinEanable(request)) {
+    if (StringUtils.isNotBlank(request.getByAc()) && !"SYSTEM".equalsIgnoreCase(request.getByAc()) && checkPinEanable(request)) {
+        accountService.loginUser(new CheckPinRequest(request.getByAc(), request.getPin()));
+    }
+    else if (!"SYSTEM".equalsIgnoreCase(request.getFromAc()) && checkPinEanable(request)) {
       accountService.loginUser(new CheckPinRequest(request.getFromAc(), request.getPin()));
     }
     // todo check limit validation
