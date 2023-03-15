@@ -119,4 +119,19 @@ public class TxnController extends BaseRestController {
     return result;
   }
 
+  @RequestMapping(value = "/internal", method = RequestMethod.POST, headers = "Content-type=application/json")
+  @ResponseBody
+  public TxnResponse performInternaltxn(@Validated @RequestBody final TxnRequest request) {
+    long s = System.currentTimeMillis();
+    logger.info(String.format("Txn Request From: %s | To Ac: %s | Txn Type: %s | Amount: %s",
+        request.getFromAc(), request.getToAc(), request.getTxnType(), request.getAmount()));
+    request.setTxnTypeTag(TxnTypeTag.INTERNAL);
+    TxnResponse result = transactionService.processTransaction(request);
+    long e = System.currentTimeMillis();
+    logger.info(String.format("Txn Resp: Status: %s | TxnID: %s | From: %s | To : %s | Type: %s | Amount: %s | Latency Time: %s ms",
+        result.getStatus(), result.getTxnId(), request.getFromAc(), request.getToAc(),
+        request.getTxnType(), request.getAmount(), (e - s)));
+    return result;
+
+  }
 }

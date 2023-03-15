@@ -38,6 +38,7 @@ import nl.strohalm.cyclos.entities.accounts.transactions.Transfer;
 import nl.strohalm.cyclos.entities.accounts.transactions.TransferAuthorization;
 import nl.strohalm.cyclos.entities.groups.MemberGroup;
 import nl.strohalm.cyclos.entities.members.Member;
+import nl.strohalm.cyclos.mfs.models.accounts.GetMfsTransactionsDTO;
 import nl.strohalm.cyclos.services.transactions.TransactionSummaryVO;
 import nl.strohalm.cyclos.utils.Period;
 
@@ -151,5 +152,15 @@ public interface AccountServiceLocal extends AccountService {
      * Inserts an amount reservation to return the reserved amount for an installment of a scheduled payment that reserved the total amount
      */
     InstallmentAmountReservation returnReservationForInstallment(Transfer transfer);
+
+    /**
+     * Retrieves the mfs debits summary for the given arguments
+     */
+    TransactionSummaryVO getDebitsMFS(GetMfsTransactionsDTO params);
+
+    /**
+     * Retrieves the mfs debits summary for the given arguments
+     */
+    TransactionSummaryVO getCreditsMFS(GetMfsTransactionsDTO params);
 
 }
