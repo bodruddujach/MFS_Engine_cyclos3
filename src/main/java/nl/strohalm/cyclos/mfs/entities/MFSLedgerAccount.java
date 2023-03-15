@@ -14,6 +14,8 @@ public class MFSLedgerAccount extends Entity {
 
   String code;
 
+  String name;
+
   String description;
 
   String level;
@@ -74,6 +76,15 @@ public class MFSLedgerAccount extends Entity {
 
   public void setOnlyParent(boolean onlyParent) {
     this.onlyParent = onlyParent;
+  }
+
+  
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
   public String getDescription() {
