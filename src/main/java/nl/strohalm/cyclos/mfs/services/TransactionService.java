@@ -25,12 +25,14 @@ import nl.strohalm.cyclos.mfs.utils.MfsConstant;
 import nl.strohalm.cyclos.services.transactions.BulkPaymentResult;
 import nl.strohalm.cyclos.services.transactions.DoPaymentDTO;
 import nl.strohalm.cyclos.services.transactions.PaymentServiceLocal;
+import nl.strohalm.cyclos.services.transfertypes.TransactionFeePreviewDTO;
 import nl.strohalm.cyclos.services.transfertypes.TransactionFeeServiceLocal;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
@@ -102,23 +104,30 @@ public class TransactionService {
     final List<? extends TransactionFee> fees = transactionFeeService.search(query);
     BigDecimal feeTotalAmount = BigDecimal.ZERO;
     BigDecimal commissionTotalAmount = BigDecimal.ZERO;
-    for (final TransactionFee fee : fees) {
-      if (fee.getGeneratedTransferType().getFrom().getNature() == AccountType.Nature.MEMBER && (fee.getGeneratedTransferType().getFrom().getName().toLowerCase().contains(MfsConstant.CUSTOMER.toLowerCase())
-        || fee.getGeneratedTransferType().getFrom().getName().toLowerCase().contains(MfsConstant.AGENT.toLowerCase()))) {
+    for (final TransactionFee fee : fees) { //commented out due to incorrect fee calculation, may need to rewrite whole api
+//      if (fee.getGeneratedTransferType().getFrom().getNature() == AccountType.Nature.MEMBER && (fee.getGeneratedTransferType().getFrom().getName().toLowerCase().contains(MfsConstant.CUSTOMER.toLowerCase())
+//        || fee.getGeneratedTransferType().getFrom().getName().toLowerCase().contains(MfsConstant.AGENT.toLowerCase()))) {
+//        if (fee instanceof SimpleTransactionFee && fee.getAmount().isPercentage()) {
+//          final BigDecimal feeValue = fee.getAmount().getValue();
+//          feeTotalAmount = request.getAmount().multiply(feeValue).divide(BigDecimal.valueOf(100));
+//        } else {
+//          feeTotalAmount = fee.getAmount().getValue();
+//        }
+//      }
+      if (fee.isEnabled() && fee.getGeneratedTransferType().getTo().getNature() == AccountType.Nature.MEMBER && fee.getGeneratedTransferType().getTo().getName().toLowerCase().contains(MfsConstant.AGENT.toLowerCase())) {
         if (fee instanceof SimpleTransactionFee && fee.getAmount().isPercentage()) {
           final BigDecimal feeValue = fee.getAmount().getValue();
-          feeTotalAmount = request.getAmount().multiply(feeValue).divide(BigDecimal.valueOf(100));
+          commissionTotalAmount = commissionTotalAmount.add(request.getAmount().multiply(feeValue).divide(BigDecimal.valueOf(100)));
         } else {
-          feeTotalAmount = fee.getAmount().getValue();
+          commissionTotalAmount = commissionTotalAmount.add(fee.getAmount().getValue());
         }
       }
-      if (fee.getGeneratedTransferType().getTo().getNature() == AccountType.Nature.MEMBER && fee.getGeneratedTransferType().getTo().getName().toLowerCase().contains(MfsConstant.AGENT.toLowerCase())) {
-        if (fee instanceof SimpleTransactionFee && fee.getAmount().isPercentage()) {
-          final BigDecimal feeValue = fee.getAmount().getValue();
-          commissionTotalAmount = request.getAmount().multiply(feeValue).divide(BigDecimal.valueOf(100));
-        } else {
-          commissionTotalAmount = fee.getAmount().getValue();
-        }
+    }
+
+    TransactionFeePreviewDTO feePreviewDTO = transactionFeeService.preview(doPaymentDTO.getFrom(), doPaymentDTO.getTo(), doPaymentDTO.getTransferType(),doPaymentDTO.getAmount());
+    if (!CollectionUtils.isEmpty(feePreviewDTO.getFees())) {
+      for (final TransactionFee fee : feePreviewDTO.getFees().keySet()) {
+        feeTotalAmount = feeTotalAmount.add(feePreviewDTO.getFees().get(fee));
       }
     }
     TxnResponse response = new TxnResponse();
