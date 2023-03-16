@@ -28,6 +28,8 @@ public class MFSLedgerAccount extends Entity {
 
   String type; // MEMBER, SYSTEM
 
+  boolean showInReports;
+
   Calendar createDate;
 
   public String getCode() {
@@ -119,7 +121,15 @@ public class MFSLedgerAccount extends Entity {
     this.createDate = createDate;
   }
 
-  @Override
+  public boolean isShowInReports() {
+    return showInReports;
+  }
+
+  public void setShowInReports(boolean showInReports) {
+    this.showInReports = showInReports;
+  }
+
+@Override
   public String toString() {
     return "MFSLedgerAccount{" +
       "accountId=" + accountId +

@@ -20,5 +20,6 @@
         <property name="onlyParent" column="is_only_parent" type="boolean" not-null="false"/>
         <property name="active" column="is_active" type="boolean" not-null="true"/>
         <property name="createDate" column="create_date" type="calendar" not-null="true"/>
+        <property name="showInReports" column="show_in_reports" type="boolean" not-null="true"/>
     </class>
 </hibernate-mapping>
