@@ -67,7 +67,8 @@ public class MemberAccount extends Account {
         PENDING("PENDING"),
         SUSPENDED("SUSPENDED"),
         CLOSED("CLOSED"),
-        INACTIVE("INACTIVE");
+        INACTIVE("INACTIVE"),
+        REMOVED("REMOVED");
         private final String value;
 
         private Status(final String value) {
