@@ -204,10 +204,29 @@ public class TransactionService {
 
   private void includeBalances(TxnRequest request, TxnResponse txnResponse) {
     if (request.getTxnType() == TransactionType.ADD_MONEY
-        || request.getTxnType() == TransactionType.ADD_MONEY_SSL) { //Include to account balance
+        || request.getTxnType() == TransactionType.ADD_MONEY_SSL
+        || request.getTxnType() == TransactionType.BANK_CASHIN
+        || request.getTxnType() == TransactionType.BANK_CASHIN_MERCHANT
+        || request.getTxnType() == TransactionType.PAY_DISTRIBUTOR_COMMISSION) { //Include to account balance
         Transfer transfer = paymentServiceLocal.findByTxnId(txnResponse.getTxnId());
         BalanceResponse toAccountBalance = accountService.getBalanceAtTransfer(txnResponse.getToAccount(), transfer);
         txnResponse.setBalanceTo(toAccountBalance.getAvailableBalance());
+    }
+
+    if (request.getTxnType() == TransactionType.AGENT_ASSISTED_PAYMENT
+        || request.getTxnType() == TransactionType.BANK_CASHOUT
+        || request.getTxnType() == TransactionType.BANK_CASHOUT_MERCHANT
+        || request.getTxnType() == TransactionType.CASH_IN_FROM_MFS_AGENT
+        || request.getTxnType() == TransactionType.CASH_OUT_TO_MFS_AGENT
+        || request.getTxnType() == TransactionType.CASHOUT_AGENT_DISTRIBUTOR
+        || request.getTxnType() == TransactionType.MOBILE_RECHARGE
+        || request.getTxnType() == TransactionType.PAYMENT
+        || request.getTxnType() == TransactionType.SEND_MONEY
+        || request.getTxnType() == TransactionType.TOPUP_AGENT
+        || request.getTxnType() == TransactionType.UTILITY_BILL_PAYMENT_WASA_SSL) { //Include from account balance
+        Transfer transfer = paymentServiceLocal.findByTxnId(txnResponse.getTxnId());
+        BalanceResponse fromAccountBalance = accountService.getBalanceAtTransfer(txnResponse.getFromAccount(), transfer);
+        txnResponse.setBalanceFrom(fromAccountBalance.getAvailableBalance());
     }
   }
 }

@@ -21,5 +21,5 @@ public class MfsConstant {
   public static final BigDecimal MFS_MAX_TXN_AMOUNT= BigDecimal.valueOf(1000000);
   public static final BigDecimal MFS_MIN_TXN_AMOUNT = BigDecimal.valueOf(0.0001);
   public static final List<MemberAccount.Status> DEBIT_ALLOWED_STATUS = asList(MemberAccount.Status.ACTIVE);
-  public static final List<MemberAccount.Status> TXN_BLOCK_STATUS = asList(MemberAccount.Status.SUSPENDED);
+  public static final List<MemberAccount.Status> TXN_BLOCK_STATUS = asList(MemberAccount.Status.SUSPENDED, MemberAccount.Status.CLOSED, MemberAccount.Status.INACTIVE, MemberAccount.Status.PENDING, MemberAccount.Status.REMOVED);
 }
