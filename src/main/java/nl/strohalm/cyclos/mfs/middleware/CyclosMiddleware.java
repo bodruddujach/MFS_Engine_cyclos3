@@ -12,6 +12,8 @@ import nl.strohalm.cyclos.entities.accounts.SystemAccountOwner;
 import nl.strohalm.cyclos.entities.accounts.transactions.Payment;
 import nl.strohalm.cyclos.entities.accounts.transactions.Transfer;
 import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
+import nl.strohalm.cyclos.entities.customization.fields.MemberCustomField;
+import nl.strohalm.cyclos.entities.customization.fields.MemberCustomFieldValue;
 import nl.strohalm.cyclos.entities.exceptions.EntityNotFoundException;
 import nl.strohalm.cyclos.entities.groups.MemberGroup;
 import nl.strohalm.cyclos.entities.members.Element;
@@ -22,6 +24,7 @@ import nl.strohalm.cyclos.mfs.entities.MfsTxnType.TxnTypeTag;
 import nl.strohalm.cyclos.mfs.exceptions.ErrorConstants;
 import nl.strohalm.cyclos.mfs.exceptions.MFSCommonException;
 import nl.strohalm.cyclos.mfs.models.accounts.AcRegRequest;
+import nl.strohalm.cyclos.mfs.models.accounts.UpdateAccountRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletInfoResponse;
 import nl.strohalm.cyclos.mfs.models.enums.AccountStatus;
 import nl.strohalm.cyclos.mfs.models.enums.AccountType;
@@ -37,13 +40,16 @@ import nl.strohalm.cyclos.mfs.utils.TxnTypeConstant;
 import nl.strohalm.cyclos.services.access.ChannelServiceLocal;
 import nl.strohalm.cyclos.services.accounts.AccountDateDTO;
 import nl.strohalm.cyclos.services.accounts.AccountServiceLocal;
+import nl.strohalm.cyclos.services.customization.MemberCustomFieldServiceLocal;
 import nl.strohalm.cyclos.services.elements.ElementServiceLocal;
 import nl.strohalm.cyclos.services.fetch.FetchServiceLocal;
 import nl.strohalm.cyclos.services.groups.GroupServiceLocal;
 import nl.strohalm.cyclos.services.transactions.DoPaymentDTO;
 import nl.strohalm.cyclos.services.transactions.TransactionContext;
 import nl.strohalm.cyclos.services.transfertypes.TransferTypeServiceLocal;
+import nl.strohalm.cyclos.utils.CustomFieldHelper;
 import nl.strohalm.cyclos.utils.RelationshipHelper;
+import nl.strohalm.cyclos.webservices.model.RegistrationFieldValueVO;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
@@ -55,6 +61,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -87,6 +94,10 @@ public class CyclosMiddleware {
   MfsGroupService mfsGroupService;
   @Autowired
   MfsTxnTypeService mfsTxnTypeService;
+  @Autowired
+  MemberCustomFieldServiceLocal memberCustomFieldServiceLocal;
+  @Autowired
+  CustomFieldHelper customFieldHelper;
 
   public DoPaymentDTO getValidateCyclosDoPaymentDTO(TxnRequest txnRequest) {
     DoPaymentDTO doPaymentDTO = new DoPaymentDTO();
@@ -278,6 +289,10 @@ public class CyclosMiddleware {
     if (StringUtils.isNotEmpty(regRequest.getPin())) {
       member.getMemberUser().setPin(regRequest.getPin());
     }
+    List<MemberCustomField> fields = memberCustomFieldServiceLocal.list();
+    fields = customFieldHelper.onlyForGroup(fields, group);
+    final Collection<MemberCustomFieldValue> fieldValues = customFieldHelper.toValueCollection(fields, regRequest.getFields());
+    member.setCustomValues(fieldValues);
     return member;
   }
 
@@ -306,6 +321,15 @@ public class CyclosMiddleware {
       logger.error("Unable to find member: " + ex.getMessage());
     }
     return null;
+  }
+
+  public Member prepareMemberCustomFiledstoUpdate(Member member, UpdateAccountRequest userRequest) {
+      // Merge the custom fields
+      List<RegistrationFieldValueVO> fieldValueVOs = userRequest.getFields();
+      List<MemberCustomField> allowedFields = customFieldHelper.onlyForGroup(memberCustomFieldServiceLocal.list(), member.getMemberGroup());
+      Collection<MemberCustomFieldValue> newFieldValues = customFieldHelper.mergeFieldValues(member, fieldValueVOs, allowedFields);
+      member.setCustomValues(newFieldValues);
+      return member;
   }
 
   public WalletInfoResponse getWalletInfoResponse(Member member, Account account) {

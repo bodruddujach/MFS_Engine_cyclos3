@@ -605,6 +605,14 @@ public class ElementServiceImpl implements ElementServiceLocal {
     }
 
     @Override
+    public Member changeMemberProfile(final Member member) {
+        if (member.isTransient()) {
+            throw new UnexpectedEntityException();
+        }
+        return save(member, null, WhenSaving.WEB_SERVICE, false);
+    }
+
+    @Override
     public <E extends Element> E changeProfile(final E element) {
         return save(element, null, WhenSaving.PROFILE, false);
     }

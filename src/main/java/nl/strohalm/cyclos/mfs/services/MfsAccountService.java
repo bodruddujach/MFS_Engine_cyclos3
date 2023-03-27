@@ -47,13 +47,13 @@ import nl.strohalm.cyclos.utils.TransactionHelper;
 import nl.strohalm.cyclos.utils.Transactional;
 import nl.strohalm.cyclos.utils.validation.ValidationException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -229,8 +229,16 @@ public class MfsAccountService {
     if (member == null) {
       throw new MFSCommonException(ErrorConstants.ACCOUNT_NOT_FOUND, ERROR_MAP.get(ErrorConstants.ACCOUNT_NOT_FOUND), HttpStatus.NOT_FOUND);
     }
-    member.setName(updateAccountRequest.getName());
-    elementDAO.update(member);
+
+    member = (Member) member.clone();
+    // Update regular fields
+    if (StringUtils.isNotEmpty(updateAccountRequest.getName())) {
+        member.setName(updateAccountRequest.getName());
+    }
+    member = cyclosMiddleware.prepareMemberCustomFiledstoUpdate(member, updateAccountRequest);
+//    member.setName(updateAccountRequest.getName());
+//    elementDAO.update(member);
+    elementServiceLocal.changeMemberProfile(member);
     response.setStatus(MfsConstant.STATUS_SUCCESS);
     response.setMessage("Wallet updated successfully");
     return response;
