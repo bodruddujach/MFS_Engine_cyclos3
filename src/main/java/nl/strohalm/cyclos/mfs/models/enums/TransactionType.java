@@ -2,9 +2,9 @@ package nl.strohalm.cyclos.mfs.models.enums;
 
 public enum TransactionType {
   BANK_CASHIN("Bank Cash-In for Distributor"),
-  BANK_CASHOUT("Bank Cash-In for Distributor"),
-  BANK_CASHIN_MERCHANT("Bank Cash-In for Distributor"),
-  BANK_CASHOUT_MERCHANT("Bank Cash-In for Distributor"),
+  BANK_CASHOUT("Bank Cash-Out for Distributor"),
+  BANK_CASHIN_MERCHANT("Bank Cash-In for Merchant"),
+  BANK_CASHOUT_MERCHANT("Bank Cash-In for Merchant"),
   TOPUP_AGENT("TopUp Distributor to Agent"),
   CASHOUT_AGENT_DISTRIBUTOR("CashOut Agent to Distributor"),
   CASH_IN_FROM_MFS_AGENT("Cash-in From MFS Agent"),
@@ -23,7 +23,12 @@ public enum TransactionType {
   ADD_MONEY_SSL("Add Money From SSL"),
   UTILITY_BILL_PAYMENT_WASA_SSL("Wasa Bill Payment Via SSL"),
   PAY_DISTRIBUTOR_COMMISSION("Pay Distributor Commission"),
-  SETTLEMENT_ADD_MONEY("Settlement Add Money From Bank");
+  DISTRIBUTOR_COMMISSION_CASHOUT("Pay Distributor Commission for Cash Out"),
+  DISTRIBUTOR_COMMISSION_CASHIN("Pay Distributor Commission for Cash In"),
+  DISTRIBUTOR_COMMISSION_AAP("Pay Distributor Commission for Agent Assisted Payment"),
+  DISTRIBUTOR_COMMISSION_AC_OPENING("Pay Distributor Commission for Account Opening"),
+  SETTLEMENT_ADD_MONEY("Settlement Add Money From Bank"),
+  SETTLEMENT_ADD_MONEY_SSL("Settlement Add Money From Bank Ac And Cards");
 
 
   private String description;
