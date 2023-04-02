@@ -13,11 +13,11 @@ import nl.strohalm.cyclos.entities.access.User;
 import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
 import nl.strohalm.cyclos.utils.StringValuedEnum;
 
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class MfsTxnLimitConfig extends Entity {
 
 	public static enum LimitSubject implements StringValuedEnum {
-		SOURCE("src"), DESTINATION("dst");
+		FROM("src"), TO("dst");
 
 		private final String value;
 
@@ -31,27 +31,36 @@ public class MfsTxnLimitConfig extends Entity {
 		}
 	}
 
-    public static enum Relationships implements Relationship {
-    	TransferType("transferType");
-        private final String name;
+	public static enum Relationships implements Relationship {
+		TransferType("transferType"), MFS_GENERIC_LIMIT("genericLimit");
 
-        private Relationships(final String name) {
-            this.name = name;
-        }
+		private final String name;
 
-        @Override
-        public String getName() {
-            return name;
-        }
-    }
+		private Relationships(final String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String getName() {
+			return name;
+		}
+	}
+
+	private String mfsTypeName;
+
+	private String mfsTypeDescription;
+
+	private String fromAcType;
+
+	private String toAcType;
 
 	private BigDecimal minAmountPerTxn;
 
 	private BigDecimal maxAmountPerTxn;
 
-	private Long maxNumberOfTxnPerDay;
+	private Integer maxNumberOfTxnPerDay;
 
-	private Long maxNumberOfTxnPerMonth;
+	private Integer maxNumberOfTxnPerMonth;
 
 	private BigDecimal maxAmountPerDay;
 
@@ -60,6 +69,8 @@ public class MfsTxnLimitConfig extends Entity {
 	private LimitSubject applyOn;
 
 	private TransferType transferType;
+
+	private MfsGenericLimitConfig genericLimit;
 
 	private boolean enable;
 
@@ -70,6 +81,38 @@ public class MfsTxnLimitConfig extends Entity {
 	private User lastModifiedBy;
 
 	private Calendar lastModifiedDate;
+
+	public String getMfsTypeName() {
+		return mfsTypeName;
+	}
+
+	public void setMfsTypeName(String mfsTypeName) {
+		this.mfsTypeName = mfsTypeName;
+	}
+
+	public String getMfsTypeDescription() {
+		return mfsTypeDescription;
+	}
+
+	public void setMfsTypeDescription(String mfsTypeDescription) {
+		this.mfsTypeDescription = mfsTypeDescription;
+	}
+
+	public String getFromAcType() {
+		return fromAcType;
+	}
+
+	public void setFromAcType(String fromAcType) {
+		this.fromAcType = fromAcType;
+	}
+
+	public String getToAcType() {
+		return toAcType;
+	}
+
+	public void setToAcType(String toAcType) {
+		this.toAcType = toAcType;
+	}
 
 	public BigDecimal getMinAmountPerTxn() {
 		return minAmountPerTxn;
@@ -87,19 +130,19 @@ public class MfsTxnLimitConfig extends Entity {
 		this.maxAmountPerTxn = maxAmountPerTxn;
 	}
 
-	public Long getMaxNumberOfTxnPerDay() {
+	public Integer getMaxNumberOfTxnPerDay() {
 		return maxNumberOfTxnPerDay;
 	}
 
-	public void setMaxNumberOfTxnPerDay(final Long maxNumberOfTxnPerDay) {
+	public void setMaxNumberOfTxnPerDay(final Integer maxNumberOfTxnPerDay) {
 		this.maxNumberOfTxnPerDay = maxNumberOfTxnPerDay;
 	}
 
-	public Long getMaxNumberOfTxnPerMonth() {
+	public Integer getMaxNumberOfTxnPerMonth() {
 		return maxNumberOfTxnPerMonth;
 	}
 
-	public void setMaxNumberOfTxnPerMonth(final Long maxNumberOfTxnPerMonth) {
+	public void setMaxNumberOfTxnPerMonth(final Integer maxNumberOfTxnPerMonth) {
 		this.maxNumberOfTxnPerMonth = maxNumberOfTxnPerMonth;
 	}
 
@@ -134,6 +177,15 @@ public class MfsTxnLimitConfig extends Entity {
 
 	public void setTransferType(final TransferType transferType) {
 		this.transferType = transferType;
+	}
+
+//	@JsonIgnore
+	public MfsGenericLimitConfig getGenericLimit() {
+		return genericLimit;
+	}
+
+	public void setGenericLimit(MfsGenericLimitConfig genericLimit) {
+		this.genericLimit = genericLimit;
 	}
 
 	public boolean isEnable() {

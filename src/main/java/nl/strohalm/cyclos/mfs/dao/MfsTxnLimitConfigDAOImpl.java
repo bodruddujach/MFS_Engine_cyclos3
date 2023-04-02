@@ -16,6 +16,22 @@ public class MfsTxnLimitConfigDAOImpl extends BaseDAOImpl<MfsTxnLimitConfig> imp
     }
 
     @Override
+    public List<MfsTxnLimitConfig> getAllMfsTxnLimitConfigs() {
+        final StringBuilder hql = new StringBuilder();
+        hql.append(" select mtlc");
+        hql.append(" from MfsTxnLimitConfig mtlc");
+        return list(hql.toString(), null);
+    }
+
+    @Override
+    public List<MfsTxnLimitConfig> getMfsTxnLimitConfigsByStatus(boolean enabled) {
+        final Map<String, Object> namedParameters = new HashMap<String, Object>();
+        final StringBuilder hql = HibernateHelper.getInitialQuery(getEntityType(), "mtlc");
+        HibernateHelper.addParameterToQuery(hql, namedParameters, "enabled", enabled);
+        return list(hql.toString(), namedParameters);
+	}
+
+    @Override
     public List<MfsTxnLimitConfig> loadMfsTxnLimitConfigByTransferTypeAndApplyOn(TransferType transferType, LimitSubject applyOn) {
         final Map<String, Object> namedParameters = new HashMap<String, Object>();
         final StringBuilder hql = HibernateHelper.getInitialQuery(getEntityType(), "mtlc");
@@ -23,4 +39,6 @@ public class MfsTxnLimitConfigDAOImpl extends BaseDAOImpl<MfsTxnLimitConfig> imp
         HibernateHelper.addParameterToQuery(hql, namedParameters, "applyOn", applyOn);
         return list(hql.toString(), namedParameters);
     }
+
+
 }

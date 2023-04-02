@@ -24,9 +24,9 @@ public class UpdateTxnLimitRequest implements Serializable {
 
 	private BigDecimal maxAmountPerTxn;
 
-	private Long maxNumberOfTxnPerDay;
+	private Integer maxNumberOfTxnPerDay;
 
-	private Long maxNumberOfTxnPerMonth;
+	private Integer maxNumberOfTxnPerMonth;
 
 	private BigDecimal maxAmountPerDay;
 
@@ -36,6 +36,8 @@ public class UpdateTxnLimitRequest implements Serializable {
 
 //	@NotNull
 //	private TransactionType txnType;
+
+	private String genericLimit;
 
 	private boolean enable;
 
@@ -63,19 +65,19 @@ public class UpdateTxnLimitRequest implements Serializable {
 		this.maxAmountPerTxn = maxAmountPerTxn;
 	}
 
-	public Long getMaxNumberOfTxnPerDay() {
+	public Integer getMaxNumberOfTxnPerDay() {
 		return maxNumberOfTxnPerDay;
 	}
 
-	public void setMaxNumberOfTxnPerDay(Long maxNumberOfTxnPerDay) {
+	public void setMaxNumberOfTxnPerDay(Integer maxNumberOfTxnPerDay) {
 		this.maxNumberOfTxnPerDay = maxNumberOfTxnPerDay;
 	}
 
-	public Long getMaxNumberOfTxnPerMonth() {
+	public Integer getMaxNumberOfTxnPerMonth() {
 		return maxNumberOfTxnPerMonth;
 	}
 
-	public void setMaxNumberOfTxnPerMonth(Long maxNumberOfTxnPerMonth) {
+	public void setMaxNumberOfTxnPerMonth(Integer maxNumberOfTxnPerMonth) {
 		this.maxNumberOfTxnPerMonth = maxNumberOfTxnPerMonth;
 	}
 
@@ -119,10 +121,19 @@ public class UpdateTxnLimitRequest implements Serializable {
 //		this.txnType = txnType;
 //	}
 
+	public String getGenericLimit() {
+		return genericLimit;
+	}
+
+	public void setGenericLimit(String genericLimit) {
+		this.genericLimit = genericLimit;
+	}
+
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(this).add("minAmountPerTxn", minAmountPerTxn)
 				.add("maxAmountPerTxn", maxAmountPerTxn).add("maxNumberOfTxnPerDay", maxNumberOfTxnPerDay)
 				/*.add("txnType", txnType)*/.add("maxNumberOfTxnPerMonth", maxNumberOfTxnPerMonth).toString();
 	}
+
 }

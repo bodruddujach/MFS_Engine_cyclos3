@@ -40,7 +40,7 @@ public class TxnController extends BaseRestController {
   @ResponseBody
   public String ping() {
     logger.info("Ping");
-    return "Welcome mfs core txn controller";
+    return "Welcome to mfs core";
   }
 
   @RequestMapping(method = RequestMethod.POST, headers = "Content-type=application/json")

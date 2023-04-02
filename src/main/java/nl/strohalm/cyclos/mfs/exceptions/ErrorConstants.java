@@ -43,6 +43,7 @@ public class ErrorConstants {
   public static final String MAX_NUMBER_OF_TXN_PER_MONTH_EXCEEDED = "4030";
   public static final String MAX_AMOUNT_PER_MONTH_EXCEEDED = "4031";
   public static final String TXN_LIMIT_CONFIGURATION_EXISTS = "4032";
+  public static final String INVALID_GENERIC_LIMIT_CONFIGURATION = "4033";
   public static final String BY_AC_NOT_FOUND = "4033";
 
 
@@ -80,12 +81,12 @@ public class ErrorConstants {
     ERROR_MAP.put(AMOUNT_NOT_MATCHED, "Amount is not matched with original transaction");
     ERROR_MAP.put(STATEMENT_NOT_SUPPORTED, "Statement not supported");
     ERROR_MAP.put(TXN_ALREADY_REVERSE, "Txn Already Reversed");
-    ERROR_MAP.put(MIN_AMOUNT_PER_TXN_NOT_MET, "TRANSACTION_MINIMUM_AMOUNT_IS_NOT_MET");
-    ERROR_MAP.put(MAX_AMOUNT_PER_TXN_EXCEEDED, "TANSACTION_MAX_AMOUNT_LIMIT_EXCEEDED");
-    ERROR_MAP.put(MAX_NUMBER_OF_TXN_PER_DAY_EXCEEDED, "MAX_NUMBER_OF_TRANSACTION_PER_DAY_EXCEEDED");
-    ERROR_MAP.put(MAX_AMOUNT_PER_DAY_EXCEEDED, "MAX_AMOUNT_PER_DAY_LIMIT_EXCEEDED");
-    ERROR_MAP.put(MAX_NUMBER_OF_TXN_PER_MONTH_EXCEEDED, "MAX_NUMBER_OF_TRANSACTION_PER_MONTH_EXCEEDED");
-    ERROR_MAP.put(MAX_AMOUNT_PER_MONTH_EXCEEDED, "MAX_AMOUNT_PER_MONTH_LIMIT_EXCEEDED");
+    ERROR_MAP.put(MIN_AMOUNT_PER_TXN_NOT_MET, "Transactionn mimimum amount is not met");
+    ERROR_MAP.put(MAX_AMOUNT_PER_TXN_EXCEEDED, "Transaction max amount limit reached");
+    ERROR_MAP.put(MAX_NUMBER_OF_TXN_PER_DAY_EXCEEDED, "Daily max number of transaction reached");
+    ERROR_MAP.put(MAX_AMOUNT_PER_DAY_EXCEEDED, "Daily max amount limit reached");
+    ERROR_MAP.put(MAX_NUMBER_OF_TXN_PER_MONTH_EXCEEDED, "Monthly max number of transaction reached");
+    ERROR_MAP.put(MAX_AMOUNT_PER_MONTH_EXCEEDED, "Monthly max amount limit reached");
     ERROR_MAP.put(TXN_LIMIT_CONFIGURATION_EXISTS, "Transaction Limit Configuration Already Exists ");
   }
 
