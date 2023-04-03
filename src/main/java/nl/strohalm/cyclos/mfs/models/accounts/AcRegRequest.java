@@ -2,10 +2,16 @@ package nl.strohalm.cyclos.mfs.models.accounts;
 
 import nl.strohalm.cyclos.mfs.models.enums.AccountStatus;
 import nl.strohalm.cyclos.mfs.models.enums.AccountType;
+import nl.strohalm.cyclos.webservices.model.RegistrationFieldValueVO;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class AcRegRequest implements Serializable {
+  /**
+   * 
+  */
+  private static final long serialVersionUID = 1L;
   private String walletNo;
   private String fullName;
   private String mobile;
@@ -16,6 +22,7 @@ public class AcRegRequest implements Serializable {
   private AccountType accountType;
   private AccountStatus accountStatus;
   private String remoteAddress;
+  private List<RegistrationFieldValueVO> fields;
 
   public String getWalletNo() {
     return walletNo;
@@ -96,4 +103,13 @@ public class AcRegRequest implements Serializable {
   public void setAccountStatus(AccountStatus accountStatus) {
     this.accountStatus = accountStatus;
   }
+
+  public List<RegistrationFieldValueVO> getFields() {
+    return fields;
+  }
+
+  public void setFields(List<RegistrationFieldValueVO> fields) {
+    this.fields = fields;
+  }
+
 }
