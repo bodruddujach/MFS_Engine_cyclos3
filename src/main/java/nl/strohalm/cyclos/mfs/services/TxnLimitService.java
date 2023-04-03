@@ -151,6 +151,7 @@ public class TxnLimitService {
         dbgenericLimitConfig = fetchService.fetch(dbgenericLimitConfig, MfsGenericLimitConfig.Relationships.MFS_TRANSACTION_LIMIT_CONFIGS);
         dbgenericLimitConfig.setLastModifiedDate(Calendar.getInstance());
         dbgenericLimitConfig.setName(genericLimitConfigReq.getName());
+        dbgenericLimitConfig.setDescription(genericLimitConfigReq.getDescription());
         dbgenericLimitConfig.setMaxAmountPerDay(genericLimitConfigReq.getMaxAmountPerDay());
         dbgenericLimitConfig.setMaxNumberOfTxnPerDay(genericLimitConfigReq.getMaxNumberOfTxnPerDay());
         dbgenericLimitConfig.setMaxAmountPerMonth(genericLimitConfigReq.getMaxAmountPerMonth());
@@ -216,6 +217,7 @@ public class TxnLimitService {
     	GenericLimitResponse response = new GenericLimitResponse();
         response.setId(genericLimitConfig.getId());
         response.setName(genericLimitConfig.getName());
+        response.setDescription(genericLimitConfig.getDescription());
         response.setMaxNumberOfTxnPerDay(genericLimitConfig.getMaxNumberOfTxnPerDay());
         response.setMaxAmountPerDay(genericLimitConfig.getMaxAmountPerDay());
         response.setMaxNumberOfTxnPerMonth(genericLimitConfig.getMaxNumberOfTxnPerMonth());

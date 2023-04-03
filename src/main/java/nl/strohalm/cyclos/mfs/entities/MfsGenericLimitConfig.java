@@ -33,6 +33,8 @@ public class MfsGenericLimitConfig extends Entity {
 
 	private String name;
 
+	private String description;
+
 	private Integer maxNumberOfTxnPerDay;
 
 	private Integer maxNumberOfTxnPerMonth;
@@ -59,6 +61,15 @@ public class MfsGenericLimitConfig extends Entity {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public Integer getMaxNumberOfTxnPerDay() {

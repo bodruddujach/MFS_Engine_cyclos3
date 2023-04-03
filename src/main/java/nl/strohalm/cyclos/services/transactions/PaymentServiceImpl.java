@@ -1394,6 +1394,10 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
           MfsGenericLimitConfig genericConfig = config.getGenericLimit();
           Set<TransferType> transferTypes = new HashSet<>();
           if (genericConfig != null && genericConfig.isEnable()) {
+              maxNumberOfTxnPerDay = genericConfig.getMaxNumberOfTxnPerDay();
+              maxAmountPerDay = genericConfig.getMaxAmountPerDay();
+              maxNumberOfTxnPerMonth = genericConfig.getMaxNumberOfTxnPerMonth();
+              maxAmountPerMonth = genericConfig.getMaxAmountPerMonth();
               genericConfig = fetchService.fetch(genericConfig, MfsGenericLimitConfig.Relationships.MFS_TRANSACTION_LIMIT_CONFIGS);
               Collection<? extends MfsTxnLimitConfig> asosiatedLimits = genericConfig.getMfsTransactionLimitConfigs();
               if (!CollectionUtils.isEmpty(asosiatedLimits)) {
