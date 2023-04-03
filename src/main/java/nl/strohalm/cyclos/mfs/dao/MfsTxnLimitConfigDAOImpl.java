@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import nl.strohalm.cyclos.dao.BaseDAOImpl;
 import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig;
@@ -39,6 +41,23 @@ public class MfsTxnLimitConfigDAOImpl extends BaseDAOImpl<MfsTxnLimitConfig> imp
         HibernateHelper.addParameterToQuery(hql, namedParameters, "applyOn", applyOn);
         return list(hql.toString(), namedParameters);
     }
+
+	@Override
+	public List<MfsTxnLimitConfig> getMfsTxnLimitConfigsByStatusAndAccountType(boolean enabled, String accountType) {
+        if (StringUtils.isBlank(accountType)) {
+            throw new IllegalArgumentException("accountType must be provided");
+        }
+        final Map<String, Object> namedParameters = new HashMap<>();
+        namedParameters.put("accountType", accountType);
+        namedParameters.put("enabled", enabled);
+        
+        final StringBuilder hql = new StringBuilder();
+        hql.append(" from MfsTxnLimitConfig mtlc ");
+        hql.append(" where 1=1 ");
+        hql.append(" and mtlc.enable = :enabled");
+        hql.append(" and (mtlc.fromAcType = :accountType or mtlc.toAcType = :accountType");
+        return list(hql.toString(), namedParameters);
+	}
 
 
 }

@@ -18,4 +18,5 @@ public interface MfsTxnLimitConfigDAO  extends BaseDAO<MfsTxnLimitConfig>, Inser
 
 	List<MfsTxnLimitConfig> loadMfsTxnLimitConfigByTransferTypeAndApplyOn(TransferType transferType, LimitSubject applyOn);
 
+	List<MfsTxnLimitConfig> getMfsTxnLimitConfigsByStatusAndAccountType(boolean enabled, String accountType);
 }

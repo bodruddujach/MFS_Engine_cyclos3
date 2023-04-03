@@ -1,5 +1,8 @@
 package nl.strohalm.cyclos.mfs.services;
 
+import nl.strohalm.cyclos.dao.accounts.transactions.TransferDAO;
+import nl.strohalm.cyclos.entities.accounts.Account;
+import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
 import nl.strohalm.cyclos.mfs.dao.MfsGenericLimitConfigDAO;
 import nl.strohalm.cyclos.mfs.dao.MfsTxnLimitConfigDAO;
 import nl.strohalm.cyclos.mfs.dao.TxnLimitConfigDAO;
@@ -8,15 +11,22 @@ import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig;
 import nl.strohalm.cyclos.mfs.entities.TxnLimitConfig;
 import nl.strohalm.cyclos.mfs.exceptions.ErrorConstants;
 import nl.strohalm.cyclos.mfs.exceptions.MFSCommonException;
+import nl.strohalm.cyclos.mfs.models.transactions.AccountLimitData;
 import nl.strohalm.cyclos.mfs.models.transactions.GenericLimitResponse;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnLimitResponse;
 import nl.strohalm.cyclos.mfs.models.transactions.UpdateGenericLimitRequest;
 import nl.strohalm.cyclos.mfs.models.transactions.UpdateTxnLimitRequest;
 import nl.strohalm.cyclos.services.fetch.FetchServiceLocal;
+import nl.strohalm.cyclos.services.transactions.TransactionSummaryVO;
+import nl.strohalm.cyclos.utils.Period;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +40,9 @@ public class TxnLimitService {
 
     @Autowired
     private FetchServiceLocal fetchService;
+
+    @Autowired
+    private TransferDAO transferDao;
 
     @Autowired
     private TxnLimitConfigDAO txnLimitConfigDAO;
@@ -175,6 +188,66 @@ public class TxnLimitService {
     @Transactional
     public int deleteMfsGenericLimitConfig(Long genericLimitConfigId) {
         return mfsGenericLimitConfigDAO.delete(genericLimitConfigId);
+    }
+
+    @Transactional
+    public List<AccountLimitData> getAccountLimitData(Account account) {
+        String accountType = account.getType().getName();
+        List<AccountLimitData> accountLimits = new ArrayList<>();
+        List<MfsTxnLimitConfig> limtConfigs = mfsTxnLimitConfigDAO.getMfsTxnLimitConfigsByStatusAndAccountType(true, accountType);
+        if (!CollectionUtils.isEmpty(limtConfigs)) {
+            Set<MfsTxnLimitConfig> coveredLimitConfigs = new HashSet<>();
+            for (MfsTxnLimitConfig limtConfig: limtConfigs) {
+                if (coveredLimitConfigs.contains(limtConfig)) {
+                    continue;
+                }
+                AccountLimitData currentLimitData = new AccountLimitData();
+                coveredLimitConfigs.add(limtConfig);
+                Integer dailyMaxNumberOfTxn = limtConfig.getMaxNumberOfTxnPerDay();
+                BigDecimal dailyMaxAmount= limtConfig.getMaxAmountPerDay();
+                Integer monthlyMaxNumberOfTxn = limtConfig.getMaxNumberOfTxnPerMonth();
+                BigDecimal monthlyMaxAmount = limtConfig.getMaxAmountPerMonth();
+                boolean isApplyOnDestination = limtConfig.getApplyOn() == MfsTxnLimitConfig.LimitSubject.TO;
+                MfsGenericLimitConfig genericConfig = limtConfig.getGenericLimit();
+                Set<TransferType> transferTypes = new HashSet<>();
+                if (genericConfig != null && genericConfig.isEnable()) {
+                    dailyMaxNumberOfTxn = genericConfig.getMaxNumberOfTxnPerDay();
+                    dailyMaxAmount = genericConfig.getMaxAmountPerDay();
+                    monthlyMaxNumberOfTxn = genericConfig.getMaxNumberOfTxnPerMonth();
+                    monthlyMaxAmount = genericConfig.getMaxAmountPerMonth();
+                    genericConfig = fetchService.fetch(genericConfig, MfsGenericLimitConfig.Relationships.MFS_TRANSACTION_LIMIT_CONFIGS);
+                    Collection<? extends MfsTxnLimitConfig> asosiatedLimits = genericConfig.getMfsTransactionLimitConfigs();
+                    if (!CollectionUtils.isEmpty(asosiatedLimits)) {
+                      for (MfsTxnLimitConfig relatedLimitConfig: asosiatedLimits) {
+                        coveredLimitConfigs.add(relatedLimitConfig);
+                        if (relatedLimitConfig.isEnable()) {
+                            transferTypes.add(relatedLimitConfig.getTransferType());
+                        }
+                      }
+                    }
+                    currentLimitData.setLimitTypeName(genericConfig.getDescription());
+                } else {
+                    transferTypes.add(limtConfig.getTransferType());
+                    currentLimitData.setLimitTypeName(limtConfig.getMfsTypeDescription());
+                }
+                Calendar today = Calendar.getInstance();
+                // Get the txn count and amount on today
+                TransactionSummaryVO dailyTxnCountAndAmount = transferDao.getTransactionedCountAndAmountBetweenPeriod(Period.day(today), account, isApplyOnDestination, transferTypes);
+                // Get txn count and amount for this month
+                Period monthOfDate = Period.monthOfDate(today);
+                TransactionSummaryVO monthlyTxnCountAndAmount = transferDao.getTransactionedCountAndAmountBetweenPeriod(monthOfDate, account, isApplyOnDestination, transferTypes);
+                currentLimitData.setDailyUsedTxnAmount(dailyTxnCountAndAmount.getAmount());
+                currentLimitData.setDailyTxnAmount(dailyMaxAmount);
+                currentLimitData.setDailyUsedTxnNumber(dailyTxnCountAndAmount.getCount());
+                currentLimitData.setDailyTxnNumber(dailyMaxNumberOfTxn);
+                currentLimitData.setMonthlyUsedTxnAmount(monthlyTxnCountAndAmount.getAmount());
+                currentLimitData.setMonthlyTxnAmount(monthlyMaxAmount);
+                currentLimitData.setMonthlyUsedTxnNumber(monthlyTxnCountAndAmount.getCount());
+                currentLimitData.setMonthlyTxnNumber(monthlyMaxNumberOfTxn);
+                accountLimits.add(currentLimitData);
+            }
+        }
+        return accountLimits;
     }
 
     private MfsTxnLimitConfig convertToMfsTxnLimitConfig(UpdateTxnLimitRequest txnLimitUpdateReq, MfsTxnLimitConfig txnLimitConfig) {

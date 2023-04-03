@@ -1372,8 +1372,10 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
   private void validateTxnLimits(final Calendar date, final Account from, final Account to, final TransferType transferType, final BigDecimal amount, LockHandler lockHandler) {
     final Collection<? extends MfsTxnLimitConfig> mfstxnLimitConfigs = transferType.getMfsTransactionLimitConfigs();
     if (mfstxnLimitConfigs != null && !mfstxnLimitConfigs.isEmpty()) {
+      Set<MfsTxnLimitConfig> coveredLimitConfigs = new HashSet<>();
       for(MfsTxnLimitConfig config: mfstxnLimitConfigs) {
-        if (config.isEnable()) {
+        if (config.isEnable() && !coveredLimitConfigs.contains(config)) {
+          coveredLimitConfigs.add(config);
           BigDecimal minAmountPerTxn = config.getMinAmountPerTxn();
           BigDecimal maxAmountPerTxn = config.getMaxAmountPerTxn();
           Integer maxNumberOfTxnPerDay = config.getMaxNumberOfTxnPerDay();
@@ -1402,6 +1404,7 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
               Collection<? extends MfsTxnLimitConfig> asosiatedLimits = genericConfig.getMfsTransactionLimitConfigs();
               if (!CollectionUtils.isEmpty(asosiatedLimits)) {
                 for (MfsTxnLimitConfig limitConfig: asosiatedLimits) {
+                  coveredLimitConfigs.add(limitConfig);
                   if (limitConfig.isEnable()) {
                       transferTypes.add(limitConfig.getTransferType());
                   }

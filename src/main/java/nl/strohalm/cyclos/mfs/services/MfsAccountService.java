@@ -31,6 +31,7 @@ import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementDetail;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementResp;
 import nl.strohalm.cyclos.mfs.models.enums.TransactionType;
+import nl.strohalm.cyclos.mfs.models.transactions.AccountLimitData;
 import nl.strohalm.cyclos.mfs.models.transactions.Response;
 import nl.strohalm.cyclos.mfs.utils.MfsConstant;
 import nl.strohalm.cyclos.services.access.AccessServiceImpl;
@@ -58,6 +59,7 @@ import org.springframework.transaction.TransactionStatus;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import static nl.strohalm.cyclos.mfs.exceptions.ErrorConstants.*;
 
@@ -90,6 +92,9 @@ public class MfsAccountService {
 
   @Autowired
   LedgerService ledgerService;
+
+  @Autowired
+  TxnLimitService txnLimitService;
 
   public RegResponse processRegistration(final AcRegRequest regRequest) {
 
@@ -172,6 +177,20 @@ public class MfsAccountService {
     return cyclosMiddleware.getWalletInfoResponse(member, account);
   }
 
+  public List<AccountLimitData> getWalletUsageAndLimitsInfo(final String walletNo) {
+    final Member member = cyclosMiddleware.getMember(walletNo);
+    if (member == null) {
+      throw new MFSCommonException(ErrorConstants.ACCOUNT_NOT_FOUND, ERROR_MAP.get(ErrorConstants.ACCOUNT_NOT_FOUND), HttpStatus.NOT_FOUND);
+    }
+    Account account = null;
+    for (final Account ac : accountServiceLocal.getAccounts(member)) {
+      account = ac;
+    }
+    if (account == null) {
+      throw new MFSCommonException(ErrorConstants.ACCOUNT_NOT_FOUND, ERROR_MAP.get(ErrorConstants.ACCOUNT_NOT_FOUND), HttpStatus.NOT_FOUND);
+    }
+    return txnLimitService.getAccountLimitData(account);
+  }
 
   public Response activateWallet(String walletNo) throws Exception {
     Response response = updateWalletStatus(walletNo, MemberAccount.Status.ACTIVE);
