@@ -8,6 +8,7 @@ import nl.strohalm.cyclos.mfs.dao.MfsTxnLimitConfigDAO;
 import nl.strohalm.cyclos.mfs.dao.TxnLimitConfigDAO;
 import nl.strohalm.cyclos.mfs.entities.MfsGenericLimitConfig;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig.LimitSubject;
 import nl.strohalm.cyclos.mfs.entities.TxnLimitConfig;
 import nl.strohalm.cyclos.mfs.exceptions.ErrorConstants;
 import nl.strohalm.cyclos.mfs.exceptions.MFSCommonException;
@@ -197,18 +198,20 @@ public class TxnLimitService {
         List<MfsTxnLimitConfig> limtConfigs = mfsTxnLimitConfigDAO.getMfsTxnLimitConfigsByStatusAndAccountType(true, accountType);
         if (!CollectionUtils.isEmpty(limtConfigs)) {
             Set<MfsTxnLimitConfig> coveredLimitConfigs = new HashSet<>();
-            for (MfsTxnLimitConfig limtConfig: limtConfigs) {
-                if (coveredLimitConfigs.contains(limtConfig)) {
+            for (MfsTxnLimitConfig limitConfig: limtConfigs) {
+                if (coveredLimitConfigs.contains(limitConfig) 
+                    || (limitConfig.getApplyOn().equals(LimitSubject.FROM) && !accountType.equalsIgnoreCase(limitConfig.getFromAcType()))
+                    || (limitConfig.getApplyOn().equals(LimitSubject.TO) && !accountType.equalsIgnoreCase(limitConfig.getToAcType()))) {
                     continue;
                 }
                 AccountLimitData currentLimitData = new AccountLimitData();
-                coveredLimitConfigs.add(limtConfig);
-                Integer dailyMaxNumberOfTxn = limtConfig.getMaxNumberOfTxnPerDay();
-                BigDecimal dailyMaxAmount= limtConfig.getMaxAmountPerDay();
-                Integer monthlyMaxNumberOfTxn = limtConfig.getMaxNumberOfTxnPerMonth();
-                BigDecimal monthlyMaxAmount = limtConfig.getMaxAmountPerMonth();
-                boolean isApplyOnDestination = limtConfig.getApplyOn() == MfsTxnLimitConfig.LimitSubject.TO;
-                MfsGenericLimitConfig genericConfig = limtConfig.getGenericLimit();
+                coveredLimitConfigs.add(limitConfig);
+                Integer dailyMaxNumberOfTxn = limitConfig.getMaxNumberOfTxnPerDay();
+                BigDecimal dailyMaxAmount= limitConfig.getMaxAmountPerDay();
+                Integer monthlyMaxNumberOfTxn = limitConfig.getMaxNumberOfTxnPerMonth();
+                BigDecimal monthlyMaxAmount = limitConfig.getMaxAmountPerMonth();
+                boolean isApplyOnDestination = limitConfig.getApplyOn() == MfsTxnLimitConfig.LimitSubject.TO;
+                MfsGenericLimitConfig genericConfig = limitConfig.getGenericLimit();
                 Set<TransferType> transferTypes = new HashSet<>();
                 if (genericConfig != null && genericConfig.isEnable()) {
                     dailyMaxNumberOfTxn = genericConfig.getMaxNumberOfTxnPerDay();
@@ -227,8 +230,8 @@ public class TxnLimitService {
                     }
                     currentLimitData.setLimitTypeName(genericConfig.getDescription());
                 } else {
-                    transferTypes.add(limtConfig.getTransferType());
-                    currentLimitData.setLimitTypeName(limtConfig.getMfsTypeDescription());
+                    transferTypes.add(limitConfig.getTransferType());
+                    currentLimitData.setLimitTypeName(limitConfig.getMfsTypeDescription());
                 }
                 Calendar today = Calendar.getInstance();
                 // Get the txn count and amount on today
