@@ -55,7 +55,7 @@ public class MfsTxnLimitConfigDAOImpl extends BaseDAOImpl<MfsTxnLimitConfig> imp
         hql.append(" from MfsTxnLimitConfig mtlc ");
         hql.append(" where 1=1 ");
         hql.append(" and mtlc.enable = :enabled");
-        hql.append(" and (mtlc.fromAcType = :accountType or mtlc.toAcType = :accountType");
+        hql.append(" and (mtlc.fromAcType = :accountType or mtlc.toAcType = :accountType)");
         return list(hql.toString(), namedParameters);
 	}
 

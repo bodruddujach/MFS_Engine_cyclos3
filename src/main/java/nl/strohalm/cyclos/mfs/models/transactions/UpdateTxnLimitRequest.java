@@ -12,13 +12,15 @@ import com.google.common.base.MoreObjects;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig.LimitSubject;
 import nl.strohalm.cyclos.mfs.models.enums.TransactionType;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonIgnoreProperties(ignoreUnknown = true)
 public class UpdateTxnLimitRequest implements Serializable {
 
 	private static final long serialVersionUID = 5484733901352497958L;
 
 	@NotNull
 	private Long id;
+
+	private String mfsTypeDescription;
 
 	private BigDecimal minAmountPerTxn;
 
@@ -47,6 +49,14 @@ public class UpdateTxnLimitRequest implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public String getMfsTypeDescription() {
+		return mfsTypeDescription;
+	}
+
+	public void setMfsTypeDescription(String mfsTypeDescription) {
+		this.mfsTypeDescription = mfsTypeDescription;
 	}
 
 	public BigDecimal getMinAmountPerTxn() {

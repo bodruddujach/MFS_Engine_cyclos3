@@ -72,7 +72,7 @@ public class TxnLimitController {
         MfsTxnType mfsTxnType = mfsTxnTypeService.findByName(request.getTxnType().name());
         TransferType transferType = transferTypeServiceLocal.load(mfsTxnType.getCoreTxnTypeId(), TransferType.Relationships.FROM, TransferType.Relationships.TO);
         txnLimitConfig.setMfsTypeName(mfsTxnType.getName());
-        txnLimitConfig.setMfsTypeDescription(mfsTxnType.getDescription());
+        txnLimitConfig.setMfsTypeDescription(StringUtils.isBlank(request.getMfsTypeDescription()) ? mfsTxnType.getDescription() : request.getMfsTypeDescription());
         txnLimitConfig.setTransferType(transferType);
         txnLimitConfig.setFromAcType(transferType.getFrom().getName());
         txnLimitConfig.setToAcType(transferType.getTo().getName());
