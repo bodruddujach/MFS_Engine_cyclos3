@@ -220,8 +220,17 @@ public class CyclosMiddleware {
     String invoiceNo = "";
     String txnTag = "";
     String batchId = "";
+    String maker = "";
+    String checker = "";
+
     if (StringUtils.isNotEmpty(txnRequest.getByAc())) {
       byAc = ",byAc: " + txnRequest.getByAc();
+    }
+    if (StringUtils.isNotEmpty(txnRequest.getMaker())) {
+      maker = ",maker: " + txnRequest.getMaker();
+    }
+    if (StringUtils.isNotEmpty(txnRequest.getChecker())) {
+      checker = ",checker: " + txnRequest.getChecker();
     }
     if (StringUtils.isNotEmpty(txnRequest.getCustomerRefId())) {
       customerRefId = ",customerRefId: " + txnRequest.getCustomerRefId();
@@ -238,8 +247,8 @@ public class CyclosMiddleware {
     if (StringUtils.isNotEmpty(txnRequest.getTxnTag())) {
       txnTag = ",txnTag: " + txnRequest.getTxnTag();
     }
-    String description = transferType.getDescription() + ". From Ac: " + txnRequest.getFromAc() + ", To Ac:" + txnRequest.getToAc() +
-      "" + txnTag + "" + byAc + "" + customerRefId + "" + invoiceNo + "" + externalCustomer + "" + note + "" + batchId;
+    String description = transferType.getDescription() + ". [From Ac: " + txnRequest.getFromAc() + ", To Ac:" + txnRequest.getToAc() +
+      "" + txnTag + "" + byAc + "" + maker + "" + "" + checker + "" +customerRefId + "" + invoiceNo + "" + externalCustomer + "" + note + "" + batchId + "]";
     return description;
   }
 

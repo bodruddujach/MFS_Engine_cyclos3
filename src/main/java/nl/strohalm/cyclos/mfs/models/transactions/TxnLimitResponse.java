@@ -11,13 +11,21 @@ public class TxnLimitResponse implements Serializable {
 
 	private long id;
 
+	private String mfsTypeName;
+
+	private String mfsTypeDescription;
+
+	private String fromAcType;
+
+	private String toAcType;
+
 	private BigDecimal minAmountPerTxn;
 
 	private BigDecimal maxAmountPerTxn;
 
-	private Long maxNumberOfTxnPerDay;
+	private Integer maxNumberOfTxnPerDay;
 
-	private Long maxNumberOfTxnPerMonth;
+	private Integer maxNumberOfTxnPerMonth;
 
 	private BigDecimal maxAmountPerDay;
 
@@ -25,7 +33,7 @@ public class TxnLimitResponse implements Serializable {
 
 	private LimitSubject applyOn;
 
-	private String txnType;
+	private String coreTxnType;
 
 	private boolean enable;
 
@@ -35,6 +43,38 @@ public class TxnLimitResponse implements Serializable {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public String getMfsTypeName() {
+		return mfsTypeName;
+	}
+
+	public void setMfsTypeName(String mfsTypeName) {
+		this.mfsTypeName = mfsTypeName;
+	}
+
+	public String getMfsTypeDescription() {
+		return mfsTypeDescription;
+	}
+
+	public void setMfsTypeDescription(String mfsTypeDescription) {
+		this.mfsTypeDescription = mfsTypeDescription;
+	}
+
+	public String getFromAcType() {
+		return fromAcType;
+	}
+
+	public void setFromAcType(String fromAcType) {
+		this.fromAcType = fromAcType;
+	}
+
+	public String getToAcType() {
+		return toAcType;
+	}
+
+	public void setToAcType(String toAcType) {
+		this.toAcType = toAcType;
 	}
 
 	public BigDecimal getMinAmountPerTxn() {
@@ -53,19 +93,19 @@ public class TxnLimitResponse implements Serializable {
 		this.maxAmountPerTxn = maxAmountPerTxn;
 	}
 
-	public Long getMaxNumberOfTxnPerDay() {
+	public Integer getMaxNumberOfTxnPerDay() {
 		return maxNumberOfTxnPerDay;
 	}
 
-	public void setMaxNumberOfTxnPerDay(Long maxNumberOfTxnPerDay) {
+	public void setMaxNumberOfTxnPerDay(Integer maxNumberOfTxnPerDay) {
 		this.maxNumberOfTxnPerDay = maxNumberOfTxnPerDay;
 	}
 
-	public Long getMaxNumberOfTxnPerMonth() {
+	public Integer getMaxNumberOfTxnPerMonth() {
 		return maxNumberOfTxnPerMonth;
 	}
 
-	public void setMaxNumberOfTxnPerMonth(Long maxNumberOfTxnPerMonth) {
+	public void setMaxNumberOfTxnPerMonth(Integer maxNumberOfTxnPerMonth) {
 		this.maxNumberOfTxnPerMonth = maxNumberOfTxnPerMonth;
 	}
 
@@ -93,12 +133,12 @@ public class TxnLimitResponse implements Serializable {
 		this.applyOn = applyOn;
 	}
 
-	public String getTxnType() {
-		return txnType;
+	public String getCoreTxnType() {
+		return coreTxnType;
 	}
 
-	public void setTxnType(String txnType) {
-		this.txnType = txnType;
+	public void setCoreTxnType(String coreTxnType) {
+		this.coreTxnType = coreTxnType;
 	}
 
 	public boolean isEnable() {

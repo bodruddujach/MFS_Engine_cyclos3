@@ -22,6 +22,7 @@ package nl.strohalm.cyclos.dao.accounts.transactions;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 
 import nl.strohalm.cyclos.dao.BaseDAO;
 import nl.strohalm.cyclos.dao.InsertableDAO;
@@ -44,6 +45,7 @@ import nl.strohalm.cyclos.entities.reports.StatisticalDTO;
 import nl.strohalm.cyclos.mfs.models.accounts.StatementParams;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementResp;
 import nl.strohalm.cyclos.services.stats.general.KeyDevelopmentsStatsPerMonthVO;
+import nl.strohalm.cyclos.services.transactions.TransactionSummaryVO;
 import nl.strohalm.cyclos.utils.Pair;
 import nl.strohalm.cyclos.utils.Period;
 
@@ -180,9 +182,9 @@ public interface TransferDAO extends BaseDAO<Transfer>, InsertableDAO<Transfer>,
 
     /**
      * Returns total amount of transfers and transfer count at the given date from the given account, with the given transfer type. Only payments in the following
-     * status are considered: {@link Payment.Status#PROCESSED}, {@link Payment.Status#PENDING} and {@link Payment.Status#SCHEDULED}.
+     * status are considered: {@link Payment.Status#PROCESSED}.
      */
-    Pair<Long, BigDecimal> getTransactionedCountAndAmountBetweenPeriod(Period period, final Account account, boolean isDestinationAc, final TransferType transferType);
+    TransactionSummaryVO getTransactionedCountAndAmountBetweenPeriod(Period period, final Account account, boolean isDestinationAc, final Set<TransferType> transferType);
     /**
      * Returns the total amount of transfers today from the given account, with the given transfer type, performed by the given operator. Only
      * payments in the following status are considered: {@link Payment.Status#PROCESSED}, {@link Payment.Status#PENDING} and
@@ -192,10 +194,9 @@ public interface TransferDAO extends BaseDAO<Transfer>, InsertableDAO<Transfer>,
 
     /**
      * Returns the total amount of transfers and count of transfers between specific period from the given account, with the given transfer type, performed by the given operator. Only
-     * payments in the following status are considered: {@link Payment.Status#PROCESSED}, {@link Payment.Status#PENDING} and
-     * {@link Payment.Status#SCHEDULED}.
+     * payments in the following status are considered: {@link Payment.Status#PROCESSED}
      */
-    Pair<Long, BigDecimal> getTransactionedCountAndAmountBetweenPeriod(Period period, Operator operator, Account account, boolean isDestinationAc, TransferType transferType);
+    TransactionSummaryVO getTransactionedCountAndAmountBetweenPeriod(Period period, Operator operator, Account account, boolean isDestinationAc, Set<TransferType> transferTypes, boolean includeChargeBacks);
     /**
      * gets a List of Transfers, depending on the parameters. Each parameter may be null, in which case it is ignored. Transfers which have not been
      * processed (so with <code>processDate</code> is null) are always excluded.
