@@ -12,18 +12,20 @@ import com.google.common.base.MoreObjects;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig.LimitSubject;
 import nl.strohalm.cyclos.mfs.models.enums.TransactionType;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonIgnoreProperties(ignoreUnknown = true)
 public class TxnLimitRequest implements Serializable {
 
 	private static final long serialVersionUID = 5484733901352497958L;
+
+	private String mfsTypeDescription;
 
 	private BigDecimal minAmountPerTxn;
 
 	private BigDecimal maxAmountPerTxn;
 
-	private Long maxNumberOfTxnPerDay;
+	private Integer maxNumberOfTxnPerDay;
 
-	private Long maxNumberOfTxnPerMonth;
+	private Integer maxNumberOfTxnPerMonth;
 
 	private BigDecimal maxAmountPerDay;
 
@@ -34,7 +36,17 @@ public class TxnLimitRequest implements Serializable {
 	@NotNull
 	private TransactionType txnType;
 
+	private String genericLimit;
+
 	private boolean enable;
+
+	public String getMfsTypeDescription() {
+		return mfsTypeDescription;
+	}
+
+	public void setMfsTypeDescription(String mfsTypeDescription) {
+		this.mfsTypeDescription = mfsTypeDescription;
+	}
 
 	public BigDecimal getMinAmountPerTxn() {
 		return minAmountPerTxn;
@@ -52,19 +64,19 @@ public class TxnLimitRequest implements Serializable {
 		this.maxAmountPerTxn = maxAmountPerTxn;
 	}
 
-	public Long getMaxNumberOfTxnPerDay() {
+	public Integer getMaxNumberOfTxnPerDay() {
 		return maxNumberOfTxnPerDay;
 	}
 
-	public void setMaxNumberOfTxnPerDay(Long maxNumberOfTxnPerDay) {
+	public void setMaxNumberOfTxnPerDay(Integer maxNumberOfTxnPerDay) {
 		this.maxNumberOfTxnPerDay = maxNumberOfTxnPerDay;
 	}
 
-	public Long getMaxNumberOfTxnPerMonth() {
+	public Integer getMaxNumberOfTxnPerMonth() {
 		return maxNumberOfTxnPerMonth;
 	}
 
-	public void setMaxNumberOfTxnPerMonth(Long maxNumberOfTxnPerMonth) {
+	public void setMaxNumberOfTxnPerMonth(Integer maxNumberOfTxnPerMonth) {
 		this.maxNumberOfTxnPerMonth = maxNumberOfTxnPerMonth;
 	}
 
@@ -106,6 +118,14 @@ public class TxnLimitRequest implements Serializable {
 
 	public void setTxnType(TransactionType txnType) {
 		this.txnType = txnType;
+	}
+
+	public String getGenericLimit() {
+		return genericLimit;
+	}
+
+	public void setGenericLimit(String genericLimit) {
+		this.genericLimit = genericLimit;
 	}
 
 	@Override

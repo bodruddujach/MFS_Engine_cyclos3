@@ -526,8 +526,8 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
     }
 
     @Override
-    public Pair<Long, BigDecimal> getTransactionedCountAndAmountBetweenPeriod(final Period period, final Account account, final boolean isDestinationAc, final TransferType transferType) {
-        return getTransactionedCountAndAmountBetweenPeriod(period, null, account, isDestinationAc, transferType);
+    public TransactionSummaryVO getTransactionedCountAndAmountBetweenPeriod(final Period period, final Account account, final boolean isDestinationAc, final Set<TransferType> transferTypes) {
+        return getTransactionedCountAndAmountBetweenPeriod(period, null, account, isDestinationAc, transferTypes, false);
     }
 
     @Override
@@ -547,25 +547,52 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
     }
 
     @Override
-    public Pair<Long, BigDecimal> getTransactionedCountAndAmountBetweenPeriod(Period period, final Operator operator, final Account account, final boolean isDestinationAc, final TransferType transferType) {
-        final Map<String, Object> namedParameters = new HashMap<String, Object>();
+    public TransactionSummaryVO getTransactionedCountAndAmountBetweenPeriod(Period period, final Operator operator, final Account account, final boolean isDestinationAc, final Set<TransferType> transferTypes ,boolean includeChargeBacks) {
+//        final Map<String, Object> namedParameters = new HashMap<String, Object>();
+//        final StringBuilder hql = new StringBuilder();
+//        //final StringBuilder hql = new StringBuilder("select new " + Pair.class.getName());
+//        hql.append("select count(*), sum(t.amount) from Transfer t where 1=1 ");
+//        HibernateHelper.addInParameterToQuery(hql, namedParameters, "t.status", Payment.Status.PROCESSED, Payment.Status.PENDING, Payment.Status.SCHEDULED);
+//        if (isDestinationAc) {
+//          HibernateHelper.addParameterToQuery(hql, namedParameters, "t.to", account);
+//        } else {
+//          HibernateHelper.addParameterToQuery(hql, namedParameters, "t.from", account);
+//        }
+//        HibernateHelper.addParameterToQuery(hql, namedParameters, "t.type", transferType);
+//        HibernateHelper.addParameterToQuery(hql, namedParameters, "t.by", operator);
+//        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "ifnull(t.processDate, t.date)", period);
+//        TransactionSummaryVO txnSummary = buildSummary(uniqueResult(hql.toString(), namedParameters));
+//        Pair<Long, BigDecimal> txnCountAndSum = Pair.of(Long.valueOf(txnSummary.getCount()), txnSummary.getAmount());
+//        if (txnCountAndSum != null)
+//            txnCountAndSum.setSecond(BigDecimalHelper.nvl(txnCountAndSum.getSecond()));
+//        return txnCountAndSum;
+
         final StringBuilder hql = new StringBuilder();
-        //final StringBuilder hql = new StringBuilder("select new " + Pair.class.getName());
-        hql.append("select count(*), sum(t.amount) from Transfer t where 1=1 ");
-        HibernateHelper.addInParameterToQuery(hql, namedParameters, "t.status", Payment.Status.PROCESSED, Payment.Status.PENDING, Payment.Status.SCHEDULED);
-        if (isDestinationAc) {
-          HibernateHelper.addParameterToQuery(hql, namedParameters, "t.to", account);
-        } else {
-          HibernateHelper.addParameterToQuery(hql, namedParameters, "t.from", account);
+        final Map<String, Object> namedParams = new HashMap<String, Object>();
+        hql.append(" select count(*), sum(abs(t.amount))");
+        hql.append(" from " + Transfer.class.getName() + " t");
+        hql.append(" where ((t.amount > 0 and t.").append(isDestinationAc ? "to" : "from").append(" = :account) ");
+        hql.append("  or (t.amount < 0 and t.").append(isDestinationAc ? "from" : "to").append(" = :account)) ");
+        namedParams.put("account", account);
+        HibernateHelper.addParameterToQuery(hql, namedParams, "t.status", Payment.Status.PROCESSED);
+        // Count root transfers only
+        hql.append(" and t.parent is null");
+        if (!includeChargeBacks) {
+            hql.append(" and t.chargedBackBy is null and t.chargebackOf is null ");
         }
-        HibernateHelper.addParameterToQuery(hql, namedParameters, "t.type", transferType);
-        HibernateHelper.addParameterToQuery(hql, namedParameters, "t.by", operator);
-        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "ifnull(t.processDate, t.date)", period);
-        TransactionSummaryVO txnSummary = buildSummary(uniqueResult(hql.toString(), namedParameters));
-        Pair<Long, BigDecimal> txnCountAndSum = Pair.of(Long.valueOf(txnSummary.getCount()), txnSummary.getAmount());
-        if (txnCountAndSum != null)
-            txnCountAndSum.setSecond(BigDecimalHelper.nvl(txnCountAndSum.getSecond()));
-        return txnCountAndSum;
+        if (CollectionUtils.isNotEmpty(transferTypes)) {
+            hql.append(" and t.type in (:transferTypes) ");
+            namedParams.put("transferTypes", transferTypes);
+        }
+        // Apply the operated by
+        if (operator != null) {
+            hql.append(" and (t.by = :by or t.receiver = :by)");
+            namedParams.put("by", operator);
+        }
+        HibernateHelper.addPeriodParameterToQuery(hql, namedParams, "ifnull(t.processDate,t.date)", period);
+
+        TransactionSummaryVO txnSummary = buildSummary(uniqueResult(hql.toString(), namedParams));
+        return txnSummary;
     }
 
     @Override

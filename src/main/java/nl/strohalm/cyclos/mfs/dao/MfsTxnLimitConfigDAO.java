@@ -12,6 +12,11 @@ import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig.LimitSubject;
 
 public interface MfsTxnLimitConfigDAO  extends BaseDAO<MfsTxnLimitConfig>, InsertableDAO<MfsTxnLimitConfig>, UpdatableDAO<MfsTxnLimitConfig>, DeletableDAO<MfsTxnLimitConfig> {
 
+	List<MfsTxnLimitConfig> getAllMfsTxnLimitConfigs();
+
+	List<MfsTxnLimitConfig> getMfsTxnLimitConfigsByStatus(boolean enabled);
+
 	List<MfsTxnLimitConfig> loadMfsTxnLimitConfigByTransferTypeAndApplyOn(TransferType transferType, LimitSubject applyOn);
 
+	List<MfsTxnLimitConfig> getMfsTxnLimitConfigsByStatusAndAccountType(boolean enabled, String accountType);
 }

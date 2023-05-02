@@ -14,6 +14,7 @@ import nl.strohalm.cyclos.mfs.models.accounts.UpdateAccountRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletInfoResponse;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementResp;
+import nl.strohalm.cyclos.mfs.models.transactions.AccountLimitData;
 import nl.strohalm.cyclos.mfs.models.transactions.Response;
 import nl.strohalm.cyclos.mfs.services.MfsAccountService;
 
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Calendar;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -115,5 +117,10 @@ public class AccountController {
   public WalletStatementResp getWalletRunningStatement(@Validated @RequestBody RunningWalletStatementRequest walletStatementRequest) {
     return accountService.runningWalletStatement(walletStatementRequest);
   }
-  
+
+  @RequestMapping(value = "/info/limit/{walletNo}", method = RequestMethod.GET)
+  @ResponseBody
+  public List<AccountLimitData> getWalletUsageAndLimitsInfo(@PathVariable String walletNo) {
+    return accountService.getWalletUsageAndLimitsInfo(walletNo);
+  }
 }
