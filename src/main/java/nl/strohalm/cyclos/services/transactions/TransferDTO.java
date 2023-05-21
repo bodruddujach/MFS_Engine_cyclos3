@@ -86,6 +86,12 @@ public class TransferDTO extends DataObject implements Rated {
     private Calendar                            emissionDate;
     private Calendar                            expirationDate;
     private BigDecimal                          iRate;
+    private String                              invoiceNo; //mfs_context
+    private String                              customerRefId; //mfs_context
+    private String                              mfsTransactionType;//mfs_context
+    private String                              externalCustomer;//mfs_context
+    private String                              systemWiseTxnId;//mfs_context
+    private Calendar                            systemWiseReqTime;//mfs_context
 
     public AccountFeeLog getAccountFeeLog() {
         return accountFeeLog;
@@ -334,7 +340,56 @@ public class TransferDTO extends DataObject implements Rated {
         this.transferType = transferType;
     }
 
-    public DoPaymentDTO toPaymentDTO() {
+    
+    public String getInvoiceNo() {
+		return invoiceNo;
+	}
+
+	public void setInvoiceNo(String invoiceNo) {
+		this.invoiceNo = invoiceNo;
+	}
+
+	public String getCustomerRefId() {
+		return customerRefId;
+	}
+
+	public void setCustomerRefId(String customerRefId) {
+		this.customerRefId = customerRefId;
+	}
+
+	public String getMfsTransactionType() {
+		return mfsTransactionType;
+	}
+
+	public void setMfsTransactionType(String mfsTransactionType) {
+		this.mfsTransactionType = mfsTransactionType;
+	}
+
+	public String getExternalCustomer() {
+		return externalCustomer;
+	}
+
+	public void setExternalCustomer(String externalCustomer) {
+		this.externalCustomer = externalCustomer;
+	}
+
+	public String getSystemWiseTxnId() {
+		return systemWiseTxnId;
+	}
+
+	public void setSystemWiseTxnId(String systemWiseTxnId) {
+		this.systemWiseTxnId = systemWiseTxnId;
+	}
+
+	public Calendar getSystemWiseReqTime() {
+		return systemWiseReqTime;
+	}
+
+	public void setSystemWiseReqTime(Calendar systemWiseReqTime) {
+		this.systemWiseReqTime = systemWiseReqTime;
+	}
+
+	public DoPaymentDTO toPaymentDTO() {
         final DoPaymentDTO dto = new DoPaymentDTO();
         dto.setTransferType(transferType);
         dto.setTo(to.getOwner());

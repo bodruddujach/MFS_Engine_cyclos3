@@ -49,8 +49,9 @@ public class TxnRequest implements Serializable {
   private String externalCustomer;
   private String note;
   private String txnTag;
-  private String parentTxnNumber;
+  private String parentRequestId;
   private TxnTypeTag txnTypeTag;
+  private String traceData;
 
   public String getFromAc() {
     return fromAc;
@@ -262,12 +263,12 @@ public class TxnRequest implements Serializable {
 
 
 
-  public String getParentTxnNumber() {
-    return parentTxnNumber;
+  public String getParentRequestId() {
+    return parentRequestId;
   }
 
-  public void setParentTxnNumber(String parentTxnNumber) {
-    this.parentTxnNumber = parentTxnNumber;
+  public void setParentRequestId(String parentRequestId) {
+    this.parentRequestId = parentRequestId;
   }
 
   
@@ -279,6 +280,14 @@ public class TxnRequest implements Serializable {
   public void setTxnTypeTag(TxnTypeTag txnTypeTag) {
     this.txnTypeTag = txnTypeTag;
   }
+  
+public String getTraceData() {
+	return traceData;
+}
+
+public void setTraceData(String traceData) {
+	this.traceData = traceData;
+}
 
 @Override
   public String toString() {
@@ -287,7 +296,7 @@ public class TxnRequest implements Serializable {
         .add("toAc", toAc)
         .add("amount", amount)
         .add("txnType", txnType)
-        .add("parentTxnNumber", parentTxnNumber)
+        .add("parentRequestId", parentRequestId)
         .toString();
   }
 }

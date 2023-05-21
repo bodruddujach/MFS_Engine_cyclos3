@@ -137,7 +137,7 @@ public class CyclosMiddleware {
           toMember = elementServiceLocal.loadByPrincipal(principalType, txnRequest.getToAc(),
             Element.Relationships.USER, Element.Relationships.GROUP);
         } catch (EntityNotFoundException e) {
-          throw new MFSCommonException(ErrorConstants.TO_AC_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.TO_AC_NOT_FOUND), HttpStatus.BAD_REQUEST);
+          throw new MFSCommonException(ErrorConstants.TO_AC_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.TO_AC_NOT_FOUND) + ":" + txnRequest.getToAc(), HttpStatus.BAD_REQUEST);
         }
         doPaymentDTO.setTo(toMember);
         //check status
@@ -181,11 +181,14 @@ public class CyclosMiddleware {
       doPaymentDTO.setContext(TransactionContext.AUTOMATIC);
       doPaymentDTO.setShowScheduledToReceiver(false);
       doPaymentDTO.setChannel(Channel.REST);
-      doPaymentDTO.setTraceData(txnRequest.getRequestId());
+      doPaymentDTO.setTraceData(txnRequest.getTraceData());
       doPaymentDTO.setNote(txnRequest.getNote());
       doPaymentDTO.setInvoiceNo(txnRequest.getInvoiceNo());
       doPaymentDTO.setCustomerRefId(txnRequest.getCustomerRefId());
-
+      doPaymentDTO.setParentTraceData(txnRequest.getParentRequestId());
+//      doPaymentDTO.setMfsTransactionType(txnRequest.getTxnType().toString());
+      doPaymentDTO.setExternalCustomer(txnRequest.getExternalCustomer());
+      doPaymentDTO.setSystemWiseTxnId(txnRequest.getRequestId());
       return doPaymentDTO;
     } catch (EntityNotFoundException e) {
       throw new MFSCommonException(ErrorConstants.FROM_AC_NOT_FOUND, e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -267,6 +270,7 @@ public class CyclosMiddleware {
     result.setCustomerRefId(request.getCustomerRefId());
     result.setNote(request.getNote());
     result.setTxnTime(payment.getProcessDate().getTime());
+    result.setSystemWiseTxnId(transfer.getSystemWiseTxnId());
     return result;
   }
 
@@ -274,7 +278,7 @@ public class CyclosMiddleware {
     List<DoPaymentDTO> doPaymentDTOList = new LinkedList<DoPaymentDTO>();
     for (TxnRequest txnRequest : bulkTxnRequest.getTxnRequestList()) {
       DoPaymentDTO doPaymentDTO = getValidateCyclosDoPaymentDTO(txnRequest);
-      //doPaymentDTO.setTransactionType(txnRequest.getTxnType());
+      doPaymentDTO.setMfsTransactionType(txnRequest.getTxnType().toString());
       doPaymentDTOList.add(doPaymentDTO);
     }
     return doPaymentDTOList;

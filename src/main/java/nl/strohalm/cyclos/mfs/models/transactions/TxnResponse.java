@@ -33,6 +33,7 @@ public class TxnResponse extends Response implements Serializable {
   private String invoiceNo;
   private String customerRefId;
   private String note;
+  private String systemWiseTxnId = "N/A";
 
   public static long getSerialVersionUID() {
     return serialVersionUID;
@@ -206,8 +207,15 @@ public class TxnResponse extends Response implements Serializable {
     this.note = note;
   }
 
+  public String getSystemWiseTxnId() {
+    return systemWiseTxnId;
+  }
 
-  @Override
+  public void setSystemWiseTxnId(String systemWiseTxnId) {
+    this.systemWiseTxnId = systemWiseTxnId;
+  }
+
+@Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
         .add("amount", amount)
