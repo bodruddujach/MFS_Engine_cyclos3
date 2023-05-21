@@ -9,7 +9,7 @@ import java.util.Date;
 public class MfsTxnType extends Entity {
 
   public static enum TxnTypeTag implements StringValuedEnum {
-    MFS("mfs"), I_BANKING("i-banking"), INTERNAL("internal");
+    MFS("mfs"), MFS_DYNAMIC("mfs-dynamic"), I_BANKING("i-banking"), INTERNAL("internal");
     private final String value;
 
     private TxnTypeTag(final String value) {

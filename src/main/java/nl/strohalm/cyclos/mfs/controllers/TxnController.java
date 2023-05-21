@@ -56,7 +56,20 @@ public class TxnController extends BaseRestController {
         result.getStatus(), result.getTxnId(), request.getFromAc(), request.getToAc(),
         request.getTxnType(), request.getAmount(), (e - s)));
     return result;
+  }
 
+  @RequestMapping(value = "/dynamic", method = RequestMethod.POST, headers = "Content-type=application/json")
+  @ResponseBody
+  public List<TxnResponse> doDynamicPayment(@Validated @RequestBody final BulkTxnRequest bulkTxnRequest) {
+    long s = System.currentTimeMillis();
+    logger.info("Dynamic Txn Request, Total Payment Req: " + bulkTxnRequest.getTxnRequestList().size());
+    for (TxnRequest request: bulkTxnRequest.getTxnRequestList()) {
+        request.setTxnTypeTag(TxnTypeTag.MFS_DYNAMIC);
+    }
+    List<TxnResponse> resultList = transactionService.processDynamicTxn(bulkTxnRequest);
+    long e = System.currentTimeMillis();
+    logger.info("Dynamic Payment Resp Time: " + (e - s) + " ms");
+    return resultList;
   }
 
   @RequestMapping(value = "/estimate",method = RequestMethod.POST, headers = "Content-type=application/json")
