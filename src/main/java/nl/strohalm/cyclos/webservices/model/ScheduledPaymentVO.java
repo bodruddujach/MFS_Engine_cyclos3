@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import nl.strohalm.cyclos.webservices.utils.ObjectHelper;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Represents a scheduled payment from the point of view of an account

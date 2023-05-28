@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlElement;
 import nl.strohalm.cyclos.webservices.model.AdVO;
 import nl.strohalm.cyclos.webservices.model.ResultPage;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Page results for ads

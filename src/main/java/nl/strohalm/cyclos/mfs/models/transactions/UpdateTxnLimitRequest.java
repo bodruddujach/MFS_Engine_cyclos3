@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 
 import javax.validation.constraints.NotNull;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import com.google.common.base.MoreObjects;
 
