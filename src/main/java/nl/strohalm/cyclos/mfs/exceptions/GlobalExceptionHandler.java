@@ -23,12 +23,12 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(Exception.class)
   @ResponseBody
-  public ErrorResponse handleUnknownException(final Exception ex, final HttpServletResponse response) throws IOException {
+  public ResponseEntity<ErrorResponse> handleUnknownException(final Exception ex, final HttpServletResponse response) throws IOException {
     ErrorResponse errorResponse = new ErrorResponse();
     errorResponse.setCode("5001");
     errorResponse.setMessage(ex.getMessage());
     logger.error("Exception",ex);
-    return errorResponse;
+    return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 
   }
 
