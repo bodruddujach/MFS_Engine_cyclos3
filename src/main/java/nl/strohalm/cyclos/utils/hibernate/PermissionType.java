@@ -29,6 +29,7 @@ import nl.strohalm.cyclos.access.Permission;
 import nl.strohalm.cyclos.utils.access.PermissionHelper;
 
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 
 /**
@@ -68,7 +69,7 @@ public class PermissionType implements UserType {
     }
 
     @Override
-    public Object nullSafeGet(final ResultSet rs, final String[] names, final Object owner) throws HibernateException, SQLException {
+    public Object nullSafeGet(final ResultSet rs, final String[] names, SessionImplementor session, final Object owner) throws HibernateException, SQLException {
         final String qualifiedPermissionName = rs.getString(names[0]);
         if (!rs.wasNull()) {
             return PermissionHelper.getPermission(qualifiedPermissionName);
@@ -78,7 +79,7 @@ public class PermissionType implements UserType {
     }
 
     @Override
-    public void nullSafeSet(final PreparedStatement st, final Object value, final int index) throws HibernateException, SQLException {
+    public void nullSafeSet(final PreparedStatement st, final Object value, final int index, SessionImplementor session) throws HibernateException, SQLException {
         if (value == null || !(value instanceof Enum)) {
             st.setNull(index, Types.VARCHAR);
         } else {

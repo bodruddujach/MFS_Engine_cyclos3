@@ -63,9 +63,9 @@ import org.apache.struts.config.ModuleConfig;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.connection.ConnectionProvider;
-import org.hibernate.engine.SessionFactoryImplementor;
-import org.springframework.orm.hibernate3.SessionHolder;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.springframework.orm.hibernate4.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
@@ -554,7 +554,7 @@ public class CyclosRequestProcessor extends SecureTilesRequestProcessor {
         try {
             connection = connectionProvider.getConnection();
             TransactionSynchronizationManager.bindResource(connectionProvider, connection);
-            session = sessionFactory.openSession(connection);
+            session = sessionFactory.openSession();
             holder = new SessionHolder(session);
             transaction = session.beginTransaction();
             holder.setTransaction(transaction);

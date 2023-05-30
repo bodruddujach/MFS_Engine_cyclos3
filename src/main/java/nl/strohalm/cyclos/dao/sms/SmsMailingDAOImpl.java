@@ -116,7 +116,7 @@ public class SmsMailingDAOImpl extends BaseDAOImpl<SmsMailing> implements SmsMai
 
     @Override
     public Member nextMemberToSend(final SmsMailing smsMailing) {
-        return (Member) getSession().createFilter(smsMailing.getPendingToSend(), "where 1=1").setMaxResults(1).uniqueResult();
+        return (Member) currentSession().createFilter(smsMailing.getPendingToSend(), "where 1=1").setMaxResults(1).uniqueResult();
     }
 
     @Override

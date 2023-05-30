@@ -134,7 +134,7 @@ public class MemberAccountFeeLogDAOImpl extends BaseDAOImpl<MemberAccountFeeLog>
     @Override
     @SuppressWarnings("unchecked")
     public List<Member> nextToCharge(final AccountFeeLog feeLog, final int count) {
-        return getSession().createFilter(feeLog.getPendingToCharge(), "where 1=1").setMaxResults(count).list();
+        return currentSession().createFilter(feeLog.getPendingToCharge(), "where 1=1").setMaxResults(count).list();
     }
 
     @Override

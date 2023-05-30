@@ -57,11 +57,11 @@ import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.jdbc.Work;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateTemplate;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * Basic implementation for DAOs, extending Spring Framework support for Hibernate 3.
@@ -85,7 +85,7 @@ public abstract class BaseDAOImpl<E extends Entity> extends HibernateDaoSupport 
     public Blob createBlob(final InputStream stream, final int length) {
         return getHibernateTemplate().execute(new HibernateCallback<Blob>() {
             @Override
-            public Blob doInHibernate(final Session session) throws HibernateException, SQLException {
+            public Blob doInHibernate(final Session session) throws HibernateException {
                 return session.getLobHelper().createBlob(stream, length);
             }
         });
@@ -269,7 +269,7 @@ public abstract class BaseDAOImpl<E extends Entity> extends HibernateDaoSupport 
             hibernateQueryHandler.resolveReferences(entity);
             final T ret = getHibernateTemplate().execute(new HibernateCallback<T>() {
                 @Override
-                public T doInHibernate(final Session session) throws HibernateException, SQLException {
+                public T doInHibernate(final Session session) throws HibernateException {
                     // As hibernate can have only 1 instance with a given id, if another instance with that id
                     // is passed to update, it will throw a NonUniqueObjectException. So, we must merge the data
                     try {
@@ -308,7 +308,7 @@ public abstract class BaseDAOImpl<E extends Entity> extends HibernateDaoSupport 
         try {
             return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
                 @Override
-                public Integer doInHibernate(final Session session) throws HibernateException, SQLException {
+                public Integer doInHibernate(final Session session) throws HibernateException {
                     final Query query = session.createQuery(hql);
                     hibernateQueryHandler.setQueryParameters(query, namedParameters);
                     int rows = query.executeUpdate();
@@ -426,9 +426,9 @@ public abstract class BaseDAOImpl<E extends Entity> extends HibernateDaoSupport 
     @SuppressWarnings("unchecked")
     protected <T> List<T> list(final String hql, final Object namedParameters) {
         try {
-            return (List<T>) getHibernateTemplate().executeFind(new HibernateCallback<List<T>>() {
+            return (List<T>) getHibernateTemplate().execute(new HibernateCallback<List<T>>() {
                 @Override
-                public List<T> doInHibernate(final Session session) throws HibernateException, SQLException {
+                public List<T> doInHibernate(final Session session) throws HibernateException {
                     final Query query = session.createQuery(hql);
                     process(query, namedParameters);
                     return query.list();
@@ -464,7 +464,7 @@ public abstract class BaseDAOImpl<E extends Entity> extends HibernateDaoSupport 
      * Runs something directly in the database connection using a {@link JDBCCallback}
      */
     protected void runNative(final JDBCCallback callback) {
-        getSession().doWork(new Work() {
+    	currentSession().doWork(new Work() {
             @Override
             public void execute(final Connection connection) throws SQLException {
                 callback.execute(new JDBCWrapper(connection));
@@ -490,7 +490,7 @@ public abstract class BaseDAOImpl<E extends Entity> extends HibernateDaoSupport 
         try {
             return getHibernateTemplate().execute(new HibernateCallback<T>() {
                 @Override
-                public T doInHibernate(final Session session) throws HibernateException, SQLException {
+                public T doInHibernate(final Session session) throws HibernateException {
                     final Query query = session.createQuery(hql);
                     process(query, namedParameters);
                     query.setMaxResults(1);

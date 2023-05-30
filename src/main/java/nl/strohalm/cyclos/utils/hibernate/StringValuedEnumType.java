@@ -29,6 +29,7 @@ import nl.strohalm.cyclos.utils.StringValuedEnum;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.type.Type;
 
 /**
@@ -44,7 +45,7 @@ public class StringValuedEnumType<EnumType> extends AbstractEnumType<EnumType> {
         return getType(StringValuedEnumType.class, enumClass);
     }
 
-    public Object nullSafeGet(final ResultSet rs, final String[] names, final Object owner) throws HibernateException, SQLException {
+    public Object nullSafeGet(final ResultSet rs, final String[] names, SessionImplementor session, final Object owner) throws HibernateException, SQLException {
         final String value = rs.getString(names[0]);
         if (!rs.wasNull()) {
             for (final EnumType item : getEnumValues()) {
@@ -62,7 +63,7 @@ public class StringValuedEnumType<EnumType> extends AbstractEnumType<EnumType> {
         return null;
     }
 
-    public void nullSafeSet(final PreparedStatement st, final Object value, final int index) throws HibernateException, SQLException {
+    public void nullSafeSet(final PreparedStatement st, final Object value, final int index, SessionImplementor session) throws HibernateException, SQLException {
         if (value == null) {
             st.setNull(index, Types.VARCHAR);
         } else {

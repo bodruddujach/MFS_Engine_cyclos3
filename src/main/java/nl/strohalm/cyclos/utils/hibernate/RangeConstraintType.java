@@ -29,6 +29,7 @@ import nl.strohalm.cyclos.utils.RangeConstraint;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 
 /**
@@ -68,13 +69,13 @@ public class RangeConstraintType implements UserType, Serializable {
         return false;
     }
 
-    public Object nullSafeGet(final ResultSet rs, final String[] names, final Object owner) throws HibernateException, SQLException {
+    public Object nullSafeGet(final ResultSet rs, final String[] names, SessionImplementor session, final Object owner) throws HibernateException, SQLException {
         final int min = rs.getInt(names[0]);
         final int max = rs.getInt(names[1]);
         return RangeConstraint.between(min, max);
     }
 
-    public void nullSafeSet(final PreparedStatement ps, final Object object, final int index) throws HibernateException, SQLException {
+    public void nullSafeSet(final PreparedStatement ps, final Object object, final int index, SessionImplementor session) throws HibernateException, SQLException {
         final RangeConstraint range = (RangeConstraint) object;
         if (range == null) {
             ps.setNull(index, Types.INTEGER);

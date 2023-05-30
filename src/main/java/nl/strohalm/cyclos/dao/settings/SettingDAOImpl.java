@@ -56,7 +56,7 @@ public class SettingDAOImpl extends BaseDAOImpl<Setting> implements SettingDAO {
     }
 
     public void importNew(final Locale locale) {
-        CreateBasicData.createSettings(getSession(), Setup.getResourceBundle(locale), locale, cyclosProperties);
+        CreateBasicData.createSettings(currentSession(), Setup.getResourceBundle(locale), locale, cyclosProperties);
     }
 
     public List<Setting> listByType(final Type type) {

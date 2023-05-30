@@ -40,7 +40,7 @@ public class MemberSmsStatusDAOImpl extends BaseDAOImpl<MemberSmsStatus> impleme
 
     @Override
     public MemberSmsStatus load(final Member member, final Relationship... fetch) throws EntityNotFoundException {
-        final Query query = getSession().createQuery("from MemberSmsStatus s where s.member = :member");
+        final Query query = currentSession().createQuery("from MemberSmsStatus s where s.member = :member");
         query.setParameter("member", member);
         final MemberSmsStatus status = (MemberSmsStatus) query.uniqueResult();
         if (status == null) {

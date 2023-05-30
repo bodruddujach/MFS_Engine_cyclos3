@@ -214,7 +214,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         return sql.toString();
     }
     private SQLQuery appendStatementParameter(StatementParams query, String sql) {
-        SQLQuery sqlQuery = getSession().createSQLQuery(sql);
+        SQLQuery sqlQuery = currentSession().createSQLQuery(sql);
         sqlQuery.setLong("accountId", query.getAccountNo());
         if (query.getBeginDate() != null) {
             sqlQuery.setCalendar("fromDate", query.getBeginDate());

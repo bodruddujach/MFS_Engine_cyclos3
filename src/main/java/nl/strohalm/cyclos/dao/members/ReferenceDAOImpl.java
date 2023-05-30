@@ -190,7 +190,7 @@ public class ReferenceDAOImpl extends BaseDAOImpl<Reference> implements Referenc
             sql.append("order by date");
         }
 
-        SQLQuery sqlQuery = getSession().createSQLQuery(sql.toString());
+        SQLQuery sqlQuery = currentSession().createSQLQuery(sql.toString());
         if (member != null) {
             sqlQuery.setLong("memberId", member.getId());
         }
@@ -225,7 +225,7 @@ public class ReferenceDAOImpl extends BaseDAOImpl<Reference> implements Referenc
                     dto.setMemberName((String) input[6]);
                     dto.setMemberUsername((String) input[7]);
 
-                    TransferType transferType = (TransferType) getSession().load(TransferType.class, dto.getTransferTypeId());
+                    TransferType transferType = (TransferType) currentSession().load(TransferType.class, dto.getTransferTypeId());
                     dto.setCurrency(getFetchDao().fetch(transferType.getCurrency()));
 
                     return dto;

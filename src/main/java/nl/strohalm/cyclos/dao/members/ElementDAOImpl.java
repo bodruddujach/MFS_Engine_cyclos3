@@ -425,7 +425,7 @@ public class ElementDAOImpl extends IndexedDAOImpl<Element> implements ElementDA
             final String statement = " delete from members_channels " +
                     " where channel_id in (:channelIds) " +
                     " and member_id in (select id from members where group_id = :groupId) ";
-            final SQLQuery query = getSession().createSQLQuery(statement);
+            final SQLQuery query = currentSession().createSQLQuery(statement);
             getHibernateQueryHandler().setQueryParameters(query, parameters);
             query.executeUpdate();
         }

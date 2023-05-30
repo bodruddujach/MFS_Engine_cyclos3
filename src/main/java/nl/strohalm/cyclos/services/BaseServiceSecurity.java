@@ -35,7 +35,7 @@ import nl.strohalm.cyclos.utils.access.LoggedUser;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
+import org.springframework.orm.hibernate4.SessionFactoryUtils;
 
 /**
  * Base class for implementations of service security layer
@@ -96,7 +96,7 @@ public abstract class BaseServiceSecurity implements ServiceSecurity {
     }
 
     protected Session getSession() {
-        return SessionFactoryUtils.getSession(sessionFactory, true);
+        return sessionFactory.getCurrentSession();
     }
 
     protected SessionFactory getSessionFactory() {
