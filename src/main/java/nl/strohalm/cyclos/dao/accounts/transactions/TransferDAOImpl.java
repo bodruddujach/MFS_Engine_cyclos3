@@ -661,6 +661,15 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         HibernateHelper.addParameterToQuery(hql, namedParameters, "transactionNumber", transactionNumber);
         return uniqueResult(hql.toString(), namedParameters);
     }
+
+    @Override
+    public Transfer loadTransferByCustomerRefId(final String customerRefId) {
+        final Map<String, Object> namedParameters = new HashMap<String, Object>();
+        final StringBuilder hql = HibernateHelper.getInitialQuery(getEntityType(), "t");
+        HibernateHelper.addParameterToQuery(hql, namedParameters, "customerRefId", customerRefId);
+        return uniqueResult(hql.toString(), namedParameters);
+    }
+
     @Override
     public List<Transfer> loadTransferByParent(final Transfer parent) {
         final Map<String, Object> namedParameters = new HashMap<String, Object>();

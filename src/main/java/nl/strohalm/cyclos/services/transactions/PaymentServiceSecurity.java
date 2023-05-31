@@ -287,4 +287,10 @@ public class PaymentServiceSecurity extends BaseServiceSecurity implements Payme
         checkAccountAccess(query.getToAccountOwner(), query.getToAccountType());
         check(query.getParent());
     }
+
+	@Override
+	public Transfer loadTransferByCustomerRefId(String customerRefId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
