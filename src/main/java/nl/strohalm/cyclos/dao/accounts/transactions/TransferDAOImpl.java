@@ -163,20 +163,21 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         } else {
             sql.append("SELECT * FROM ( ");
         }
-        sql.append("SELECT t.id, t.parent_id AS parentId, t.amount, ");
-        sql.append("fa.owner_name AS 'fromWallet', ");
-        sql.append("fm.name AS 'fromName', ");
-        sql.append(" ta.owner_name AS 'toWallet', ");
-        sql.append("tm.name AS 'toName', ");
+        sql.append("SELECT t.id, t.parent_id AS parentId, ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN -1*t.amount ELSE t.amount END AS amount, ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN ta.owner_name ELSE fa.owner_name END AS 'fromWallet', ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN tm.name ELSE fm.name END AS 'fromName', ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN fa.owner_name ELSE ta.owner_name END AS 'toWallet', ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN fm.name ELSE tm.name END AS 'toName', ");
         sql.append("t.process_date AS 'txnTime', ");
         sql.append("t.type_id AS 'typeId', ");
         sql.append("t.transaction_number AS 'transactionNumber', ");
         sql.append("case when t.transaction_fee_id is null then ty.name else tf.name end AS 'typeName', ");
         sql.append("t.description, ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NULL AND t.chargedback_by_id IS NULL AND ty.name='PAYMENT' THEN TRUE ELSE FALSE END AS 'canReverse', ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NULL AND t.chargedback_by_id IS NULL AND t.parent_id IS NULL THEN TRUE ELSE FALSE END AS 'canReverse', ");
         sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN TRUE ELSE FALSE END AS 'reversedTxn', ");
-        sql.append("t.from_account_id AS 'fromAcId', ");
-        sql.append("t.to_account_id 'toAcId' ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN t.to_account_id ELSE t.from_account_id END AS 'fromAcId', ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN t.from_account_id ELSE t.to_account_id END AS 'toAcId' ");
         sql.append("FROM transfers t ");
         sql.append("LEFT JOIN accounts fa ON t.from_account_id = fa.id ");
         sql.append("LEFT JOIN members fm ON fa.member_id = fm.id ");

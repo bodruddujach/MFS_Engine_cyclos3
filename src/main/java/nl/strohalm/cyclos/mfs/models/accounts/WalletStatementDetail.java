@@ -25,7 +25,7 @@ public class WalletStatementDetail implements Serializable {
   private String transactionNumber;
   private String parentTransactionNumber;
   private String typeName;
-  private Boolean canReverse = true;
+  private Boolean canReverse = false;
   private Boolean isReversedTxn;
   private String description;
   private String txnType;
