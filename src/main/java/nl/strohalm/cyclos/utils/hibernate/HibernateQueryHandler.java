@@ -472,7 +472,8 @@ public class HibernateQueryHandler {
                 final Query query = session.createQuery(transformToCount(hql.toString()));
                 setQueryParameters(query, namedParameters);
                 setCacheRegion(query, cacheRegion);
-                return (Integer) query.uniqueResult();
+                long result = (long) query.uniqueResult();
+                return (Integer) Math.toIntExact(result);
             }
         });
 

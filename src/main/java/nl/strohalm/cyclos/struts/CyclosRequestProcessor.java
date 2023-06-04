@@ -65,6 +65,8 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.internal.SessionImpl;
 import org.springframework.orm.hibernate4.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -529,11 +531,17 @@ public class CyclosRequestProcessor extends SecureTilesRequestProcessor {
             return;
         }
         logDebug(request, "Opening read-only transaction for include");
-
-        final Connection connection = (Connection) TransactionSynchronizationManager.getResource(connectionProvider);
-
+        //final Connection connection = (Connection) TransactionSynchronizationManager.getResource(connectionProvider);
         final SessionHolder holder = (SessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
-        final Session session = holder.getSession();
+        //final Session session = holder.getSession();
+        final Session session = sessionFactory.getCurrentSession();
+        Connection connection = ((SessionImplementor) session).connection();
+        try {
+			connection.setReadOnly(true);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         session.setFlushMode(FlushMode.MANUAL);
         session.setDefaultReadOnly(true);
         session.reconnect(connection);

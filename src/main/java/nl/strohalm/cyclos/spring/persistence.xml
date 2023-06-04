@@ -198,28 +198,28 @@
 			</list>
 		</property>
 		
-		<property name="eventListeners">
-			<map>
-				<entry key="post-update">
-					<ref bean="writeDetectEventListener"/>
-				</entry>
-				<entry key="post-insert">
-					<ref bean="writeDetectEventListener"/>
-				</entry>
-				<entry key="post-delete">
-					<ref bean="writeDetectEventListener"/>
-				</entry>
-				<entry key="post-collection-recreate">
-					<ref bean="writeDetectEventListener"/>
-				</entry>
-				<entry key="post-collection-remove">
-					<ref bean="writeDetectEventListener"/>
-				</entry>
-				<entry key="post-collection-update">
-					<ref bean="writeDetectEventListener"/>
-				</entry>
-			</map>
-		</property>
+<!-- 		<property name="eventListeners"> -->
+<!-- 			<map> -->
+<!-- 				<entry key="post-update"> -->
+<!-- 					<ref bean="writeDetectEventListener"/> -->
+<!-- 				</entry> -->
+<!-- 				<entry key="post-insert"> -->
+<!-- 					<ref bean="writeDetectEventListener"/> -->
+<!-- 				</entry> -->
+<!-- 				<entry key="post-delete"> -->
+<!-- 					<ref bean="writeDetectEventListener"/> -->
+<!-- 				</entry> -->
+<!-- 				<entry key="post-collection-recreate"> -->
+<!-- 					<ref bean="writeDetectEventListener"/> -->
+<!-- 				</entry> -->
+<!-- 				<entry key="post-collection-remove"> -->
+<!-- 					<ref bean="writeDetectEventListener"/> -->
+<!-- 				</entry> -->
+<!-- 				<entry key="post-collection-update"> -->
+<!-- 					<ref bean="writeDetectEventListener"/> -->
+<!-- 				</entry> -->
+<!-- 			</map> -->
+<!-- 		</property> -->
 	</bean>
 	
 	<bean id="writeDetectEventListener" class="nl.strohalm.cyclos.utils.hibernate.WriteDetectEventListener" />
