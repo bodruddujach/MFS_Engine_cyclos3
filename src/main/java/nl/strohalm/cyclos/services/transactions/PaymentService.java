@@ -61,6 +61,7 @@ public interface PaymentService extends Service {
     WalletStatementResp searchStatement(StatementParams statementParams);
     WalletStatementResp getTransactionDetails(String txnId);
     Transfer findByTxnId(String txnId);
+    Transfer loadTransferByCustomerRefId(String customerRefId);
     /**
      * Returns an AccountHistoryResultPage for the given parameters.
      * @param params

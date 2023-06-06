@@ -558,9 +558,15 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
     walletStatementResp.setWalletStatementDetailList(details);
     return walletStatementResp;
   }
+
   public Transfer findByTxnId(String txnId){
     return transferDao.loadTransferByTxnNumber(txnId);
   }
+
+  public Transfer loadTransferByCustomerRefId(String customerRefId) {
+    return transferDao.loadTransferByCustomerRefId(customerRefId);
+  }
+
   private WalletStatementDetail adaptStatementDetail(Transfer transfer){
     WalletStatementDetail statementDetail =  new WalletStatementDetail();
     statementDetail.setId(transfer.getId());
@@ -574,6 +580,9 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
     statementDetail.setToWallet(transfer.getTo().getOwnerName());
     statementDetail.setFromName(transfer.getFrom().getOwner().toString());
     statementDetail.setToName(transfer.getTo().getOwner().toString());
+    if ((transfer.isRoot() && transfer.getChargedBackBy() == null && transfer.getChargebackOf() == null)) {
+      statementDetail.setCanReverse(true);
+    }
     return statementDetail;
   }
   @Override

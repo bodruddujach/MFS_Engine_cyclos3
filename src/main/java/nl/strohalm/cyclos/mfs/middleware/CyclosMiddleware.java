@@ -186,7 +186,7 @@ public class CyclosMiddleware {
       doPaymentDTO.setInvoiceNo(txnRequest.getInvoiceNo());
       doPaymentDTO.setCustomerRefId(txnRequest.getCustomerRefId());
       doPaymentDTO.setParentTraceData(txnRequest.getParentRequestId());
-//      doPaymentDTO.setMfsTransactionType(txnRequest.getTxnType().toString());
+      doPaymentDTO.setMfsTransactionType(txnRequest.getTxnType().toString());
       doPaymentDTO.setExternalCustomer(txnRequest.getExternalCustomer());
       doPaymentDTO.setSystemWiseTxnId(txnRequest.getRequestId());
       return doPaymentDTO;
@@ -264,12 +264,13 @@ public class CyclosMiddleware {
     result.setFromAccount(transfer.getFrom().getOwnerName());
     result.setToAccount(transfer.getTo().getOwnerName());
     result.setTxnId(transfer.getTransactionNumber());
-    result.setTxnType(request.getTxnType().name());
-    result.setTxnTypeName(request.getTxnType().getDescription());
-    result.setInvoiceNo(request.getInvoiceNo());
-    result.setCustomerRefId(request.getCustomerRefId());
-    result.setNote(request.getNote());
-    result.setTxnTime(payment.getProcessDate().getTime());
+    result.setTxnType(request != null ? request.getTxnType().name() : transfer.getMfsTransactionType());
+    result.setTxnTypeName(request != null ? request.getTxnType().getDescription() : transfer.getMfsTransactionType());
+    result.setInvoiceNo(transfer.getInvoiceNo());
+    result.setCustomerRefId(transfer.getCustomerRefId());
+    result.setNote(request != null ? request.getNote() : transfer.getDescription());
+    result.setExternalCustomer(transfer.getExternalCustomer());
+    result.setTxnTime(transfer.getProcessDate().getTime());
     result.setSystemWiseTxnId(transfer.getSystemWiseTxnId());
     return result;
   }
