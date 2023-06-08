@@ -40,6 +40,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
@@ -148,7 +149,7 @@ public class IndexHandler implements InitializingBean, DisposableBean {
         }
         try {
             // The isCurrent call will force the check for corrupted indexes
-            reader.isCurrent();
+            ((DirectoryReader) reader).isCurrent();
             return IndexStatus.ACTIVE;
         } catch (final CorruptIndexException e) {
             return IndexStatus.CORRUPT;
@@ -245,7 +246,7 @@ public class IndexHandler implements InitializingBean, DisposableBean {
     private IndexReader doOpenReader(final Class<? extends Indexable> entityType) throws CorruptIndexException, IOException {
         // TODO if we ever update to Lucene 4 (alpha for now) we shoudln't pass the true parameter, as readers will be always readonly. We won't
         // do it now because readonly readers perform better on high concurrency
-        return IndexReader.open(getDirectory(entityType), true);
+        return DirectoryReader.open(getDirectory(entityType));
     }
 
 }

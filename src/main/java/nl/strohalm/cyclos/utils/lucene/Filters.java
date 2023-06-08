@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import nl.strohalm.cyclos.entities.exceptions.QueryParseException;
@@ -35,19 +36,21 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.CachingWrapperFilter;
-import org.apache.lucene.search.ChainedFilter;
+import org.apache.lucene.queries.ChainedFilter;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermRangeFilter;
-import org.apache.lucene.search.TermsFilter;
+import org.apache.lucene.util.Bits;
+import org.apache.lucene.queries.TermsFilter;
 
 /**
  * A filter collection
@@ -77,7 +80,7 @@ public class Filters extends Filter implements Cloneable {
         if (StringUtils.isEmpty(query)) {
             return null;
         }
-        QueryParser parser = new QueryParser(LuceneUtils.LUCENE_VERSION, field, analyzer);
+        QueryParser parser = new QueryParser(field, analyzer);
         try {
             Query q = parser.parse(query);
             return new QueryWrapperFilter(q);
@@ -116,7 +119,7 @@ public class Filters extends Filter implements Cloneable {
         }
         final String minStr = min == null ? LuceneFormatter.MIN_DATE : LuceneFormatter.format(min);
         final String maxStr = max == null ? LuceneFormatter.MAX_DATE : LuceneFormatter.format(max);
-        return new TermRangeFilter(field, minStr, maxStr, includeMin, includeMax);
+        return TermRangeFilter.newStringRange(field, minStr, maxStr, includeMin, includeMax);
     }
 
     /**
@@ -135,7 +138,7 @@ public class Filters extends Filter implements Cloneable {
         }
         final String minStr = min == null ? LuceneFormatter.MIN_DECIMAL : LuceneFormatter.format(min);
         final String maxStr = max == null ? LuceneFormatter.MAX_DECIMAL : LuceneFormatter.format(max);
-        return new TermRangeFilter(field, minStr, maxStr, includeMin, includeMax);
+        return TermRangeFilter.newStringRange(field, minStr, maxStr, includeMin, includeMax);
     }
 
     /**
@@ -152,7 +155,7 @@ public class Filters extends Filter implements Cloneable {
         if (StringUtils.isEmpty(min) || StringUtils.isEmpty(max)) {
             return null;
         }
-        return new TermRangeFilter(field, min, max, includeMin, includeMax);
+        return TermRangeFilter.newStringRange(field, min, max, includeMin, includeMax);
     }
 
     /**
@@ -162,16 +165,16 @@ public class Filters extends Filter implements Cloneable {
         if (CollectionUtils.isEmpty(values)) {
             return null;
         }
-        final TermsFilter filter = new TermsFilter();
         int count = 0;
+        final List<Term> terms = Collections.emptyList();
         for (final Object object : values) {
             final String term = object == null ? null : StringUtils.trimToNull("" + object);
             if (term != null) {
-                filter.addTerm(new Term(field, term));
+                terms.add(new Term(field, term));
                 count++;
             }
         }
-        return count == 0 ? null : filter;
+        return count == 0 ? null : new TermsFilter(terms);
     }
 
     /**
@@ -271,16 +274,16 @@ public class Filters extends Filter implements Cloneable {
             return;
         }
         boolean used = false;
-        final TermsFilter filter = new TermsFilter();
+        final List<Term> terms = Collections.emptyList();
         for (final Object object : values) {
             final String term = CoercionHelper.coerce(String.class, object);
             if (StringUtils.isNotEmpty(term)) {
-                filter.addTerm(new Term(field, term));
+                terms.add(new Term(field, term));
                 used = true;
             }
         }
         if (used) {
-            add(filter);
+            add(terms.isEmpty() ? new TermsFilter() : new TermsFilter(terms));
         }
     }
 
@@ -300,20 +303,20 @@ public class Filters extends Filter implements Cloneable {
         return clone;
     }
 
-    @Override
-    public DocIdSet getDocIdSet(final IndexReader reader) throws IOException {
-        if (!isValid()) {
-            return null;
-        }
-        final Filter[] array = filters.toArray(new Filter[filters.size()]);
-        return and(array).getDocIdSet(reader);
-    }
-
     /**
      * Returns if this filter collection is valid (there's at least one filter on it)
      */
     public boolean isValid() {
         return CollectionUtils.isNotEmpty(filters);
     }
+
+	@Override
+	public DocIdSet getDocIdSet(AtomicReaderContext context, Bits acceptDocs) throws IOException {
+		if (!isValid()) {
+            return null;
+        }
+        final Filter[] array = filters.toArray(new Filter[filters.size()]);
+        return and(array).getDocIdSet(context, acceptDocs);
+	}
 
 }

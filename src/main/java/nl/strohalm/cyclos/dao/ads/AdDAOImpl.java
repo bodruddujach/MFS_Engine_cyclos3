@@ -58,8 +58,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.queryParser.MultiFieldQueryParser;
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -158,11 +158,6 @@ public class AdDAOImpl extends IndexedDAOImpl<Ad> implements AdDAO {
         } catch (Exception e) {
             throw new DaoException(e);
         } finally {
-            try {
-                searcher.close();
-            } catch (final Exception e) {
-                // Silently ignore
-            }
             try {
                 reader.close();
             } catch (final Exception e) {
@@ -351,7 +346,7 @@ public class AdDAOImpl extends IndexedDAOImpl<Ad> implements AdDAO {
         if (keywords == null) {
             query = new MatchAllDocsQuery();
             // When not using keywords, return newer first
-            sort = new Sort(new SortField("baseDate", SortField.STRING, true));
+            sort = new Sort(new SortField("baseDate", SortField.Type.STRING, true));
         } else {
             try {
                 query = getQueryParser(analyzer).parse(keywords);
