@@ -26,8 +26,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 
 /**
  * Custom session factory bean used to setup Hibernate
@@ -77,7 +77,6 @@ public class CustomSessionFactoryBean extends LocalSessionFactoryBean {
         // Configure the database
         dataBaseConfiguration = new DataBaseConfiguration(sfb, taskRunner);
         dataBaseConfiguration.run();
-        sfb.buildMapping();
         sfb.addSqlFunction("count", org.hibernate.dialect.function.StandardAnsiSqlAggregationFunctions.CountFunction.INSTANCE);
         sfb.addSqlFunction("avg", org.hibernate.dialect.function.StandardAnsiSqlAggregationFunctions.AvgFunction.INSTANCE);
         sfb.addSqlFunction("sum", org.hibernate.dialect.function.StandardAnsiSqlAggregationFunctions.SumFunction.INSTANCE);

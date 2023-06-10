@@ -231,7 +231,7 @@
 	<util:properties id="hibernateProperties" location="classpath:/cyclos.properties" />
 
 	<!-- Transaction related beans -->
-	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager"/>
+	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager"/>
 	<bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate"/>
 	
     <!-- Hibernate specific helpers -->
