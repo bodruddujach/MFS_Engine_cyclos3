@@ -58,9 +58,10 @@ public class ApplicationDAOImpl extends BaseDAOImpl<Application> implements Appl
     @Override
     public void shutdownDBIfNeeded() {
         SessionFactoryImplementor sessionFactory = (SessionFactoryImplementor) getSessionFactory();
-        ConnectionProvider connectionProvider = sessionFactory.getConnectionProvider();
+//        ConnectionProvider connectionProvider = sessionFactory.getConnectionProvider();
         try {
-            Connection connection = connectionProvider.getConnection();
+            Connection connection = sessionFactory.getSessionFactoryOptions().getServiceRegistry()
+                .getService(ConnectionProvider.class).getConnection();
             try {
                 String dbName = connection.getMetaData().getDatabaseProductName();
                 if (dbName.startsWith("HSQL")) {
@@ -68,7 +69,8 @@ public class ApplicationDAOImpl extends BaseDAOImpl<Application> implements Appl
                     LOG.info("Shutdown on HSQL Database was successful");
                 }
             } finally {
-                connectionProvider.closeConnection(connection);
+                //connectionProvider.closeConnection(connection);
+                connection.close();
             }
         } catch (SQLException e) {
             LOG.warn("Error shutting down database connection", e);

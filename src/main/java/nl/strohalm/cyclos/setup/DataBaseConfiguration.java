@@ -238,7 +238,7 @@ public class DataBaseConfiguration {
         if (secondLevelCacheEnabled) {
             // The second level cache provider
             if (StringUtils.isEmpty(properties.getProperty("hibernate.cache.region.factory_class"))) {
-                properties.setProperty("hibernate.cache.region.factory_class", "net.sf.ehcache.hibernate.EhCacheRegionFactory");
+                properties.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
             }
         }
 

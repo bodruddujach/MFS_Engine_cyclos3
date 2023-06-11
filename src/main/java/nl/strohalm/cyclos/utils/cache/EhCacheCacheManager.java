@@ -43,7 +43,7 @@ public class EhCacheCacheManager extends BaseCacheManager implements Initializin
         // Attempt to get the same EHCache cache manager from the session factory
         try {
             // Dirty little trick using reflection
-            RegionFactory regionFactory = sessionFactory.getSettings().getRegionFactory();
+            RegionFactory regionFactory = sessionFactory.getServiceRegistry().getService( RegionFactory.class );
             ehCacheManager = (net.sf.ehcache.CacheManager) FieldUtils.readField(regionFactory, "manager", true);
         } catch (Exception e) {
             // It was not possible. Fallback to the default cache manager

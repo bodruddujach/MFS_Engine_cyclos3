@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 
 /**
@@ -72,7 +73,8 @@ public class AmountType implements UserType, Serializable {
         return true;
     }
 
-    public Object nullSafeGet(final ResultSet rs, final String[] names, SessionImplementor session, final Object owner) throws HibernateException, SQLException {
+    @Override
+    public Object nullSafeGet(final ResultSet rs, final String[] names, SharedSessionContractImplementor session, final Object owner) throws HibernateException, SQLException {
         final Amount amount = new Amount();
         // If value or type are null, return null
         final BigDecimal value = rs.getBigDecimal(names[0]);
@@ -94,7 +96,8 @@ public class AmountType implements UserType, Serializable {
         return amount;
     }
 
-    public void nullSafeSet(final PreparedStatement ps, final Object object, final int index, SessionImplementor session) throws HibernateException, SQLException {
+    @Override
+    public void nullSafeSet(final PreparedStatement ps, final Object object, final int index, SharedSessionContractImplementor session) throws HibernateException, SQLException {
         final Amount amount = (Amount) object;
         BigDecimal value = null;
         Amount.Type type = null;

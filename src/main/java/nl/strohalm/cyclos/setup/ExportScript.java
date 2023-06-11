@@ -20,11 +20,16 @@
 package nl.strohalm.cyclos.setup;
 
 import java.io.File;
+import java.util.EnumSet;
 import java.util.ResourceBundle;
 
 import org.apache.commons.lang.SystemUtils;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.hibernate.tool.schema.TargetType;
 
 /**
  * Exports the database table create script to a given file, and prints it to stdout
@@ -66,12 +71,13 @@ public class ExportScript implements Runnable {
         final String fileName = exportTo.getAbsolutePath();
 
         Setup.out.println(bundle.getString("export-script.start"));
-
-        final SchemaExport schemaExport = new SchemaExport(configuration);
+        ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
+        MetadataSources metadata = new MetadataSources(serviceRegistry);
+        EnumSet<TargetType> enumSet = EnumSet.of(TargetType.DATABASE);
+        final SchemaExport schemaExport = new SchemaExport();
         schemaExport.setDelimiter(";");
         schemaExport.setOutputFile(fileName);
-        schemaExport.create(true, false);
-
+        schemaExport.execute(EnumSet.of(TargetType.SCRIPT), SchemaExport.Action.CREATE, metadata.buildMetadata());
         Setup.out.println(bundle.getString("export-script.end") + " " + fileName);
     }
 
