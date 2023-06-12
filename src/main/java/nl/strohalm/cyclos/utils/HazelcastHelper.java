@@ -24,7 +24,7 @@ import nl.strohalm.cyclos.utils.instance.HazelcastInstanceHandler;
 import org.springframework.context.ApplicationContext;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ILock;
+import com.hazelcast.cp.lock.FencedLock;
 
 /**
  * Helper methods for hazelcast usage
@@ -48,7 +48,7 @@ public class HazelcastHelper {
      * Unlocks and destroy the given lock
      * @param lock
      */
-    public static void release(final ILock lock) {
+    public static void release(final FencedLock lock) {
         try {
             lock.unlock();
         } catch (final Exception e) {

@@ -32,7 +32,7 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.UrlXmlConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.Member;
+import com.hazelcast.cluster.Member;
 
 /**
  * An instance handler which uses Hazelcast
@@ -72,7 +72,7 @@ public class HazelcastInstanceHandler implements InstanceHandler, InitializingBe
 
     @Override
     public String getId() {
-        InetSocketAddress addr = member.getInetSocketAddress();
+        InetSocketAddress addr = member.getSocketAddress();
         return addr.getAddress().getHostAddress() + ":" + addr.getPort();
     }
 
