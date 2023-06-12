@@ -26,6 +26,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -45,9 +46,9 @@ public class CustomJacksonMessageConverter extends MappingJackson2HttpMessageCon
      */
     private static class CustomObjectMapper extends ObjectMapper {
         @Override
-        protected JsonToken _initForReading(final JsonParser jp) throws IOException, JsonParseException, JsonMappingException {
+        protected JsonToken _initForReading(final JsonParser jp, JavaType targetType) throws IOException, JsonParseException, JsonMappingException {
             try {
-                return super._initForReading(jp);
+                return super._initForReading(jp, targetType);
             } catch (EOFException e) {
                 return JsonToken.VALUE_NULL;
             }
