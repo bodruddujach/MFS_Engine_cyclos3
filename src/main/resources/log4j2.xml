@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Adapted from https://howtodoinjava.com/log4j2/log4j2-xml-configuration-example/ -->
+<Configuration status="WARN" monitorInterval="30">
+	<!-- Logging Properties -->
+	<Properties>
+		<Property name="LOG_PATTERN">%d{yy-MM-dd HH:mm:ss} [eGP-Bhutan] %-5p [%t] %c{2} - %m%n</Property>
+		<Property name="APP_LOG_ROOT">C:/eGP/logs</Property>
+	</Properties>
+
+	<Appenders>
+		<!-- Console Appender -->
+		<Console name="Console" target="SYSTEM_OUT" follow="true">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1}:%L - %m%n"/>
+		</Console>
+
+		<!-- Rolling File Appender for Error-->
+		<RollingFile name="errorLog" fileName="${APP_LOG_ROOT}/egp-error.log"
+			filePattern="${APP_LOG_ROOT}/egp-error-%d{yyyy-MM-dd}.log" >
+			<LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+			<PatternLayout pattern="${LOG_PATTERN}"/>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1"/>
+			</Policies>
+			<DefaultRolloverStrategy max="30"/>
+		</RollingFile>
+	</Appenders>
+ 
+	<Loggers>
+		<!-- ROOT LOGGER-->
+		<Root level="INFO">
+			<AppenderRef ref="Console"/>
+		</Root>
+
+	</Loggers>
+
+</Configuration>
