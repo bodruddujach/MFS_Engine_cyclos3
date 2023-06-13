@@ -21,7 +21,7 @@
         <cxf.version>3.2.14</cxf.version>
         <lucene.version>4.10.4</lucene.version>
         <aspectj.version>1.8.9</aspectj.version>
-        <hibernate.version>5.2.18.Final</hibernate.version>
+        <hibernate.version>5.6.15.Final</hibernate.version>
         <jackson.version>2.14.3</jackson.version>
     </properties>
 
