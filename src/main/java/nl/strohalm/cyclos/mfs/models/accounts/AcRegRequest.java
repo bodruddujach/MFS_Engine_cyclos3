@@ -7,16 +7,23 @@ import nl.strohalm.cyclos.webservices.model.RegistrationFieldValueVO;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Size;
+
 public class AcRegRequest implements Serializable {
   /**
    * 
   */
   private static final long serialVersionUID = 1L;
+  @Size(min = 12, max =12, message = "Wallet length should be 12 digits")
   private String walletNo;
   private String fullName;
+  @Size(min = 11, max =11, message = "mobile number should be 11 digits")
   private String mobile;
   private String email;
   private String password;
+  @Size(min = 4, max = 6, message = "PIN length should be mimnimum 4 digits")
+  @Digits(integer = 10, fraction = 0, message = "PIN should be numeric only")
   private String pin;
   private String gender;
   private AccountType accountType;
