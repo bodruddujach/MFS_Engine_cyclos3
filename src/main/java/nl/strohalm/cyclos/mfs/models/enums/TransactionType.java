@@ -11,7 +11,10 @@ public enum TransactionType {
   CASH_IN_FROM_BANK("Bank Cash-in"),
   CASH_OUT_TO_BANK("Bank Cash-out"),
   CASH_OUT_TO_MFS_AGENT("Cash-out To MFS Agent"),
+  SERVICE_FEE_CASH_OUT("Service Fee for Customer Cash-Out"),
+  AGENT_COMMISSION_CASH_OUT("Agent Commission for Customer Cash-Out"),
   CASHBACK("Cashback"),
+  MERCHANT_REFUND("Refund from Merchant"),
   PAYMENT("Payment"),
   BILL_PAYMENT("bill payment to utility merchant"),
   AGENT_ASSISTED_PAYMENT("Agent assisted Bill payment"),
@@ -20,6 +23,7 @@ public enum TransactionType {
   MERCHANT_TO_MERCHANT("Merchant To Merchant Payment"),
   REVERSE("Reverse Txn"),
   ADD_MONEY("Add Money From Bank"),
+  ADD_MONEY_FIRSTCASH_FROM_FSIBL("Add Money From FSIBL BY FirstCash"),
   ADD_MONEY_SSL("Add Money From SSL"),
   UTILITY_BILL_PAYMENT_WASA_SSL("Wasa Bill Payment Via SSL"),
   PAY_DISTRIBUTOR_COMMISSION("Pay Distributor Commission"),
@@ -28,9 +32,20 @@ public enum TransactionType {
   DISTRIBUTOR_COMMISSION_AAP("Pay Distributor Commission for Agent Assisted Payment"),
   DISTRIBUTOR_COMMISSION_AC_OPENING("Pay Distributor Commission for Account Opening"),
   SETTLEMENT_ADD_MONEY("Settlement Add Money From Bank"),
-  SETTLEMENT_ADD_MONEY_SSL("Settlement Add Money From Bank Ac And Cards");
-
-
+  SETTLEMENT_ADD_MONEY_FIRSTCASH_FROM_FSIBL("Settlement Add Money From FSIBL By FirstCash"),
+  SETTLEMENT_ADD_MONEY_SSL("Settlement Add Money From Bank Ac And Cards"),
+  SALARY_DISBURSEMENT("Salary Disbursement Through Bulk Payment"),
+  SERVICE_FEE_SALARY_DISBURSEMENT("Service Fee for Salary Disbursement"),
+  BULK_PAYMENT("Bulk Payment"),
+  SERVICE_FEE_BULK_PAYMENT("Service Fee for Bulk Payment"),
+  REMITTANCE_PAYMENT("Remittance Payment"),
+  SERVICE_FEE_REMITTANCE_PAYMENT("Service Fee for Remittance Payment"),
+  REMITTANCE_INCENTIVE("Govt Remittance Incentive"),
+  GOVT_STIPEND_PAYMENT("G2P Payment"),
+  SERVICE_FEE_GOVT_STIPEND_PAYMENT("Service Fee G2P Payment"),
+  FUND_TRANSFER("Fund Transfer To Bank"),
+  SETTLEMENT_FUND_TRANSFER("Settlement Fund Transfer To Bank");
+  
   private String description;
 
   TransactionType(String txnTypeName) {

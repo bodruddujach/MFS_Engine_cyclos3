@@ -60,8 +60,14 @@
 		<property name="traceNumber" column="trace_number" type="string" length="100" unique-key="uk_trace_number_client_id" not-null="false"/>
 		<property name="clientId" column="client_id" type="long" unique-key="uk_trace_number_client_id" not-null="false"/>
 		<property name="traceData" column="trace_data" type="string" length="50" not-null="false"/>
+		<property name="mfsTransactionType" column="transaction_type" type="string" length="255"/>
+		<property name="externalCustomer" column="external_customer_mobile" type="string" length="15"/>
+		<property name="customerRefId" column="customer_id" type="string" length="100"/>
+		<property name="invoiceNo" column="invoice_no" type="string" length="100"/>
+		<property name="systemWiseTxnId" column="sw_txn_id" type="string" length="25"/>
+		<property name="systemWiseReqTime" column="sw_req_time" type="calendar"/>
 		<many-to-one name="externalTransfer" class="nl.strohalm.cyclos.entities.accounts.external.ExternalTransfer">
-		    <column name="external_transfer_id" sql-type="integer"/>
+			<column name="external_transfer_id" sql-type="integer"/>
 		</many-to-one>
 		<many-to-one name="nextAuthorizationLevel" class="nl.strohalm.cyclos.entities.accounts.transactions.AuthorizationLevel">
 		    <column name="next_authorization_level_id" sql-type="integer"/>

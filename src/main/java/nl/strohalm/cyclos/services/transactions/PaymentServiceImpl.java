@@ -558,9 +558,15 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
     walletStatementResp.setWalletStatementDetailList(details);
     return walletStatementResp;
   }
+
   public Transfer findByTxnId(String txnId){
     return transferDao.loadTransferByTxnNumber(txnId);
   }
+
+  public Transfer loadTransferByCustomerRefId(String customerRefId) {
+    return transferDao.loadTransferByCustomerRefId(customerRefId);
+  }
+
   private WalletStatementDetail adaptStatementDetail(Transfer transfer){
     WalletStatementDetail statementDetail =  new WalletStatementDetail();
     statementDetail.setId(transfer.getId());
@@ -574,6 +580,9 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
     statementDetail.setToWallet(transfer.getTo().getOwnerName());
     statementDetail.setFromName(transfer.getFrom().getOwner().toString());
     statementDetail.setToName(transfer.getTo().getOwner().toString());
+    if ((transfer.isRoot() && transfer.getChargedBackBy() == null && transfer.getChargebackOf() == null)) {
+      statementDetail.setCanReverse(true);
+    }
     return statementDetail;
   }
   @Override
@@ -815,9 +824,16 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
       @Override
       public List<BulkPaymentResult> doInTransaction(final TransactionStatus status) {
         List<BulkPaymentResult> results = new ArrayList<BulkPaymentResult>(dtos.size());
+        Map<String, Transfer> parentTxnMap = new HashMap<>();
         try {
           for (DoPaymentDTO dto : dtos) {
+            if (StringUtils.isNotBlank(dto.getParentTraceData()) && parentTxnMap.containsKey(dto.getParentTraceData())) {
+              dto.setParent(parentTxnMap.get(dto.getParentTraceData()));
+            }
             Payment payment = doPayment(dto, false, true, false);
+            if (StringUtils.isNotBlank(dto.getSystemWiseTxnId())) {
+                parentTxnMap.put(dto.getSystemWiseTxnId(), (Transfer) payment);
+            }
             results.add(new BulkPaymentResult(payment));
           }
         } catch (ApplicationException e) {
@@ -2249,6 +2265,13 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
     transfer.setTraceNumber(traceNumber);
     transfer.setClientId(clientId);
     transfer.setTraceData(dto.getTraceData());
+    //mfs_related start
+    transfer.setMfsTransactionType(dto.getMfsTransactionType());
+    transfer.setExternalCustomer(dto.getExternalCustomer());
+    transfer.setCustomerRefId(dto.getCustomerRefId());
+    transfer.setInvoiceNo(dto.getInvoiceNo());
+    transfer.setSystemWiseTxnId(dto.getSystemWiseTxnId());
+    //mfs_related end
     transfer.setTransactionFeedbackDeadline(feedbackDeadline);
     if (transferType.isLoanType()) {
       transfer.setEmissionDate(dto.getEmissionDate());
@@ -2440,7 +2463,17 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
       dto.setTraceNumber(params.getTraceNumber());
       dto.setClientId(serviceClient.getId());
     }
-
+    // For mfs context
+    if (params.getParent() != null) {
+        dto.setParent(params.getParent());
+    }
+    //mfs extra infos
+    dto.setMfsTransactionType(params.getMfsTransactionType());
+    dto.setExternalCustomer(params.getExternalCustomer());
+    dto.setCustomerRefId(params.getCustomerRefId());
+    dto.setInvoiceNo(params.getInvoiceNo());
+    dto.setSystemWiseTxnId(params.getSystemWiseTxnId());
+    
     verify(dto);
 
     return dto;

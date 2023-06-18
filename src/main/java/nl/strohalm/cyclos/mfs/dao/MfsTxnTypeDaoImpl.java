@@ -29,7 +29,7 @@ public class MfsTxnTypeDaoImpl extends BaseDAOImpl<MfsTxnType> implements MfsTxn
     final StringBuilder hql = new StringBuilder();
     hql.append(" select t");
     hql.append(" from MfsTxnType t");
-    hql.append(" where t.name = :name");
+    hql.append(" where t.name = :name AND t.active = true");
     return uniqueResult(hql.toString(), namedParameters);
   }
 
@@ -48,6 +48,7 @@ public class MfsTxnTypeDaoImpl extends BaseDAOImpl<MfsTxnType> implements MfsTxn
     final Map<String, Object> namedParameters = new HashMap<String, Object>();
     final StringBuilder hql = HibernateHelper.getInitialQuery(getEntityType(), "mtt");
     HibernateHelper.addParameterToQuery(hql, namedParameters, "typeTag", typeTag);
+    HibernateHelper.addParameterToQuery(hql, namedParameters, "active", true);
     return list(hql.toString(), namedParameters);
   }
 

@@ -87,6 +87,12 @@ public class Transfer extends Payment implements Rated {
     private Calendar                          emissionDate;
     private BigDecimal                        iRate;
     private transient Transfer                root;
+    private String                            mfsTransactionType;
+    private String                            externalCustomer;
+    private String                            customerRefId;
+    private String                            invoiceNo;
+    private String                            systemWiseTxnId;
+    private Calendar                          systemWiseReqTime;
 
     public AccountFeeLog getAccountFeeLog() {
         return accountFeeLog;
@@ -349,7 +355,55 @@ public class Transfer extends Payment implements Rated {
         this.transactionNumber = transactionNumber;
     }
 
-    @Override
+	public String getMfsTransactionType() {
+		return mfsTransactionType;
+	}
+
+	public void setMfsTransactionType(String mfsTransactionType) {
+		this.mfsTransactionType = mfsTransactionType;
+	}
+
+	public String getExternalCustomer() {
+		return externalCustomer;
+	}
+
+	public void setExternalCustomer(String externalCustomer) {
+		this.externalCustomer = externalCustomer;
+	}
+
+	public String getCustomerRefId() {
+		return customerRefId;
+	}
+
+	public void setCustomerRefId(String customerRefId) {
+		this.customerRefId = customerRefId;
+	}
+
+	public String getInvoiceNo() {
+		return invoiceNo;
+	}
+
+	public void setInvoiceNo(String invoiceNo) {
+		this.invoiceNo = invoiceNo;
+	}
+
+	public String getSystemWiseTxnId() {
+		return systemWiseTxnId;
+	}
+
+	public void setSystemWiseTxnId(String systemWiseTxnId) {
+		this.systemWiseTxnId = systemWiseTxnId;
+	}
+
+	public Calendar getSystemWiseReqTime() {
+		return systemWiseReqTime;
+	}
+
+	public void setSystemWiseReqTime(Calendar systemWiseReqTime) {
+		this.systemWiseReqTime = systemWiseReqTime;
+	}
+
+	@Override
     protected void appendVariableValues(final Map<String, Object> variables, final LocalSettings localSettings) {
         super.appendVariableValues(variables, localSettings);
         variables.put("transaction_number", getTransactionNumber());
