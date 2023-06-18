@@ -12,8 +12,8 @@ public class TxnResponse extends Response implements Serializable {
 
   private String txnId;
   private BigDecimal amount = BigDecimal.valueOf(-1);
-  private BigDecimal fee = BigDecimal.valueOf(-1);
-  private BigDecimal commission = BigDecimal.valueOf(-1);
+  private BigDecimal fee = BigDecimal.ZERO;
+  private BigDecimal commission = BigDecimal.ZERO;
   private BigDecimal balanceFrom = BigDecimal.valueOf(-1);
   private BigDecimal balanceTo = BigDecimal.valueOf(-1);
   private String ticket = "N/A";

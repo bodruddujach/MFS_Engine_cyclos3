@@ -210,7 +210,7 @@ public class CyclosMiddleware {
 
   private void validateFromPin(MemberAccount memberAccount, String PIN) {
     if (PIN == null || PIN.length() < 4) {
-      throw new MFSCommonException(ErrorConstants.INVALID_PIN, ErrorConstants.ERROR_MAP.get(ErrorConstants.FROM_AC_NOT_FOUND), HttpStatus.BAD_REQUEST);
+      throw new MFSCommonException(ErrorConstants.INVALID_PIN, ErrorConstants.ERROR_MAP.get(ErrorConstants.INVALID_PIN), HttpStatus.BAD_REQUEST);
     }
 
   }
