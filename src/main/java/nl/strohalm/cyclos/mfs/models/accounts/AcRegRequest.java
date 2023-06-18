@@ -15,7 +15,7 @@ public class AcRegRequest implements Serializable {
    * 
   */
   private static final long serialVersionUID = 1L;
-  @Size(min = 12, max =12, message = "wallet length should be 12 digits")
+  @Size(min = 12, max =12, message = "Wallet length should be 12 digits")
   private String walletNo;
   private String fullName;
   @Size(min = 11, max =11, message = "mobile number should be 11 digits")
