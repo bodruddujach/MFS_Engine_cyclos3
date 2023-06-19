@@ -44,6 +44,7 @@ public enum TransactionType {
   GOVT_STIPEND_PAYMENT("G2P Payment"),
   SERVICE_FEE_GOVT_STIPEND_PAYMENT("Service Fee G2P Payment"),
   FUND_TRANSFER("Fund Transfer To Bank"),
+  SERVICE_FEE_FUND_TRANSFER("Service Fee for Fund Transfer"),
   SETTLEMENT_FUND_TRANSFER("Settlement Fund Transfer To Bank");
   
   private String description;
