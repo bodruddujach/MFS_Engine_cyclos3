@@ -45,11 +45,13 @@ public class ImageDAOImpl extends BaseDAOImpl<Image> implements ImageDAO {
     }
 
     public int countAdImages(final Ad ad) {
-        return (Integer) uniqueResult("select count(*) from AdImage i where i.ad.id = :id", ad);
+        Long count = uniqueResult("select count(*) from AdImage i where i.ad.id = :id", ad);
+        return count.intValue() ;
     }
 
     public int countMemberImages(final Member member) {
-        return (Integer) uniqueResult("select count(*) from MemberImage i where i.member.id = :id", member);
+        Long count = uniqueResult("select count(*) from MemberImage i where i.member.id = :id", member);
+        return count.intValue() ;
     }
 
     public List<? extends Image> listByNature(final Nature nature) throws DaoException {

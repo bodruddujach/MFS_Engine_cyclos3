@@ -78,7 +78,7 @@ public class CustomFieldDAOImpl extends BaseDAOImpl<CustomField> implements Cust
                 // global search
         }
         HibernateHelper.addParameterToQuery(hql, namedParameters, "cf.internalName", field.getInternalName());
-        final Integer count = uniqueResult(hql.toString(), namedParameters);
+        final Long count = uniqueResult(hql.toString(), namedParameters);
         return count > 0;
     }
 

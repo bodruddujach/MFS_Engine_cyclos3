@@ -72,7 +72,7 @@ public class MemberAccountFeeLogDAOImpl extends BaseDAOImpl<MemberAccountFeeLog>
         hql.append("   and l.success = true");
         hql.append("   and l.transfer.id is null");
         hql.append("   and l.invoice.id is null");
-        return this.<Integer> uniqueResult(hql.toString(), params);
+        return this.<Long> uniqueResult(hql.toString(), params).intValue();
     }
 
     @Override

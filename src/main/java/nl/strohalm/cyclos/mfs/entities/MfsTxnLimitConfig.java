@@ -58,9 +58,9 @@ public class MfsTxnLimitConfig extends Entity {
 
 	private BigDecimal maxAmountPerTxn;
 
-	private Integer maxNumberOfTxnPerDay;
+	private Long maxNumberOfTxnPerDay;
 
-	private Integer maxNumberOfTxnPerMonth;
+	private Long maxNumberOfTxnPerMonth;
 
 	private BigDecimal maxAmountPerDay;
 
@@ -130,19 +130,19 @@ public class MfsTxnLimitConfig extends Entity {
 		this.maxAmountPerTxn = maxAmountPerTxn;
 	}
 
-	public Integer getMaxNumberOfTxnPerDay() {
+	public Long getMaxNumberOfTxnPerDay() {
 		return maxNumberOfTxnPerDay;
 	}
 
-	public void setMaxNumberOfTxnPerDay(final Integer maxNumberOfTxnPerDay) {
+	public void setMaxNumberOfTxnPerDay(final Long maxNumberOfTxnPerDay) {
 		this.maxNumberOfTxnPerDay = maxNumberOfTxnPerDay;
 	}
 
-	public Integer getMaxNumberOfTxnPerMonth() {
+	public Long getMaxNumberOfTxnPerMonth() {
 		return maxNumberOfTxnPerMonth;
 	}
 
-	public void setMaxNumberOfTxnPerMonth(final Integer maxNumberOfTxnPerMonth) {
+	public void setMaxNumberOfTxnPerMonth(final Long maxNumberOfTxnPerMonth) {
 		this.maxNumberOfTxnPerMonth = maxNumberOfTxnPerMonth;
 	}
 

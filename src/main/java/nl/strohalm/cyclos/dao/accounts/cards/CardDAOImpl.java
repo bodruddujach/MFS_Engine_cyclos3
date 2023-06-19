@@ -67,7 +67,7 @@ public class CardDAOImpl extends BaseDAOImpl<Card> implements CardDAO {
         hql.append(" from " + Card.class.getName() + " c");
         hql.append(" where c.cardNumber = :cardNumber ");
         namedParameters.put("cardNumber", cardNumber);
-        final Integer count = (Integer) (uniqueResult(hql.toString(), namedParameters));
+        final Long count = (Long) (uniqueResult(hql.toString(), namedParameters));
         final boolean hasCardNumber = count == 0 ? false : true;
 
         return hasCardNumber;

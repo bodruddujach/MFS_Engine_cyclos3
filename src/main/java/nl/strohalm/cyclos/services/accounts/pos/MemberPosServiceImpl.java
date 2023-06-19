@@ -19,6 +19,8 @@
  */
 package nl.strohalm.cyclos.services.accounts.pos;
 
+import org.apache.commons.lang.StringUtils;
+
 import nl.strohalm.cyclos.dao.access.WrongCredentialAttemptsDAO;
 import nl.strohalm.cyclos.dao.accounts.pos.MemberPosDAO;
 import nl.strohalm.cyclos.entities.Relationship;
@@ -33,8 +35,6 @@ import nl.strohalm.cyclos.services.access.exceptions.InvalidCredentialsException
 import nl.strohalm.cyclos.services.fetch.FetchServiceLocal;
 import nl.strohalm.cyclos.utils.RelationshipHelper;
 import nl.strohalm.cyclos.utils.notifications.MemberNotificationHandler;
-
-import com.mysql.jdbc.StringUtils;
 
 /**
  * 
@@ -62,7 +62,7 @@ public class MemberPosServiceImpl implements MemberPosServiceLocal {
     @Override
     public MemberPos changePin(final MemberPos memberPos, final String pin) {
         boolean generateLog = false;
-        if (memberPos.getPosPin() == null || StringUtils.isEmptyOrWhitespaceOnly(memberPos.getPosPin())) {
+        if (memberPos.getPosPin() == null || StringUtils.isBlank(memberPos.getPosPin())) {
             memberPos.setStatus(MemberPos.Status.ACTIVE);
             generateLog = true;
         }

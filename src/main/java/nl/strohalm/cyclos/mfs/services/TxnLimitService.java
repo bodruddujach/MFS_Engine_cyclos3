@@ -206,9 +206,9 @@ public class TxnLimitService {
                 }
                 AccountLimitData currentLimitData = new AccountLimitData();
                 coveredLimitConfigs.add(limitConfig);
-                Integer dailyMaxNumberOfTxn = limitConfig.getMaxNumberOfTxnPerDay();
+                Long dailyMaxNumberOfTxn = limitConfig.getMaxNumberOfTxnPerDay();
                 BigDecimal dailyMaxAmount= limitConfig.getMaxAmountPerDay();
-                Integer monthlyMaxNumberOfTxn = limitConfig.getMaxNumberOfTxnPerMonth();
+                Long monthlyMaxNumberOfTxn = limitConfig.getMaxNumberOfTxnPerMonth();
                 BigDecimal monthlyMaxAmount = limitConfig.getMaxAmountPerMonth();
                 boolean isApplyOnDestination = limitConfig.getApplyOn() == MfsTxnLimitConfig.LimitSubject.TO;
                 MfsGenericLimitConfig genericConfig = limitConfig.getGenericLimit();

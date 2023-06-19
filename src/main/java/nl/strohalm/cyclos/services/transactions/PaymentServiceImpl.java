@@ -1385,9 +1385,9 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
           coveredLimitConfigs.add(config);
           BigDecimal minAmountPerTxn = config.getMinAmountPerTxn();
           BigDecimal maxAmountPerTxn = config.getMaxAmountPerTxn();
-          Integer maxNumberOfTxnPerDay = config.getMaxNumberOfTxnPerDay();
+          Long maxNumberOfTxnPerDay = config.getMaxNumberOfTxnPerDay();
           BigDecimal maxAmountPerDay = config.getMaxAmountPerDay();
-          Integer maxNumberOfTxnPerMonth = config.getMaxNumberOfTxnPerMonth();
+          Long maxNumberOfTxnPerMonth = config.getMaxNumberOfTxnPerMonth();
           BigDecimal maxAmountPerMonth = config.getMaxAmountPerMonth();
           boolean isApplyOnDestination = config.getApplyOn() == MfsTxnLimitConfig.LimitSubject.TO;
           if (minAmountPerTxn != null && amount.compareTo(minAmountPerTxn) < 0) {

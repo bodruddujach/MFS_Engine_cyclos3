@@ -3,14 +3,14 @@ package nl.strohalm.cyclos.mfs.models.ledgers;
 import java.math.BigDecimal;
 
 public class LedgerTxnSummaryResponse {
-	private int txnCount;
+	private long txnCount;
 	private BigDecimal amount;
 
-	public int getTxnCount() {
+	public long getTxnCount() {
 		return txnCount;
 	}
 
-	public void setTxnCount(int txnCount) {
+	public void setTxnCount(long txnCount) {
 		this.txnCount = txnCount;
 	}
 

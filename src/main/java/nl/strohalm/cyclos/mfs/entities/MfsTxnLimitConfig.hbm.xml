@@ -16,15 +16,15 @@
         <property name="toAcType" column="to_ac_type" type="string" not-null="false"/>
         <property name="minAmountPerTxn" column="min_amount_per_txn" type="big_decimal" not-null="false"/>
         <property name="maxAmountPerTxn" column="max_amount_per_txn" type="big_decimal" not-null="false"/>
-        <property name="maxNumberOfTxnPerDay" column="max_number_of_txn_per_day" type="int" not-null="false"/>
-        <property name="maxNumberOfTxnPerMonth" column="max_number_of_txn_per_month" type="int" not-null="false"/>
+        <property name="maxNumberOfTxnPerDay" column="max_number_of_txn_per_day" type="long" not-null="false"/>
+        <property name="maxNumberOfTxnPerMonth" column="max_number_of_txn_per_month" type="long" not-null="false"/>
         <property name="maxAmountPerDay" column="max_amount_per_day" type="big_decimal" not-null="false"/>
         <property name="maxAmountPerMonth" column="max_amount_per_month" type="big_decimal" not-null="false"/>
         <property name="applyOn" column="apply_on" length="3" not-null="true">
             <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">
                 <param name="enumClassName">nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig$LimitSubject</param>
             </type>
-   		</property>
+        </property>
         <many-to-one name="transferType" class="nl.strohalm.cyclos.entities.accounts.transactions.TransferType">
             <column name="transfer_type_id" not-null="true" sql-type="integer"/>
         </many-to-one>

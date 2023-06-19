@@ -9,17 +9,17 @@ public class AccountLimitData implements Serializable {
 
 	private String limitTypeName;
 
-	private Integer dailyUsedTxnNumber;
+	private Long dailyUsedTxnNumber;
 
-	private Integer dailyTxnNumber;
+	private Long dailyTxnNumber;
 
 	private BigDecimal dailyUsedTxnAmount;
 
 	private BigDecimal dailyTxnAmount;
 
-	private Integer monthlyUsedTxnNumber;
+	private Long monthlyUsedTxnNumber;
 
-	private Integer monthlyTxnNumber;
+	private Long monthlyTxnNumber;
 
 	private BigDecimal monthlyUsedTxnAmount;
 
@@ -33,19 +33,19 @@ public class AccountLimitData implements Serializable {
 		this.limitTypeName = limitTypeName;
 	}
 
-	public Integer getDailyUsedTxnNumber() {
+	public Long getDailyUsedTxnNumber() {
 		return dailyUsedTxnNumber;
 	}
 
-	public void setDailyUsedTxnNumber(Integer dailyUsedTxnNumber) {
+	public void setDailyUsedTxnNumber(Long dailyUsedTxnNumber) {
 		this.dailyUsedTxnNumber = dailyUsedTxnNumber;
 	}
 
-	public Integer getDailyTxnNumber() {
+	public Long getDailyTxnNumber() {
 		return dailyTxnNumber;
 	}
 
-	public void setDailyTxnNumber(Integer dailyTxnNumber) {
+	public void setDailyTxnNumber(Long dailyTxnNumber) {
 		this.dailyTxnNumber = dailyTxnNumber;
 	}
 
@@ -65,19 +65,19 @@ public class AccountLimitData implements Serializable {
 		this.dailyTxnAmount = dailyTxnAmount;
 	}
 
-	public Integer getMonthlyUsedTxnNumber() {
+	public Long getMonthlyUsedTxnNumber() {
 		return monthlyUsedTxnNumber;
 	}
 
-	public void setMonthlyUsedTxnNumber(Integer monthlyUsedTxnNumber) {
+	public void setMonthlyUsedTxnNumber(Long monthlyUsedTxnNumber) {
 		this.monthlyUsedTxnNumber = monthlyUsedTxnNumber;
 	}
 
-	public Integer getMonthlyTxnNumber() {
+	public Long getMonthlyTxnNumber() {
 		return monthlyTxnNumber;
 	}
 
-	public void setMonthlyTxnNumber(Integer monthlyTxnNumber) {
+	public void setMonthlyTxnNumber(Long monthlyTxnNumber) {
 		this.monthlyTxnNumber = monthlyTxnNumber;
 	}
 

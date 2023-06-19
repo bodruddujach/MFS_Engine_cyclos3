@@ -180,7 +180,8 @@ public class AdDAOImpl extends IndexedDAOImpl<Ad> implements AdDAO {
             hql.append(" and ad.owner.group in (:groups) ");
             namedParameters.put("groups", groups);
         }
-        return uniqueResult(hql.toString(), namedParameters);
+        Long result = (Long) uniqueResult(hql.toString(), namedParameters);
+        return result.intValue();
     }
 
     @Override

@@ -56,7 +56,8 @@ public class PermissionDeniedTraceDAOImpl extends BaseDAOImpl<PermissionDeniedTr
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("limit", limit);
         params.put("user", user);
-        return this.<Integer> uniqueResult("select count(*) from PermissionDeniedTrace t where t.date >= :limit and t.user = :user", params);
+        
+        return this.<Long> uniqueResult("select count(*) from PermissionDeniedTrace t where t.date >= :limit and t.user = :user", params).intValue();
     }
 
     @Override

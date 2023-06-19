@@ -35,13 +35,13 @@ import nl.strohalm.cyclos.utils.DataObject;
 public class TransactionSummaryVO extends DataObject {
 
     private static final long serialVersionUID = -2308383871952147029L;
-    private int               count;
+    private long               count;
     private BigDecimal        amount;
 
     public TransactionSummaryVO() {
     }
 
-    public TransactionSummaryVO(final int count, final BigDecimal amount) {
+    public TransactionSummaryVO(final long count, final BigDecimal amount) {
         setCount(count);
         setAmount(amount);
     }
@@ -56,7 +56,7 @@ public class TransactionSummaryVO extends DataObject {
     /**
      * Returns a new transaction summary, adding the given parameters to this one
      */
-    public TransactionSummaryVO add(final int count, final BigDecimal amount) {
+    public TransactionSummaryVO add(final long count, final BigDecimal amount) {
         return new TransactionSummaryVO(this.count + count, BigDecimalHelper.nvl(this.amount).add(BigDecimalHelper.nvl(amount)));
     }
 
@@ -76,7 +76,7 @@ public class TransactionSummaryVO extends DataObject {
         return count == 0 ? BigDecimal.ZERO : amount.divide(new BigDecimal(count), mathContext);
     }
 
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 
@@ -88,7 +88,7 @@ public class TransactionSummaryVO extends DataObject {
         this.amount = amount;
     }
 
-    public void setCount(final int count) {
+    public void setCount(final long count) {
         this.count = count < 0 ? 0 : count;
     }
 
@@ -102,7 +102,7 @@ public class TransactionSummaryVO extends DataObject {
     /**
      * Returns a new transaction summary, subtracting the given parameters to this one
      */
-    public TransactionSummaryVO subtract(final int count, final BigDecimal amount) {
+    public TransactionSummaryVO subtract(final long count, final BigDecimal amount) {
         return add(-count, BigDecimalHelper.nvl(amount).negate());
     }
 

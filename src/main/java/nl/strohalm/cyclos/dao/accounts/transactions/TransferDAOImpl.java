@@ -77,6 +77,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.SQLQuery;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.type.StandardBasicTypes;
 
 /**
@@ -95,12 +96,12 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
     @Override
     public WalletStatementResp searchStatement(StatementParams query) {
         String countQuery = searchStatementQuery(query, true);
-        SQLQuery countSql = appendStatementParameter(query, countQuery);
+        NativeQuery<?> countSql = appendStatementParameter(query, countQuery);
         countSql.addScalar("row_count", StandardBasicTypes.INTEGER);
         int count = ((Number) countSql.uniqueResult()).intValue();
 
         String selectQuery = searchStatementQuery(query, false);
-        SQLQuery selectSql = appendStatementParameter(query, selectQuery);
+        NativeQuery<?> selectSql = appendStatementParameter(query, selectQuery);
         selectSql.addScalar("id", StandardBasicTypes.LONG);
         selectSql.addScalar("parentId", StandardBasicTypes.INTEGER);
         selectSql.addScalar("amount", StandardBasicTypes.BIG_DECIMAL);
@@ -213,17 +214,17 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         }
         return sql.toString();
     }
-    private SQLQuery appendStatementParameter(StatementParams query, String sql) {
-        SQLQuery sqlQuery = currentSession().createSQLQuery(sql);
-        sqlQuery.setLong("accountId", query.getAccountNo());
+    private NativeQuery<?> appendStatementParameter(StatementParams query, String sql) {
+    	NativeQuery<?> sqlQuery = currentSession().createNativeQuery(sql);
+        sqlQuery.setParameter("accountId", query.getAccountNo());
         if (query.getBeginDate() != null) {
-            sqlQuery.setCalendar("fromDate", query.getBeginDate());
+            sqlQuery.setParameter("fromDate", query.getBeginDate());
         }
         if (query.getEndDate() != null) {
-            sqlQuery.setCalendar("endDate", query.getEndDate());
+            sqlQuery.setParameter("endDate", query.getEndDate());
         }
         if(StringUtils.isNotEmpty(query.getTxnId())){
-            sqlQuery.setString("txnId",query.getTxnId());
+            sqlQuery.setParameter("txnId",query.getTxnId());
         }
         return sqlQuery;
     }

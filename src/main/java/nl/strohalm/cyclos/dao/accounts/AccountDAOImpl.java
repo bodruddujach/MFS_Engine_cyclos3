@@ -205,7 +205,7 @@ public class AccountDAOImpl extends BaseDAOImpl<Account> implements AccountDAO {
         hql.append(" and ma.type = :type ");
         hql.append(" and ma.action = :action ");
 
-        return this.<Integer> uniqueResult(hql.toString(), params);
+        return this.<Long> uniqueResult(hql.toString(), params).intValue();
     }
 
     @Override
@@ -714,7 +714,7 @@ public class AccountDAOImpl extends BaseDAOImpl<Account> implements AccountDAO {
 
     private TransactionSummaryVO buildSummary(final Object object) {
         final Object[] row = (Object[]) object;
-        final int count = row[0] == null ? 0 : (Integer) row[0];
+        final long count = row[0] == null ? 0 : (Long) row[0];
         final BigDecimal amount = row[1] == null ? BigDecimal.ZERO : (BigDecimal) row[1];
         return new TransactionSummaryVO(count, amount);
     }
