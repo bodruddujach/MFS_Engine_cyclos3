@@ -160,7 +160,7 @@ public class ReferenceDAOImpl extends BaseDAOImpl<Reference> implements Referenc
             sql.append(" and t.scheduled_payment_id is null");
             sql.append(" and t.process_date is not null");
             if (expired != null) {
-                sql.append(" and t.feedback_deadline " + (expired ? "<" : ">=") + " now()");
+                sql.append(" and t.feedback_deadline " + (expired ? "<" : ">=") + " CURRENT_TIMESTAMP");
             }
             sql.append(" and tf.id is null");
             if (member != null) {
@@ -177,7 +177,7 @@ public class ReferenceDAOImpl extends BaseDAOImpl<Reference> implements Referenc
             sql.append(" left join refs tf on tf.scheduled_payment_id = sp.id");
             sql.append(" where tt.requires_feedback = true");
             if (expired != null) {
-                sql.append(" and sp.feedback_deadline " + (expired ? "<" : ">=") + " now()");
+                sql.append(" and sp.feedback_deadline " + (expired ? "<" : ">=") + " CURRENT_TIMESTAMP");
             }
             sql.append(" and sp.date >= tt.feedback_enabled_since");
             sql.append(" and tf.id is null");
