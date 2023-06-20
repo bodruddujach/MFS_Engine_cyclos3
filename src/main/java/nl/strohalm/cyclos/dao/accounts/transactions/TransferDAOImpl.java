@@ -1023,7 +1023,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
 
     private TransactionSummaryVO buildSummary(final Object object) {
         final Object[] row = (Object[]) object;
-        final int count = row[0] == null ? 0 : (Integer) row[0];
+        final long count = row[0] == null ? 0 : (Long) row[0];
         final BigDecimal amount = row[1] == null ? BigDecimal.ZERO : (BigDecimal) row[1];
         return new TransactionSummaryVO(count, amount);
     }

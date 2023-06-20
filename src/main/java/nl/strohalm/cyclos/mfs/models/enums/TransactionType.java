@@ -4,7 +4,9 @@ public enum TransactionType {
   BANK_CASHIN("Bank Cash-In for Distributor"),
   BANK_CASHOUT("Bank Cash-Out for Distributor"),
   BANK_CASHIN_MERCHANT("Bank Cash-In for Merchant"),
-  BANK_CASHOUT_MERCHANT("Bank Cash-In for Merchant"),
+  BANK_CASHOUT_MERCHANT("Bank Cash-Out for Merchant"),
+  BANK_CASHOUT_CUSTOMER("Bank Cash-Out for Customer"),
+  SERVICE_FEE_BANK_CASHOUT_CUSTOMER("Service Fee Bank Cash-Out for Customer"),
   TOPUP_AGENT("TopUp Distributor to Agent"),
   CASHOUT_AGENT_DISTRIBUTOR("CashOut Agent to Distributor"),
   CASH_IN_FROM_MFS_AGENT("Cash-in From MFS Agent"),
@@ -23,6 +25,7 @@ public enum TransactionType {
   MERCHANT_TO_MERCHANT("Merchant To Merchant Payment"),
   REVERSE("Reverse Txn"),
   ADD_MONEY("Add Money From Bank"),
+  ADD_MONEY_FIRSTCASH_FROM_FSIBL("Add Money From FSIBL BY FirstCash"),
   ADD_MONEY_SSL("Add Money From SSL"),
   UTILITY_BILL_PAYMENT_WASA_SSL("Wasa Bill Payment Via SSL"),
   PAY_DISTRIBUTOR_COMMISSION("Pay Distributor Commission"),
@@ -31,6 +34,7 @@ public enum TransactionType {
   DISTRIBUTOR_COMMISSION_AAP("Pay Distributor Commission for Agent Assisted Payment"),
   DISTRIBUTOR_COMMISSION_AC_OPENING("Pay Distributor Commission for Account Opening"),
   SETTLEMENT_ADD_MONEY("Settlement Add Money From Bank"),
+  SETTLEMENT_ADD_MONEY_FIRSTCASH_FROM_FSIBL("Settlement Add Money From FSIBL By FirstCash"),
   SETTLEMENT_ADD_MONEY_SSL("Settlement Add Money From Bank Ac And Cards"),
   SALARY_DISBURSEMENT("Salary Disbursement Through Bulk Payment"),
   SERVICE_FEE_SALARY_DISBURSEMENT("Service Fee for Salary Disbursement"),
@@ -40,7 +44,10 @@ public enum TransactionType {
   SERVICE_FEE_REMITTANCE_PAYMENT("Service Fee for Remittance Payment"),
   REMITTANCE_INCENTIVE("Govt Remittance Incentive"),
   GOVT_STIPEND_PAYMENT("G2P Payment"),
-  SERVICE_FEE_GOVT_STIPEND_PAYMENT("Service Fee G2P Payment");
+  SERVICE_FEE_GOVT_STIPEND_PAYMENT("Service Fee G2P Payment"),
+  FUND_TRANSFER("Fund Transfer To Bank"),
+  SERVICE_FEE_FUND_TRANSFER("Service Fee for Fund Transfer"),
+  SETTLEMENT_FUND_TRANSFER("Settlement Fund Transfer To Bank");
   
   private String description;
 

@@ -30,7 +30,7 @@
 	</Appenders>
 
 	<Loggers>
-		<Logger name="oorg.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog" level="fatal" additivity="false">
+		<Logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog" level="fatal" additivity="false">
 			<AppenderRef ref="Console" />
 		</Logger>
 		<!-- ROOT LOGGER -->
