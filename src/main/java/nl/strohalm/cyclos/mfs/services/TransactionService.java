@@ -77,6 +77,7 @@ public class TransactionService {
   private boolean checkPinEanable(TxnRequest request) {
     if (("****".equals(request.getPin()) || StringUtils.isBlank(request.getPin())) && (request.getTxnType() == TransactionType.BANK_CASHOUT
       || request.getTxnType() == TransactionType.BANK_CASHOUT_MERCHANT
+      || request.getTxnType() == TransactionType.BANK_CASHOUT_CUSTOMER
       || request.getTxnType() == TransactionType.TOPUP_AGENT
       || request.getTxnType() == TransactionType.SERVICE_FEE_CASH_OUT
       || request.getTxnType() == TransactionType.AGENT_COMMISSION_CASH_OUT)
