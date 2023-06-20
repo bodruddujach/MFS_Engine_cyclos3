@@ -9,7 +9,7 @@
 		    <column name="id" sql-type="integer"/>
 			<generator class="native"/>
 		</id>
-        <property name="date" column="date" type="calendar" not-null="true" />
+        <property name="date" column="datetime" type="calendar" not-null="true" />
         <property name="remoteAddress" column="remote_address" index="ix_wua_remote_address" length="64" not-null="true" />
 	</class>
 </hibernate-mapping>

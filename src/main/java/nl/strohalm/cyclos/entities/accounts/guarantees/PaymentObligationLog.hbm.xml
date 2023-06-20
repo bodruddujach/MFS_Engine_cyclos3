@@ -11,7 +11,7 @@
             <generator class="native"/>
         </id>
 
-		<property name="date" column="date" type="calendar" not-null="true"/>			
+		<property name="date" column="datetime" type="calendar" not-null="true"/>			
 		<property name="status" column="status" length="2" not-null="true">
             <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">
                 <param name="enumClassName">nl.strohalm.cyclos.entities.accounts.guarantees.PaymentObligation$Status</param>

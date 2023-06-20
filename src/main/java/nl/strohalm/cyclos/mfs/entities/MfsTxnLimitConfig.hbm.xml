@@ -8,7 +8,7 @@
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig" abstract="true" table="mfs_txn_limit_config">
         <id name="id" type="long">
             <column name="id" sql-type="integer"/>
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
         <property name="mfsTypeName" column="mfs_type_name" type="string" not-null="false"/>
         <property name="mfsTypeDescription" column="mfs_type_description" type="string" not-null="false"/>

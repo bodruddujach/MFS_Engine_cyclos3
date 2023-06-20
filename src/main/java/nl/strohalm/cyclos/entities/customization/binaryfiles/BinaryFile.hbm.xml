@@ -12,7 +12,7 @@
 		</id>
 		<property name="name" column="name" type="string" length="255"/>
 		<property name="contentType" column="content_type" type="string" length="100" not-null="true"/>
-		<property name="size" column="size" type="integer" not-null="true"/>
+		<property name="size" column="file_size" type="integer" not-null="true"/>
 		<property name="lastModified" column="last_modified" type="calendar" not-null="true"/>
 		<property name="contents" column="contents" type="blob" length="10000000" not-null="true"/>
 	</class>

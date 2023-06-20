@@ -11,7 +11,7 @@
 		</id>
     	<property name="version" column="version" type="string" length="10"/>
     	<property name="online">
-    		<column name="online" not-null="true" default="true" />
+    		<column name="online_status" not-null="true" default="true" />
     	</property>
     	<property name="accountStatusEnabledSince" column="account_status_enabled_since" type="calendar_date" />
     	<property name="passwordHash" column="password_hash" length="1">

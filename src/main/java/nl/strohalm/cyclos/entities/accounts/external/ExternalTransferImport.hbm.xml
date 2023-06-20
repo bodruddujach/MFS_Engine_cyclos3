@@ -10,7 +10,7 @@
 			<generator class="native"/>
 		</id>
 		
-        <property name="date" column="date" type="calendar" not-null="true" />
+        <property name="date" column="datetime" type="calendar" not-null="true" />
 
 		<many-to-one name="by" class="nl.strohalm.cyclos.entities.members.Administrator">
 		    <column name="by_id" not-null="true" sql-type="integer"/>

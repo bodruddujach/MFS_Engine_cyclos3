@@ -10,7 +10,7 @@
 		    <column name="id" sql-type="integer"/>
 			<generator class="native"/>
 		</id>
-        <property name="date" column="date" type="calendar"/>
+        <property name="date" column="datetime" type="calendar"/>
         <property name="status" column="status" length="1" not-null="true">
             <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">
                 <param name="enumClassName">nl.strohalm.cyclos.entities.accounts.cards.Card$Status</param>

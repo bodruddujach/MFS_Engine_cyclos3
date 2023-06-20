@@ -8,7 +8,7 @@
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.accounts.transactions.Transfer" table="transfers">
         <id name="id" type="long">
 		    <column name="id" sql-type="bigint"/>
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
 		<many-to-one name="from" class="nl.strohalm.cyclos.entities.accounts.Account">
 			<column name="from_account_id" not-null="true" sql-type="integer" />
@@ -19,7 +19,7 @@
 		<many-to-one name="type" class="nl.strohalm.cyclos.entities.accounts.transactions.TransferType">
 		    <column name="type_id" not-null="true" sql-type="integer"/>
 		</many-to-one>
-		<property name="date" column="date" not-null="true" type="calendar"/>
+		<property name="date" column="datetime" not-null="true" type="calendar"/>
 		<property name="amount" column="amount" type="big_decimal" precision="15" scale="6" not-null="true"/>
 		<property name="emissionDate" column="emission_date" type="calendar" />
 		<property name="expirationDate" column="expiration_date" type="calendar" />

@@ -23,7 +23,7 @@
 		    <column name="performed_by_id" sql-type="integer"/>
 		</many-to-one>
         
-		<property name="date" column="date" update="false" not-null="true" type="calendar"/>
+		<property name="date" column="datetime" update="false" not-null="true" type="calendar"/>
 		<property name="amount" column="amount" update="false" not-null="true" type="big_decimal" precision="15" scale="6"/>
 		<property name="status" column="status" length="1" not-null="true">
             <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">
