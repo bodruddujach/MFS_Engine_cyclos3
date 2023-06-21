@@ -77,6 +77,7 @@ public class TransactionService {
   private boolean checkPinEanable(TxnRequest request) {
     if (("****".equals(request.getPin()) || StringUtils.isBlank(request.getPin())) && (request.getTxnType() == TransactionType.BANK_CASHOUT
       || request.getTxnType() == TransactionType.BANK_CASHOUT_MERCHANT
+      || request.getTxnType() == TransactionType.BANK_CASHOUT_CUSTOMER
       || request.getTxnType() == TransactionType.TOPUP_AGENT
       || request.getTxnType() == TransactionType.SERVICE_FEE_CASH_OUT
       || request.getTxnType() == TransactionType.AGENT_COMMISSION_CASH_OUT)
@@ -92,7 +93,9 @@ public class TransactionService {
       || request.getTxnType() == TransactionType.CASH_OUT_TO_MFS_AGENT
       || request.getTxnType() == TransactionType.BILL_PAYMENT
       || request.getTxnType() == TransactionType.AGENT_ASSISTED_PAYMENT
-      || request.getTxnType() == TransactionType.UTILITY_BILL_PAYMENT_WASA_SSL) {
+      || request.getTxnType() == TransactionType.UTILITY_BILL_PAYMENT_WASA_SSL
+      || request.getTxnType() == TransactionType.BANK_CASHOUT_CUSTOMER
+      || request.getTxnType() == TransactionType.FUND_TRANSFER) {
 
       TxnResponse feeResponse = estimate(request);
       txnResponse.setFee(feeResponse.getFee());
@@ -103,7 +106,8 @@ public class TransactionService {
   private void updateDynamicFeeInfo(List<TxnRequest> dynamicRequest, TxnResponse txnResponse) {
     if (!CollectionUtils.isEmpty(dynamicRequest) && dynamicRequest.size() > 1) {
       TxnRequest request = dynamicRequest.get(0);
-      if (request.getTxnType() == TransactionType.CASH_OUT_TO_MFS_AGENT) {
+      if (request.getTxnType() == TransactionType.CASH_OUT_TO_MFS_AGENT
+        || request.getTxnType() == TransactionType.FUND_TRANSFER) {
         TxnResponse feeResponse = estimateDynamicTxnFee(dynamicRequest);
         txnResponse.setFee(feeResponse.getFee());
         txnResponse.setCommission(feeResponse.getCommission());
@@ -331,6 +335,7 @@ public class TransactionService {
     if (request.getTxnType() == TransactionType.AGENT_ASSISTED_PAYMENT
         || request.getTxnType() == TransactionType.BANK_CASHOUT
         || request.getTxnType() == TransactionType.BANK_CASHOUT_MERCHANT
+        || request.getTxnType() == TransactionType.BANK_CASHOUT_CUSTOMER
         || request.getTxnType() == TransactionType.CASH_IN_FROM_MFS_AGENT
         || request.getTxnType() == TransactionType.CASH_OUT_TO_MFS_AGENT
         || request.getTxnType() == TransactionType.CASHOUT_AGENT_DISTRIBUTOR
