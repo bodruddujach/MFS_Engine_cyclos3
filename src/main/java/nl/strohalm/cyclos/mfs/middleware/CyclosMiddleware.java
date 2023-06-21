@@ -12,15 +12,19 @@ import nl.strohalm.cyclos.entities.accounts.SystemAccountOwner;
 import nl.strohalm.cyclos.entities.accounts.transactions.Payment;
 import nl.strohalm.cyclos.entities.accounts.transactions.Transfer;
 import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
+import nl.strohalm.cyclos.entities.customization.fields.MemberCustomField;
+import nl.strohalm.cyclos.entities.customization.fields.MemberCustomFieldValue;
 import nl.strohalm.cyclos.entities.exceptions.EntityNotFoundException;
 import nl.strohalm.cyclos.entities.groups.MemberGroup;
 import nl.strohalm.cyclos.entities.members.Element;
 import nl.strohalm.cyclos.entities.members.Member;
 import nl.strohalm.cyclos.mfs.entities.MfsGroupConfig;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnType;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnType.TxnTypeTag;
 import nl.strohalm.cyclos.mfs.exceptions.ErrorConstants;
 import nl.strohalm.cyclos.mfs.exceptions.MFSCommonException;
 import nl.strohalm.cyclos.mfs.models.accounts.AcRegRequest;
+import nl.strohalm.cyclos.mfs.models.accounts.UpdateAccountRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletInfoResponse;
 import nl.strohalm.cyclos.mfs.models.enums.AccountStatus;
 import nl.strohalm.cyclos.mfs.models.enums.AccountType;
@@ -36,13 +40,16 @@ import nl.strohalm.cyclos.mfs.utils.TxnTypeConstant;
 import nl.strohalm.cyclos.services.access.ChannelServiceLocal;
 import nl.strohalm.cyclos.services.accounts.AccountDateDTO;
 import nl.strohalm.cyclos.services.accounts.AccountServiceLocal;
+import nl.strohalm.cyclos.services.customization.MemberCustomFieldServiceLocal;
 import nl.strohalm.cyclos.services.elements.ElementServiceLocal;
 import nl.strohalm.cyclos.services.fetch.FetchServiceLocal;
 import nl.strohalm.cyclos.services.groups.GroupServiceLocal;
 import nl.strohalm.cyclos.services.transactions.DoPaymentDTO;
 import nl.strohalm.cyclos.services.transactions.TransactionContext;
 import nl.strohalm.cyclos.services.transfertypes.TransferTypeServiceLocal;
+import nl.strohalm.cyclos.utils.CustomFieldHelper;
 import nl.strohalm.cyclos.utils.RelationshipHelper;
+import nl.strohalm.cyclos.webservices.model.RegistrationFieldValueVO;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
@@ -54,6 +61,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -86,11 +94,16 @@ public class CyclosMiddleware {
   MfsGroupService mfsGroupService;
   @Autowired
   MfsTxnTypeService mfsTxnTypeService;
+  @Autowired
+  MemberCustomFieldServiceLocal memberCustomFieldServiceLocal;
+  @Autowired
+  CustomFieldHelper customFieldHelper;
 
   public DoPaymentDTO getValidateCyclosDoPaymentDTO(TxnRequest txnRequest) {
     DoPaymentDTO doPaymentDTO = new DoPaymentDTO();
     Member fromMember = null;
     Member toMember = null;
+    Member byMember = null;
     String fromAcType = null;
     String toAcType = null;
 
@@ -124,7 +137,7 @@ public class CyclosMiddleware {
           toMember = elementServiceLocal.loadByPrincipal(principalType, txnRequest.getToAc(),
             Element.Relationships.USER, Element.Relationships.GROUP);
         } catch (EntityNotFoundException e) {
-          throw new MFSCommonException(ErrorConstants.TO_AC_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.FROM_AC_NOT_FOUND), HttpStatus.BAD_REQUEST);
+          throw new MFSCommonException(ErrorConstants.TO_AC_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.TO_AC_NOT_FOUND) + ":" + txnRequest.getToAc(), HttpStatus.BAD_REQUEST);
         }
         doPaymentDTO.setTo(toMember);
         //check status
@@ -139,13 +152,28 @@ public class CyclosMiddleware {
       } else {
         doPaymentDTO.setTo(SystemAccountOwner.instance());
       }
+      // By Ac check
+      if (StringUtils.isNotBlank(txnRequest.getByAc()) && !"SYSTEM".equalsIgnoreCase(txnRequest.getByAc())) {
+          try {
+            byMember = elementServiceLocal.loadByPrincipal(principalType, txnRequest.getByAc(),
+              Element.Relationships.USER, Element.Relationships.GROUP);
+          } catch (EntityNotFoundException ex) {
+            throw new MFSCommonException(ErrorConstants.BY_AC_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.BY_AC_NOT_FOUND), HttpStatus.BAD_REQUEST);
+          }
+          doPaymentDTO.setBy(byMember);
 
-      MfsTxnType mfsTxnType = mfsTxnTypeService.findByName(txnRequest.getTxnType().name());
-      TransferType transferType = transferTypeServiceLocal.load(mfsTxnType.getCoreTxnTypeId());
-
-      if (transferType == null) {
-        throw new MFSCommonException(ErrorConstants.TXN_TYPE_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.TXN_TYPE_NOT_FOUND), HttpStatus.BAD_REQUEST);
-      }
+          //check status
+          Account byAc = null;
+          for (final Account ac : accountServiceLocal.getAccounts(byMember)) {
+            byAc = ac;
+          }
+          if (byAc == null) {
+            throw new MFSCommonException(ErrorConstants.ACCOUNT_NOT_FOUND,ErrorConstants.ERROR_MAP.get(ErrorConstants.ACCOUNT_NOT_FOUND), HttpStatus.NOT_FOUND);
+          }
+          //validateStatus((MemberAccount) byAc, true);
+        } 
+      
+      TransferType transferType = resolveCoreTxnType(txnRequest);
 
       doPaymentDTO.setTransferType(transferType);
       doPaymentDTO.setDescription(getPaymentDescription(txnRequest, transferType, fromMember, toMember));
@@ -153,11 +181,14 @@ public class CyclosMiddleware {
       doPaymentDTO.setContext(TransactionContext.AUTOMATIC);
       doPaymentDTO.setShowScheduledToReceiver(false);
       doPaymentDTO.setChannel(Channel.REST);
-      doPaymentDTO.setTraceData(txnRequest.getRequestId());
+      doPaymentDTO.setTraceData(txnRequest.getTraceData());
       doPaymentDTO.setNote(txnRequest.getNote());
       doPaymentDTO.setInvoiceNo(txnRequest.getInvoiceNo());
       doPaymentDTO.setCustomerRefId(txnRequest.getCustomerRefId());
-
+      doPaymentDTO.setParentTraceData(txnRequest.getParentRequestId());
+      doPaymentDTO.setMfsTransactionType(txnRequest.getTxnType().toString());
+      doPaymentDTO.setExternalCustomer(txnRequest.getExternalCustomer());
+      doPaymentDTO.setSystemWiseTxnId(txnRequest.getRequestId());
       return doPaymentDTO;
     } catch (EntityNotFoundException e) {
       throw new MFSCommonException(ErrorConstants.FROM_AC_NOT_FOUND, e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -179,7 +210,7 @@ public class CyclosMiddleware {
 
   private void validateFromPin(MemberAccount memberAccount, String PIN) {
     if (PIN == null || PIN.length() < 4) {
-      throw new MFSCommonException(ErrorConstants.INVALID_PIN, ErrorConstants.ERROR_MAP.get(ErrorConstants.FROM_AC_NOT_FOUND), HttpStatus.BAD_REQUEST);
+      throw new MFSCommonException(ErrorConstants.INVALID_PIN, ErrorConstants.ERROR_MAP.get(ErrorConstants.INVALID_PIN), HttpStatus.BAD_REQUEST);
     }
 
   }
@@ -192,8 +223,17 @@ public class CyclosMiddleware {
     String invoiceNo = "";
     String txnTag = "";
     String batchId = "";
+    String maker = "";
+    String checker = "";
+
     if (StringUtils.isNotEmpty(txnRequest.getByAc())) {
       byAc = ",byAc: " + txnRequest.getByAc();
+    }
+    if (StringUtils.isNotEmpty(txnRequest.getMaker())) {
+      maker = ",maker: " + txnRequest.getMaker();
+    }
+    if (StringUtils.isNotEmpty(txnRequest.getChecker())) {
+      checker = ",checker: " + txnRequest.getChecker();
     }
     if (StringUtils.isNotEmpty(txnRequest.getCustomerRefId())) {
       customerRefId = ",customerRefId: " + txnRequest.getCustomerRefId();
@@ -210,8 +250,8 @@ public class CyclosMiddleware {
     if (StringUtils.isNotEmpty(txnRequest.getTxnTag())) {
       txnTag = ",txnTag: " + txnRequest.getTxnTag();
     }
-    String description = transferType.getDescription() + ". From Ac: " + txnRequest.getFromAc() + ", To Ac:" + txnRequest.getToAc() +
-      "" + txnTag + "" + byAc + "" + customerRefId + "" + invoiceNo + "" + externalCustomer + "" + note + "" + batchId;
+    String description = transferType.getDescription() + ". [From Ac: " + txnRequest.getFromAc() + ", To Ac:" + txnRequest.getToAc() +
+      "" + txnTag + "" + byAc + "" + maker + "" + "" + checker + "" +customerRefId + "" + invoiceNo + "" + externalCustomer + "" + note + "" + batchId + "]";
     return description;
   }
 
@@ -224,12 +264,14 @@ public class CyclosMiddleware {
     result.setFromAccount(transfer.getFrom().getOwnerName());
     result.setToAccount(transfer.getTo().getOwnerName());
     result.setTxnId(transfer.getTransactionNumber());
-    result.setTxnType(request.getTxnType().name());
-    result.setTxnTypeName(request.getTxnType().getDescription());
-    result.setInvoiceNo(request.getInvoiceNo());
-    result.setCustomerRefId(request.getCustomerRefId());
-    result.setNote(request.getNote());
-    result.setTxnTime(payment.getProcessDate().getTime());
+    result.setTxnType(request != null ? request.getTxnType().name() : transfer.getMfsTransactionType());
+    result.setTxnTypeName(request != null ? request.getTxnType().getDescription() : transfer.getMfsTransactionType());
+    result.setInvoiceNo(transfer.getInvoiceNo());
+    result.setCustomerRefId(transfer.getCustomerRefId());
+    result.setNote(request != null ? request.getNote() : transfer.getDescription());
+    result.setExternalCustomer(transfer.getExternalCustomer());
+    result.setTxnTime(transfer.getProcessDate().getTime());
+    result.setSystemWiseTxnId(transfer.getSystemWiseTxnId());
     return result;
   }
 
@@ -237,7 +279,7 @@ public class CyclosMiddleware {
     List<DoPaymentDTO> doPaymentDTOList = new LinkedList<DoPaymentDTO>();
     for (TxnRequest txnRequest : bulkTxnRequest.getTxnRequestList()) {
       DoPaymentDTO doPaymentDTO = getValidateCyclosDoPaymentDTO(txnRequest);
-      //doPaymentDTO.setTransactionType(txnRequest.getTxnType());
+      doPaymentDTO.setMfsTransactionType(txnRequest.getTxnType().toString());
       doPaymentDTOList.add(doPaymentDTO);
     }
     return doPaymentDTOList;
@@ -261,6 +303,10 @@ public class CyclosMiddleware {
     if (StringUtils.isNotEmpty(regRequest.getPin())) {
       member.getMemberUser().setPin(regRequest.getPin());
     }
+    List<MemberCustomField> fields = memberCustomFieldServiceLocal.list();
+    fields = customFieldHelper.onlyForGroup(fields, group);
+    final Collection<MemberCustomFieldValue> fieldValues = customFieldHelper.toValueCollection(fields, regRequest.getFields());
+    member.setCustomValues(fieldValues);
     return member;
   }
 
@@ -289,6 +335,15 @@ public class CyclosMiddleware {
       logger.error("Unable to find member: " + ex.getMessage());
     }
     return null;
+  }
+
+  public Member prepareMemberCustomFiledstoUpdate(Member member, UpdateAccountRequest userRequest) {
+      // Merge the custom fields
+      List<RegistrationFieldValueVO> fieldValueVOs = userRequest.getFields();
+      List<MemberCustomField> allowedFields = customFieldHelper.onlyForGroup(memberCustomFieldServiceLocal.list(), member.getMemberGroup());
+      Collection<MemberCustomFieldValue> newFieldValues = customFieldHelper.mergeFieldValues(member, fieldValueVOs, allowedFields);
+      member.setCustomValues(newFieldValues);
+      return member;
   }
 
   public WalletInfoResponse getWalletInfoResponse(Member member, Account account) {
@@ -332,5 +387,22 @@ public class CyclosMiddleware {
 
     }
     return account;
+  }
+
+  private TransferType resolveCoreTxnType(TxnRequest txnRequest) {
+    MfsTxnType mfsTxnType = null;
+    if (txnRequest.getTxnTypeTag() == null) {
+      mfsTxnType  = mfsTxnTypeService.findByName(txnRequest.getTxnType().name());
+    } else {
+      mfsTxnType = mfsTxnTypeService.findByNameAndTypeTag(txnRequest.getTxnType().name(), txnRequest.getTxnTypeTag());
+    }
+    if (mfsTxnType == null) {
+      throw new MFSCommonException(ErrorConstants.TXN_TYPE_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.TXN_TYPE_NOT_FOUND), HttpStatus.BAD_REQUEST);
+    }  
+    TransferType transferType = transferTypeServiceLocal.load(mfsTxnType.getCoreTxnTypeId());
+    if (transferType == null) {
+      throw new MFSCommonException(ErrorConstants.TXN_TYPE_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.TXN_TYPE_NOT_FOUND), HttpStatus.BAD_REQUEST);
+    }
+    return transferType;
   }
 }

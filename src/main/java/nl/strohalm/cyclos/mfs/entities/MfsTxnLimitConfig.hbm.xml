@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig" abstract="true" table="mfs_txn_limit_config">
+        <id name="id" type="long">
+            <column name="id" sql-type="integer"/>
+            <generator class="native"/>
+        </id>
+        <property name="mfsTypeName" column="mfs_type_name" type="string" not-null="false"/>
+        <property name="mfsTypeDescription" column="mfs_type_description" type="string" not-null="false"/>
+        <property name="fromAcType" column="from_ac_type" type="string" not-null="false"/>
+        <property name="toAcType" column="to_ac_type" type="string" not-null="false"/>
+        <property name="minAmountPerTxn" column="min_amount_per_txn" type="big_decimal" not-null="false"/>
+        <property name="maxAmountPerTxn" column="max_amount_per_txn" type="big_decimal" not-null="false"/>
+        <property name="maxNumberOfTxnPerDay" column="max_number_of_txn_per_day" type="int" not-null="false"/>
+        <property name="maxNumberOfTxnPerMonth" column="max_number_of_txn_per_month" type="int" not-null="false"/>
+        <property name="maxAmountPerDay" column="max_amount_per_day" type="big_decimal" not-null="false"/>
+        <property name="maxAmountPerMonth" column="max_amount_per_month" type="big_decimal" not-null="false"/>
+        <property name="applyOn" column="apply_on" length="3" not-null="true">
+            <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">
+                <param name="enumClassName">nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig$LimitSubject</param>
+            </type>
+   		</property>
+        <many-to-one name="transferType" class="nl.strohalm.cyclos.entities.accounts.transactions.TransferType">
+            <column name="transfer_type_id" not-null="true" sql-type="integer"/>
+        </many-to-one>
+        <many-to-one name="genericLimit" class="nl.strohalm.cyclos.mfs.entities.MfsGenericLimitConfig">
+            <column name="generic_limit_id" not-null="false" sql-type="integer"/>
+        </many-to-one>
+        <property name="enable" column="enabled" type="boolean" not-null="true"/>
+        <many-to-one name="createdBy" class="nl.strohalm.cyclos.entities.access.User" >
+            <column name="created_by" sql-type="integer" not-null="false"/>
+        </many-to-one>
+        <property name="createdAt" column="created_at" type="calendar" not-null="true" />
+        <many-to-one name="lastModifiedBy" class="nl.strohalm.cyclos.entities.access.User" >
+            <column name="last_modified_by" sql-type="integer" not-null="false"/>
+        </many-to-one>
+        <property name="lastModifiedDate" column="last_modified_date" type="calendar" not-null="true" />
+    </class>
+
+</hibernate-mapping>

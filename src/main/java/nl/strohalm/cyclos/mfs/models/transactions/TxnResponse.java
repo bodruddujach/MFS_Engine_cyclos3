@@ -12,8 +12,8 @@ public class TxnResponse extends Response implements Serializable {
 
   private String txnId;
   private BigDecimal amount = BigDecimal.valueOf(-1);
-  private BigDecimal fee = BigDecimal.valueOf(-1);
-  private BigDecimal commission = BigDecimal.valueOf(-1);
+  private BigDecimal fee = BigDecimal.ZERO;
+  private BigDecimal commission = BigDecimal.ZERO;
   private BigDecimal balanceFrom = BigDecimal.valueOf(-1);
   private BigDecimal balanceTo = BigDecimal.valueOf(-1);
   private String ticket = "N/A";
@@ -33,6 +33,7 @@ public class TxnResponse extends Response implements Serializable {
   private String invoiceNo;
   private String customerRefId;
   private String note;
+  private String systemWiseTxnId = "N/A";
 
   public static long getSerialVersionUID() {
     return serialVersionUID;
@@ -206,8 +207,15 @@ public class TxnResponse extends Response implements Serializable {
     this.note = note;
   }
 
+  public String getSystemWiseTxnId() {
+    return systemWiseTxnId;
+  }
 
-  @Override
+  public void setSystemWiseTxnId(String systemWiseTxnId) {
+    this.systemWiseTxnId = systemWiseTxnId;
+  }
+
+@Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
         .add("amount", amount)

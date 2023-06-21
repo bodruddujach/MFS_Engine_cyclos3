@@ -60,6 +60,7 @@ import nl.strohalm.cyclos.mfs.models.accounts.StatementParams;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementDetail;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementResp;
 import nl.strohalm.cyclos.services.stats.general.KeyDevelopmentsStatsPerMonthVO;
+import nl.strohalm.cyclos.services.transactions.TransactionSummaryVO;
 import nl.strohalm.cyclos.utils.BigDecimalHelper;
 import nl.strohalm.cyclos.utils.DataIteratorHelper;
 import nl.strohalm.cyclos.utils.Pair;
@@ -162,20 +163,21 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         } else {
             sql.append("SELECT * FROM ( ");
         }
-        sql.append("SELECT t.id, t.parent_id AS parentId, t.amount, ");
-        sql.append("fa.owner_name AS 'fromWallet', ");
-        sql.append("fm.name AS 'fromName', ");
-        sql.append(" ta.owner_name AS 'toWallet', ");
-        sql.append("tm.name AS 'toName', ");
+        sql.append("SELECT t.id, t.parent_id AS parentId, ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN -1*t.amount ELSE t.amount END AS amount, ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN ta.owner_name ELSE fa.owner_name END AS 'fromWallet', ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN tm.name ELSE fm.name END AS 'fromName', ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN fa.owner_name ELSE ta.owner_name END AS 'toWallet', ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN fm.name ELSE tm.name END AS 'toName', ");
         sql.append("t.process_date AS 'txnTime', ");
         sql.append("t.type_id AS 'typeId', ");
         sql.append("t.transaction_number AS 'transactionNumber', ");
         sql.append("case when t.transaction_fee_id is null then ty.name else tf.name end AS 'typeName', ");
         sql.append("t.description, ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NULL AND t.chargedback_by_id IS NULL AND ty.name='PAYMENT' THEN TRUE ELSE FALSE END AS 'canReverse', ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NULL AND t.chargedback_by_id IS NULL AND t.parent_id IS NULL THEN TRUE ELSE FALSE END AS 'canReverse', ");
         sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN TRUE ELSE FALSE END AS 'reversedTxn', ");
-        sql.append("t.from_account_id AS 'fromAcId', ");
-        sql.append("t.to_account_id 'toAcId' ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN t.to_account_id ELSE t.from_account_id END AS 'fromAcId', ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN t.from_account_id ELSE t.to_account_id END AS 'toAcId' ");
         sql.append("FROM transfers t ");
         sql.append("LEFT JOIN accounts fa ON t.from_account_id = fa.id ");
         sql.append("LEFT JOIN members fm ON fa.member_id = fm.id ");
@@ -193,12 +195,21 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         if(StringUtils.isNotEmpty(query.getTxnId())){
             sql.append(" AND t.transaction_number = :txnId");
         }
+        if(query.getTxnTypes() != null && !query.getTxnTypes().isEmpty()) {
+            sql.append(" AND ty.name in (");
+            for(String type: query.getTxnTypes()) {
+                sql.append("'");
+                sql.append(type).append("',");
+            }
+            sql.deleteCharAt(sql.length()-1);
+            sql.append(")");
+        }
         sql.append(") as statement ");
         if (!countOnly) {
             if (query.getReverseOrder()) {
-                sql.append("ORDER BY txnTime DESC ");
+                sql.append("ORDER BY txnTime DESC, id DESC ");
             } else {
-                sql.append("ORDER BY txnTime ASC ");
+                sql.append("ORDER BY txnTime ASC, id ASC ");
             }
         }
         return sql.toString();
@@ -516,11 +527,16 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
     }
 
     @Override
+    public TransactionSummaryVO getTransactionedCountAndAmountBetweenPeriod(final Period period, final Account account, final boolean isDestinationAc, final Set<TransferType> transferTypes) {
+        return getTransactionedCountAndAmountBetweenPeriod(period, null, account, isDestinationAc, transferTypes, false);
+    }
+
+    @Override
     public BigDecimal getTransactionedAmountAt(Calendar date, final Operator operator, final Account account, final TransferType transferType) {
         if (date == null) {
             date = Calendar.getInstance();
         }
-        final Map<String, Object> namedParameters = new HashMap<String, Object>();
+        final Map<String, Object> namedParameters = new HashMap<>();
         StringBuilder hql = new StringBuilder("select sum(t.amount) from Transfer t where 1=1 ");
         HibernateHelper.addInParameterToQuery(hql, namedParameters, "t.status", Payment.Status.PROCESSED, Payment.Status.PENDING, Payment.Status.SCHEDULED);
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.from", account);
@@ -529,6 +545,55 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "ifnull(t.processDate, t.date)", Period.day(date));
         BigDecimal sum = uniqueResult(hql.toString(), namedParameters);
         return BigDecimalHelper.nvl(sum);
+    }
+
+    @Override
+    public TransactionSummaryVO getTransactionedCountAndAmountBetweenPeriod(Period period, final Operator operator, final Account account, final boolean isDestinationAc, final Set<TransferType> transferTypes ,boolean includeChargeBacks) {
+//        final Map<String, Object> namedParameters = new HashMap<String, Object>();
+//        final StringBuilder hql = new StringBuilder();
+//        //final StringBuilder hql = new StringBuilder("select new " + Pair.class.getName());
+//        hql.append("select count(*), sum(t.amount) from Transfer t where 1=1 ");
+//        HibernateHelper.addInParameterToQuery(hql, namedParameters, "t.status", Payment.Status.PROCESSED, Payment.Status.PENDING, Payment.Status.SCHEDULED);
+//        if (isDestinationAc) {
+//          HibernateHelper.addParameterToQuery(hql, namedParameters, "t.to", account);
+//        } else {
+//          HibernateHelper.addParameterToQuery(hql, namedParameters, "t.from", account);
+//        }
+//        HibernateHelper.addParameterToQuery(hql, namedParameters, "t.type", transferType);
+//        HibernateHelper.addParameterToQuery(hql, namedParameters, "t.by", operator);
+//        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "ifnull(t.processDate, t.date)", period);
+//        TransactionSummaryVO txnSummary = buildSummary(uniqueResult(hql.toString(), namedParameters));
+//        Pair<Long, BigDecimal> txnCountAndSum = Pair.of(Long.valueOf(txnSummary.getCount()), txnSummary.getAmount());
+//        if (txnCountAndSum != null)
+//            txnCountAndSum.setSecond(BigDecimalHelper.nvl(txnCountAndSum.getSecond()));
+//        return txnCountAndSum;
+
+        final StringBuilder hql = new StringBuilder();
+        final Map<String, Object> namedParams = new HashMap<String, Object>();
+        hql.append(" select count(*), sum(abs(t.amount))");
+        hql.append(" from " + Transfer.class.getName() + " t");
+        hql.append(" where ((t.amount > 0 and t.").append(isDestinationAc ? "to" : "from").append(" = :account) ");
+        hql.append("  or (t.amount < 0 and t.").append(isDestinationAc ? "from" : "to").append(" = :account)) ");
+        namedParams.put("account", account);
+        HibernateHelper.addParameterToQuery(hql, namedParams, "t.status", Payment.Status.PROCESSED);
+        // Count root transfers only
+        hql.append(" and t.parent is null");
+        if (!includeChargeBacks) {
+            hql.append(" and t.chargedBackBy is null and t.chargebackOf is null ");
+        }
+        if (CollectionUtils.isNotEmpty(transferTypes)) {
+            hql.append(" and t.type in (:transferTypes) ");
+            namedParams.put("transferTypes", transferTypes);
+        }
+        // Apply the operated by
+        if (operator != null) {
+            hql.append(" and (t.by = :by or t.receiver = :by)");
+            namedParams.put("by", operator);
+        }
+        HibernateHelper.addPeriodParameterToQuery(hql, namedParams, "ifnull(t.processDate,t.date)", period);
+
+        TransactionSummaryVO txnSummary = buildSummary(uniqueResult(hql.toString(), namedParams));
+        return txnSummary;
     }
 
     @Override
@@ -597,6 +662,15 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         HibernateHelper.addParameterToQuery(hql, namedParameters, "transactionNumber", transactionNumber);
         return uniqueResult(hql.toString(), namedParameters);
     }
+
+    @Override
+    public Transfer loadTransferByCustomerRefId(final String customerRefId) {
+        final Map<String, Object> namedParameters = new HashMap<String, Object>();
+        final StringBuilder hql = HibernateHelper.getInitialQuery(getEntityType(), "t");
+        HibernateHelper.addParameterToQuery(hql, namedParameters, "customerRefId", customerRefId);
+        return uniqueResult(hql.toString(), namedParameters);
+    }
+
     @Override
     public List<Transfer> loadTransferByParent(final Transfer parent) {
         final Map<String, Object> namedParameters = new HashMap<String, Object>();
@@ -956,4 +1030,10 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         return true;
     }
 
+    private TransactionSummaryVO buildSummary(final Object object) {
+        final Object[] row = (Object[]) object;
+        final int count = row[0] == null ? 0 : (Integer) row[0];
+        final BigDecimal amount = row[1] == null ? BigDecimal.ZERO : (BigDecimal) row[1];
+        return new TransactionSummaryVO(count, amount);
+    }
 }

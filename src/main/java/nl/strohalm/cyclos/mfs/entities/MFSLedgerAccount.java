@@ -14,6 +14,8 @@ public class MFSLedgerAccount extends Entity {
 
   String code;
 
+  String name;
+
   String description;
 
   String level;
@@ -25,6 +27,8 @@ public class MFSLedgerAccount extends Entity {
   boolean active;
 
   String type; // MEMBER, SYSTEM
+
+  boolean showInReports;
 
   Calendar createDate;
 
@@ -76,6 +80,15 @@ public class MFSLedgerAccount extends Entity {
     this.onlyParent = onlyParent;
   }
 
+  
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
   public String getDescription() {
     return description;
   }
@@ -108,7 +121,15 @@ public class MFSLedgerAccount extends Entity {
     this.createDate = createDate;
   }
 
-  @Override
+  public boolean isShowInReports() {
+    return showInReports;
+  }
+
+  public void setShowInReports(boolean showInReports) {
+    this.showInReports = showInReports;
+  }
+
+@Override
   public String toString() {
     return "MFSLedgerAccount{" +
       "accountId=" + accountId +

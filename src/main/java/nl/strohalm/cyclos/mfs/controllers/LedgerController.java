@@ -5,6 +5,8 @@ import nl.strohalm.cyclos.mfs.entities.MFSLedgerAccount;
 import nl.strohalm.cyclos.mfs.models.accounts.BalanceResponse;
 import nl.strohalm.cyclos.mfs.models.ledgers.LedgerTxnRequest;
 import nl.strohalm.cyclos.mfs.models.ledgers.LedgerTxnResponse;
+import nl.strohalm.cyclos.mfs.models.ledgers.LedgerTxnSummaryRequest;
+import nl.strohalm.cyclos.mfs.models.ledgers.LedgerTxnSummaryResponse;
 import nl.strohalm.cyclos.mfs.services.LedgerService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +76,12 @@ public class LedgerController {
   @ResponseBody
   public BalanceResponse currentLedgerBalance(@PathVariable("ledgerCode") String ledgerCode) {
     return ledgerService.ledgerBalance(ledgerCode, null);
+  }
+
+  @RequestMapping(value = "/txn/summary", method = RequestMethod.POST)
+  @ResponseBody
+  public LedgerTxnSummaryResponse ledgerTransactionSummary(@Validated @RequestBody LedgerTxnSummaryRequest request) {
+    return ledgerService.getLedgerTransactionSummary(request);
   }
 
   @RequestMapping(value = "/txn", method = RequestMethod.POST)

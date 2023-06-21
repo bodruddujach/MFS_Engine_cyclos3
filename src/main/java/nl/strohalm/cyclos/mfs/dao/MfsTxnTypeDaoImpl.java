@@ -2,6 +2,8 @@ package nl.strohalm.cyclos.mfs.dao;
 
 import nl.strohalm.cyclos.dao.BaseDAOImpl;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnType;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnType.TxnTypeTag;
+import nl.strohalm.cyclos.utils.hibernate.HibernateHelper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,12 +17,10 @@ public class MfsTxnTypeDaoImpl extends BaseDAOImpl<MfsTxnType> implements MfsTxn
   }
 
   public List<MfsTxnType> get() {
-    final Map<String, Object> namedParameters = new HashMap<String, Object>();
     final StringBuilder hql = new StringBuilder();
-    hql.append(" select t");
-    hql.append(" from MfsTxnType ");
-    hql.append(" where 1=1");
-    return list(hql.toString(), namedParameters);
+    hql.append(" select mtt");
+    hql.append(" from MfsTxnType mtt");
+    return list(hql.toString(), null);
   }
 
   public MfsTxnType findByName(String name) {
@@ -29,7 +29,7 @@ public class MfsTxnTypeDaoImpl extends BaseDAOImpl<MfsTxnType> implements MfsTxn
     final StringBuilder hql = new StringBuilder();
     hql.append(" select t");
     hql.append(" from MfsTxnType t");
-    hql.append(" where t.name = :name");
+    hql.append(" where t.name = :name AND t.active = true");
     return uniqueResult(hql.toString(), namedParameters);
   }
 
@@ -40,6 +40,24 @@ public class MfsTxnTypeDaoImpl extends BaseDAOImpl<MfsTxnType> implements MfsTxn
     hql.append(" select t");
     hql.append(" from MfsTxnType t");
     hql.append(" where t.coreTxnTypeId = :coreTxnTypeId");
+    return uniqueResult(hql.toString(), namedParameters);
+  }
+
+  @Override
+  public List<MfsTxnType> findByTypeTag(TxnTypeTag typeTag) {
+    final Map<String, Object> namedParameters = new HashMap<String, Object>();
+    final StringBuilder hql = HibernateHelper.getInitialQuery(getEntityType(), "mtt");
+    HibernateHelper.addParameterToQuery(hql, namedParameters, "typeTag", typeTag);
+    HibernateHelper.addParameterToQuery(hql, namedParameters, "active", true);
+    return list(hql.toString(), namedParameters);
+  }
+
+  @Override
+  public MfsTxnType findByNameAndTypeTag(String name, TxnTypeTag typeTag) {
+    final Map<String, Object> namedParameters = new HashMap<String, Object>();
+    final StringBuilder hql = HibernateHelper.getInitialQuery(getEntityType(), "mtt");
+    HibernateHelper.addParameterToQuery(hql, namedParameters, "name", name);
+    HibernateHelper.addParameterToQuery(hql, namedParameters, "typeTag", typeTag);
     return uniqueResult(hql.toString(), namedParameters);
   }
 

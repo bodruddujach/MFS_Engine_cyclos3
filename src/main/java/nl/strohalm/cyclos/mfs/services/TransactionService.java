@@ -7,14 +7,17 @@ import nl.strohalm.cyclos.entities.accounts.fees.transaction.TransactionFee;
 import nl.strohalm.cyclos.entities.accounts.fees.transaction.TransactionFeeQuery;
 import nl.strohalm.cyclos.entities.accounts.transactions.Payment;
 import nl.strohalm.cyclos.entities.accounts.transactions.Transfer;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnType.TxnTypeTag;
 import nl.strohalm.cyclos.mfs.exceptions.ErrorConstants;
 import nl.strohalm.cyclos.mfs.exceptions.MFSCommonException;
 import nl.strohalm.cyclos.mfs.middleware.CyclosMiddleware;
+import nl.strohalm.cyclos.mfs.models.accounts.BalanceResponse;
 import nl.strohalm.cyclos.mfs.models.accounts.CheckPinRequest;
 
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementResp;
 import nl.strohalm.cyclos.mfs.models.enums.TransactionType;
 import nl.strohalm.cyclos.mfs.models.transactions.BulkTxnRequest;
+import nl.strohalm.cyclos.mfs.models.transactions.TxnPair;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnRequest;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnResponse;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnReversalRequest;
@@ -23,16 +26,20 @@ import nl.strohalm.cyclos.mfs.utils.MfsConstant;
 import nl.strohalm.cyclos.services.transactions.BulkPaymentResult;
 import nl.strohalm.cyclos.services.transactions.DoPaymentDTO;
 import nl.strohalm.cyclos.services.transactions.PaymentServiceLocal;
+import nl.strohalm.cyclos.services.transfertypes.TransactionFeePreviewDTO;
 import nl.strohalm.cyclos.services.transfertypes.TransactionFeeServiceLocal;
 
-
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static nl.strohalm.cyclos.mfs.exceptions.ErrorConstants.*;
 
@@ -52,7 +59,10 @@ public class TransactionService {
   public TxnResponse processTransaction(TxnRequest request) {
     DoPaymentDTO doPaymentDTO = cyclosMiddleware.getValidateCyclosDoPaymentDTO(request);
 
-    if (!"SYSTEM".equalsIgnoreCase(request.getFromAc()) && checkPinEanable(request)) {
+    if (StringUtils.isNotBlank(request.getByAc()) && !"SYSTEM".equalsIgnoreCase(request.getByAc()) && checkPinEanable(request)) {
+        accountService.loginUser(new CheckPinRequest(request.getByAc(), request.getPin()));
+    }
+    else if (!"SYSTEM".equalsIgnoreCase(request.getFromAc()) && checkPinEanable(request)) {
       accountService.loginUser(new CheckPinRequest(request.getFromAc(), request.getPin()));
     }
     // todo check limit validation
@@ -60,13 +70,17 @@ public class TransactionService {
     // update limit
     TxnResponse txnResponse = cyclosMiddleware.convertTxnResult(payment, request);
     updateFeeInfo(request, txnResponse);
+    includeBalances(request, txnResponse);
     return txnResponse;
   }
 
   private boolean checkPinEanable(TxnRequest request) {
-    if ("****".equals(request.getPin()) && (request.getTxnType() == TransactionType.BANK_CASHOUT
+    if (("****".equals(request.getPin()) || StringUtils.isBlank(request.getPin())) && (request.getTxnType() == TransactionType.BANK_CASHOUT
       || request.getTxnType() == TransactionType.BANK_CASHOUT_MERCHANT
-      || request.getTxnType() == TransactionType.TOPUP_AGENT)
+      || request.getTxnType() == TransactionType.BANK_CASHOUT_CUSTOMER
+      || request.getTxnType() == TransactionType.TOPUP_AGENT
+      || request.getTxnType() == TransactionType.SERVICE_FEE_CASH_OUT
+      || request.getTxnType() == TransactionType.AGENT_COMMISSION_CASH_OUT)
     ) {
       return false;
     }
@@ -78,13 +92,27 @@ public class TransactionService {
       || request.getTxnType() == TransactionType.PAYMENT
       || request.getTxnType() == TransactionType.CASH_OUT_TO_MFS_AGENT
       || request.getTxnType() == TransactionType.BILL_PAYMENT
-      || request.getTxnType() == TransactionType.AGENT_ASSISTED_PAYMENT) {
+      || request.getTxnType() == TransactionType.AGENT_ASSISTED_PAYMENT
+      || request.getTxnType() == TransactionType.UTILITY_BILL_PAYMENT_WASA_SSL
+      || request.getTxnType() == TransactionType.BANK_CASHOUT_CUSTOMER
+      || request.getTxnType() == TransactionType.FUND_TRANSFER) {
 
       TxnResponse feeResponse = estimate(request);
       txnResponse.setFee(feeResponse.getFee());
       txnResponse.setCommission(feeResponse.getCommission());
     }
+  }
 
+  private void updateDynamicFeeInfo(List<TxnRequest> dynamicRequest, TxnResponse txnResponse) {
+    if (!CollectionUtils.isEmpty(dynamicRequest) && dynamicRequest.size() > 1) {
+      TxnRequest request = dynamicRequest.get(0);
+      if (request.getTxnType() == TransactionType.CASH_OUT_TO_MFS_AGENT
+        || request.getTxnType() == TransactionType.FUND_TRANSFER) {
+        TxnResponse feeResponse = estimateDynamicTxnFee(dynamicRequest);
+        txnResponse.setFee(feeResponse.getFee());
+        txnResponse.setCommission(feeResponse.getCommission());
+      }
+    }
   }
 
   public TxnResponse estimate(TxnRequest request) {
@@ -95,29 +123,63 @@ public class TransactionService {
     final List<? extends TransactionFee> fees = transactionFeeService.search(query);
     BigDecimal feeTotalAmount = BigDecimal.ZERO;
     BigDecimal commissionTotalAmount = BigDecimal.ZERO;
-    for (final TransactionFee fee : fees) {
-      if (fee.getGeneratedTransferType().getFrom().getNature() == AccountType.Nature.MEMBER && (fee.getGeneratedTransferType().getFrom().getName().toLowerCase().contains(MfsConstant.CUSTOMER.toLowerCase())
-        || fee.getGeneratedTransferType().getFrom().getName().toLowerCase().contains(MfsConstant.AGENT.toLowerCase()))) {
+    for (final TransactionFee fee : fees) { //commented out due to incorrect fee calculation, may need to rewrite whole api
+//      if (fee.getGeneratedTransferType().getFrom().getNature() == AccountType.Nature.MEMBER && (fee.getGeneratedTransferType().getFrom().getName().toLowerCase().contains(MfsConstant.CUSTOMER.toLowerCase())
+//        || fee.getGeneratedTransferType().getFrom().getName().toLowerCase().contains(MfsConstant.AGENT.toLowerCase()))) {
+//        if (fee instanceof SimpleTransactionFee && fee.getAmount().isPercentage()) {
+//          final BigDecimal feeValue = fee.getAmount().getValue();
+//          feeTotalAmount = request.getAmount().multiply(feeValue).divide(BigDecimal.valueOf(100));
+//        } else {
+//          feeTotalAmount = fee.getAmount().getValue();
+//        }
+//      }
+      if (fee.isEnabled() && fee.getGeneratedTransferType().getTo().getNature() == AccountType.Nature.MEMBER && fee.getGeneratedTransferType().getTo().getName().toLowerCase().contains(MfsConstant.AGENT.toLowerCase())) {
         if (fee instanceof SimpleTransactionFee && fee.getAmount().isPercentage()) {
           final BigDecimal feeValue = fee.getAmount().getValue();
-          feeTotalAmount = request.getAmount().multiply(feeValue).divide(BigDecimal.valueOf(100));
+          commissionTotalAmount = commissionTotalAmount.add(request.getAmount().multiply(feeValue).divide(BigDecimal.valueOf(100)));
         } else {
-          feeTotalAmount = fee.getAmount().getValue();
+          commissionTotalAmount = commissionTotalAmount.add(fee.getAmount().getValue());
         }
       }
-      if (fee.getGeneratedTransferType().getTo().getNature() == AccountType.Nature.MEMBER && fee.getGeneratedTransferType().getTo().getName().toLowerCase().contains(MfsConstant.AGENT.toLowerCase())) {
-        if (fee instanceof SimpleTransactionFee && fee.getAmount().isPercentage()) {
-          final BigDecimal feeValue = fee.getAmount().getValue();
-          commissionTotalAmount = request.getAmount().multiply(feeValue).divide(BigDecimal.valueOf(100));
-        } else {
-          commissionTotalAmount = fee.getAmount().getValue();
-        }
+    }
+
+    TransactionFeePreviewDTO feePreviewDTO = transactionFeeService.preview(doPaymentDTO.getFrom(), doPaymentDTO.getTo(), doPaymentDTO.getTransferType(),doPaymentDTO.getAmount());
+    if (!CollectionUtils.isEmpty(feePreviewDTO.getFees())) {
+      for (final TransactionFee fee : feePreviewDTO.getFees().keySet()) {
+        feeTotalAmount = feeTotalAmount.add(feePreviewDTO.getFees().get(fee));
       }
     }
     TxnResponse response = new TxnResponse();
     response.setFee(feeTotalAmount);
     response.setAmount(request.getAmount());
     response.setCommission(commissionTotalAmount);
+    response.setBalanceFrom(null);
+    response.setBalanceTo(null);
+    response.setTicket(null);
+    response.setTraceNo(null);
+    return response;
+  }
+
+  public TxnResponse estimateDynamicTxnFee(List<TxnRequest> dynamicRequest) {
+    BigDecimal feeTotalAmount = BigDecimal.ZERO;
+    String fromAc;
+    TxnResponse response = new TxnResponse();
+    
+    if (!CollectionUtils.isEmpty(dynamicRequest) && dynamicRequest.size() > 1) {
+      fromAc = dynamicRequest.get(0).getFromAc();
+      response.setAmount(dynamicRequest.get(0).getAmount());
+      for (int i=1; i<dynamicRequest.size(); i++) {
+        TxnRequest request = dynamicRequest.get(i);
+        if (!"SYSTEM".equalsIgnoreCase(fromAc) && fromAc.equalsIgnoreCase(request.getFromAc()) 
+          && (request.getTxnType() == TransactionType.SERVICE_FEE_CASH_OUT)) {
+          feeTotalAmount = feeTotalAmount.add(request.getAmount());
+        }
+      }
+    }
+    if (feeTotalAmount.compareTo(BigDecimal.ZERO) > 0) {
+      response.setFee(feeTotalAmount);
+    }
+    response.setCommission(null);
     response.setBalanceFrom(null);
     response.setBalanceTo(null);
     response.setTicket(null);
@@ -135,6 +197,29 @@ public class TransactionService {
     return processBulkPaymentResponse(bulkPaymentResultList);
   }
 
+  public List<TxnResponse> processDynamicTxn(BulkTxnRequest bulkTxnRequest) {
+    List<DoPaymentDTO> doPaymentDTOList = cyclosMiddleware.getBulkPaymentDTOList(bulkTxnRequest);
+    List<TxnPair> txnPairs = new ArrayList<>();
+    for (TxnRequest request: bulkTxnRequest.getTxnRequestList()) {
+        if (StringUtils.isNotBlank(request.getByAc()) && !"SYSTEM".equalsIgnoreCase(request.getByAc()) && checkPinEanable(request)) {
+            accountService.loginUser(new CheckPinRequest(request.getByAc(), request.getPin()));
+        }
+        else if (!"SYSTEM".equalsIgnoreCase(request.getFromAc()) && checkPinEanable(request)) {
+          accountService.loginUser(new CheckPinRequest(request.getFromAc(), request.getPin()));
+        }
+    }
+    List<BulkPaymentResult> bulkPaymentResultList = paymentServiceLocal.doBulkPayment(doPaymentDTOList);
+    if (!CollectionUtils.isEmpty(bulkTxnRequest.getTxnRequestList()) && !CollectionUtils.isEmpty(bulkPaymentResultList)) {
+      for (int i=0; i<bulkPaymentResultList.size(); i++) {
+        TxnPair txnPair = new TxnPair();
+        txnPair.setRequest(bulkTxnRequest.getTxnRequestList().get(i));
+        txnPair.setPaymentResult(bulkPaymentResultList.get(i));
+        txnPairs.add(txnPair);
+      }
+    }
+    return processDynamicPaymentResponse(txnPairs, bulkTxnRequest.getTxnRequestList());
+  }
+  
   private List<TxnResponse> processBulkPaymentResponse(List<BulkPaymentResult> bulkPaymentResultList) {
     List<TxnResponse> txnResultList = new LinkedList<TxnResponse>();
     for (BulkPaymentResult bulkPaymentResult : bulkPaymentResultList) {
@@ -146,10 +231,48 @@ public class TransactionService {
         txnResult.setTxnId(transfer.getTransactionNumber());
         txnResult.setFromAccount(transfer.getFrom().getOwnerName());
         txnResult.setToAccount(transfer.getTo().getOwnerName());
+        txnResult.setTraceNo(transfer.getTraceData());
+        txnResult.setSystemWiseTxnId(transfer.getSystemWiseTxnId());
+        if (StringUtils.isNotBlank(transfer.getMfsTransactionType())) {
+          TxnRequest txnRequest = new TxnRequest();
+          txnRequest.setTxnType(TransactionType.valueOf(transfer.getMfsTransactionType()));
+          if (transfer.isToSystem()) {
+            txnRequest.setToAc("SYSTEM"); 
+          } else {
+            txnRequest.setToAc(transfer.getTo().getOwnerName());
+          }
+          if (transfer.isFromSystem()) {
+              txnRequest.setFromAc("SYSTEM"); 
+            } else {
+              txnRequest.setFromAc(transfer.getFrom().getOwnerName());
+            }
+          updateFeeInfo(txnRequest, txnResult);
+          includeBalances(txnRequest, txnResult);
+        }
       } else {
         throw bulkPaymentResult.getException();
       }
       txnResultList.add(txnResult);
+    }
+    return txnResultList;
+  }
+
+  private List<TxnResponse> processDynamicPaymentResponse(List<TxnPair> txnPairs, List<TxnRequest> dynamicRequest) {
+    List<TxnResponse> txnResultList = new LinkedList<>();
+    for (TxnPair txnPair : txnPairs) {
+      TxnResponse txnResult;
+      BulkPaymentResult paymentResult = txnPair.getPaymentResult();
+      Transfer transfer = (Transfer) paymentResult.getPayment();
+      if (transfer != null && transfer.getTransactionNumber() != null) {
+        txnResult = cyclosMiddleware.convertTxnResult(transfer, txnPair.getRequest());
+      } else {
+        throw paymentResult.getException();
+      }
+      txnResultList.add(txnResult);
+      includeBalances(txnPair.getRequest(), txnResult);
+    }
+    if (txnResultList.size() > 1) {
+      updateDynamicFeeInfo(dynamicRequest, txnResultList.get(0));
     }
     return txnResultList;
   }
@@ -172,6 +295,18 @@ public class TransactionService {
     return txnReversalResponse;
   }
 
+  public Transfer getTransfer(String txnId) {
+    return paymentServiceLocal.findByTxnId(txnId);
+  }
+
+  public TxnResponse getTxnDetailByCustomerRefId(String customerRefId) {
+     Transfer transfer = paymentServiceLocal.loadTransferByCustomerRefId(customerRefId);
+     if (transfer == null) {
+         throw new MFSCommonException(ErrorConstants.TRANSACTION_NOT_FOUND, String.format("TRANSACTION_DETAIL_NOT_FOUND: CUSTOMER_REF_ID %s", customerRefId), HttpStatus.NOT_FOUND);
+     }
+     return cyclosMiddleware.convertTxnResult(transfer, null);
+  }
+
   private void validateReversalTxn(TxnReversalRequest request, Transfer transfer) {
     //todo validate chargeback
     if (transfer == null) {
@@ -179,6 +314,39 @@ public class TransactionService {
     }
     if (request.getAmount().compareTo(transfer.getAmount()) != 0) {
       throw new MFSCommonException(AMOUNT_NOT_MATCHED, ERROR_MAP.get(AMOUNT_NOT_MATCHED), HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  private void includeBalances(TxnRequest request, TxnResponse txnResponse) {
+    if (request.getTxnType() == TransactionType.ADD_MONEY
+        || request.getTxnType() == TransactionType.ADD_MONEY_SSL
+        || request.getTxnType() == TransactionType.ADD_MONEY_FIRSTCASH_FROM_FSIBL
+        || request.getTxnType() == TransactionType.BANK_CASHIN
+        || request.getTxnType() == TransactionType.BANK_CASHIN_MERCHANT
+        || request.getTxnType() == TransactionType.PAY_DISTRIBUTOR_COMMISSION
+        || request.getTxnType() == TransactionType.SALARY_DISBURSEMENT
+        || request.getTxnType() == TransactionType.BULK_PAYMENT
+        || request.getTxnType() == TransactionType.REMITTANCE_PAYMENT
+        || request.getTxnType() == TransactionType.REMITTANCE_INCENTIVE) { //Include to account balance
+        BalanceResponse toAccountBalance = accountService.getCurrentBalance(txnResponse.getToAccount(), null);
+        txnResponse.setBalanceTo(toAccountBalance.getAvailableBalance());
+    }
+
+    if (request.getTxnType() == TransactionType.AGENT_ASSISTED_PAYMENT
+        || request.getTxnType() == TransactionType.BANK_CASHOUT
+        || request.getTxnType() == TransactionType.BANK_CASHOUT_MERCHANT
+        || request.getTxnType() == TransactionType.BANK_CASHOUT_CUSTOMER
+        || request.getTxnType() == TransactionType.CASH_IN_FROM_MFS_AGENT
+        || request.getTxnType() == TransactionType.CASH_OUT_TO_MFS_AGENT
+        || request.getTxnType() == TransactionType.CASHOUT_AGENT_DISTRIBUTOR
+        || request.getTxnType() == TransactionType.MOBILE_RECHARGE
+        || request.getTxnType() == TransactionType.PAYMENT
+        || request.getTxnType() == TransactionType.SEND_MONEY
+        || request.getTxnType() == TransactionType.TOPUP_AGENT
+        || request.getTxnType() == TransactionType.UTILITY_BILL_PAYMENT_WASA_SSL
+        || request.getTxnType() == TransactionType.FUND_TRANSFER) { //Include from account balance
+        BalanceResponse fromAccountBalance = accountService.getCurrentBalance(txnResponse.getFromAccount(), null);
+        txnResponse.setBalanceFrom(fromAccountBalance.getAvailableBalance());
     }
   }
 }

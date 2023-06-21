@@ -51,3 +51,24 @@ CREATE TABLE IF NOT EXISTS mfs_ledger_accounts (
   create_date TIMESTAMP NOT NULL DEFAULT current_timestamp(),
   last_modified_date TIMESTAMP NOT NULL DEFAULT current_timestamp()
 );
+
+-- mfs_core.mfs_txn_limit_config definition
+CREATE TABLE IF NOT EXISTS `mfs_txn_limit_config` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `min_amount_per_txn` decimal(15,6) DEFAULT NULL,
+    `max_amount_per_txn` decimal(15,6) DEFAULT NULL,
+    `max_number_of_txn_per_day` bigint(20) DEFAULT NULL,
+    `max_number_of_txn_per_month` bigint(20) DEFAULT NULL,
+    `max_amount_per_day` decimal(15,6) DEFAULT NULL,
+    `max_amount_per_month` decimal(15,6) DEFAULT NULL,
+    `apply_on` varchar(3) NOT NULL,
+    `transfer_type_id` int(11) NOT NULL,
+    `enabled` bit(1) NOT NULL,
+    `created_by` int(11) DEFAULT NULL,
+    `created_at` datetime DEFAULT NULL,
+    `last_modified_by` int(11) DEFAULT NULL,
+    `last_modified_date` datetime DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `FK_mfs_txn_limit_config_transfer_type_id` (`transfer_type_id`),
+    CONSTRAINT `FK_mfs_txn_limit_config_transfer_type_id` FOREIGN KEY (`transfer_type_id`) REFERENCES `transfer_types` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1 COMMENT='Transaction Limit Configuration based on Type';

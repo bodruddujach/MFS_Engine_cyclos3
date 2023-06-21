@@ -8,11 +8,13 @@ import nl.strohalm.cyclos.mfs.models.accounts.CheckPinRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.LoginResponse;
 import nl.strohalm.cyclos.mfs.models.accounts.MerchantRegRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.RegResponse;
+import nl.strohalm.cyclos.mfs.models.accounts.RunningWalletStatementRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.UpdateAcStatus;
 import nl.strohalm.cyclos.mfs.models.accounts.UpdateAccountRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletInfoResponse;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementResp;
+import nl.strohalm.cyclos.mfs.models.transactions.AccountLimitData;
 import nl.strohalm.cyclos.mfs.models.transactions.Response;
 import nl.strohalm.cyclos.mfs.services.MfsAccountService;
 
@@ -25,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Calendar;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -90,11 +94,16 @@ public class AccountController {
     return accountService.getWalletInfo(walletNo);
   }
 
-
   @RequestMapping(value = "/balance/{walletNo}", method = RequestMethod.GET)
   @ResponseBody
   public BalanceResponse getBalance(@PathVariable String walletNo) {
-    return accountService.getCurrentBalance(walletNo);
+    return accountService.getCurrentBalance(walletNo, null);
+  }
+
+  @RequestMapping(value = "/balance/at/{walletNo}/{balanceDate}", method = RequestMethod.GET)
+  @ResponseBody
+  public BalanceResponse getBalance(@PathVariable String walletNo, @PathVariable("balanceDate") Calendar balanceDate) {
+    return accountService.getCurrentBalance(walletNo, balanceDate);
   }
 
   @RequestMapping(value = "/statement", method = RequestMethod.POST, headers = HEADER_JSON)
@@ -103,5 +112,15 @@ public class AccountController {
     return accountService.walletStatement(walletStatementRequest);
   }
 
+  @RequestMapping(value = "/statement/running", method = RequestMethod.POST, headers = HEADER_JSON)
+  @ResponseBody
+  public WalletStatementResp getWalletRunningStatement(@Validated @RequestBody RunningWalletStatementRequest walletStatementRequest) {
+    return accountService.runningWalletStatement(walletStatementRequest);
+  }
 
+  @RequestMapping(value = "/info/limit/{walletNo}", method = RequestMethod.GET)
+  @ResponseBody
+  public List<AccountLimitData> getWalletUsageAndLimitsInfo(@PathVariable String walletNo) {
+    return accountService.getWalletUsageAndLimitsInfo(walletNo);
+  }
 }

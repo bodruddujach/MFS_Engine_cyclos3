@@ -65,6 +65,7 @@ import nl.strohalm.cyclos.entities.members.MemberTransactionDetailsReportData;
 import nl.strohalm.cyclos.entities.members.MemberTransactionSummaryVO;
 import nl.strohalm.cyclos.entities.members.MembersTransactionsReportParameters;
 import nl.strohalm.cyclos.entities.settings.LocalSettings.MemberResultDisplay;
+import nl.strohalm.cyclos.mfs.models.accounts.GetMfsTransactionsDTO;
 import nl.strohalm.cyclos.services.accounts.AccountDTO;
 import nl.strohalm.cyclos.services.accounts.BulkUpdateAccountDTO;
 import nl.strohalm.cyclos.services.accounts.GetTransactionsDTO;
@@ -248,6 +249,16 @@ public class AccountDAOImpl extends BaseDAOImpl<Account> implements AccountDAO {
     @Override
     public TransactionSummaryVO getDebits(final GetTransactionsDTO dto) {
         return getSummary(dto, false, Transfer.Status.PROCESSED);
+    }
+
+    @Override
+    public TransactionSummaryVO getDebitsMFS(final GetMfsTransactionsDTO dto) {
+        return getSummaryMFS(dto, false, Transfer.Status.PROCESSED);
+    }
+
+    @Override
+    public TransactionSummaryVO getCreditsMFS(final GetMfsTransactionsDTO dto) {
+        return getSummaryMFS(dto, true, Transfer.Status.PROCESSED);
     }
 
     @Override
@@ -729,6 +740,68 @@ public class AccountDAOImpl extends BaseDAOImpl<Account> implements AccountDAO {
             hql.append(" and t.parent is null");
         }
 
+        // Get only transfers related to (from or to) the specified member
+        if (relatedToMember != null) {
+            hql.append(" and exists (");
+            hql.append("     select ma.id from MemberAccount ma ");
+            hql.append("     where ma.member = :relatedToMember ");
+            hql.append("     and (t.from = ma or t.to = ma) ");
+            hql.append(" )");
+            namedParams.put("relatedToMember", relatedToMember);
+        }
+
+        // Apply the payments filters
+        if (CollectionUtils.isNotEmpty(paymentFilters)) {
+            final Set<TransferType> transferTypes = new HashSet<TransferType>();
+            for (PaymentFilter paymentFilter : paymentFilters) {
+                if (paymentFilter == null || paymentFilter.isTransient()) {
+                    continue;
+                }
+                paymentFilter = getFetchDao().fetch(paymentFilter, PaymentFilter.Relationships.TRANSFER_TYPES);
+                if (paymentFilter.getTransferTypes() != null) {
+                    transferTypes.addAll(paymentFilter.getTransferTypes());
+                }
+            }
+            if (CollectionUtils.isNotEmpty(transferTypes)) {
+                hql.append(" and t.type in (:transferTypes) ");
+                namedParams.put("transferTypes", transferTypes);
+            }
+        }
+
+        // Apply the operated by
+        if (by != null) {
+            hql.append(" and (t.by = :by or t.receiver = :by)");
+            namedParams.put("by", by);
+        }
+
+        HibernateHelper.addPeriodParameterToQuery(hql, namedParams, "ifnull(t.processDate,t.date)", period);
+        return buildSummary(uniqueResult(hql.toString(), namedParams));
+    }
+
+    //Current use is to calculate sattlement amounts
+    private TransactionSummaryVO getSummaryMFS(final GetMfsTransactionsDTO dto, final boolean credits, final Transfer.Status status) {
+        final Account account = load(dto.getOwner(), dto.getType());
+        final Member relatedToMember = dto.getRelatedToMember();
+        final Element by = dto.getBy();
+        final Period period = dto.getPeriod();
+        final Collection<PaymentFilter> paymentFilters = dto.getPaymentFilters();
+
+        final StringBuilder hql = new StringBuilder();
+        final Map<String, Object> namedParams = new HashMap<String, Object>();
+        hql.append(" select count(*), sum(abs(t.amount))");
+        hql.append(" from " + Transfer.class.getName() + " t");
+        hql.append(" where ((t.amount > 0 and t.").append(credits ? "to" : "from").append(" = :account) ");
+        hql.append("  or (t.amount < 0 and t.").append(credits ? "from" : "to").append(" = :account)) ");
+        namedParams.put("account", account);
+        HibernateHelper.addParameterToQuery(hql, namedParams, "t.status", status);
+
+        // Count root transfers only
+        if (dto.isRootOnly()) {
+            hql.append(" and t.parent is null");
+        }
+        if (!dto.isIncludeChargebacks()) {
+            hql.append(" and t.chargedBackBy is null and t.chargebackOf is null ");
+        }
         // Get only transfers related to (from or to) the specified member
         if (relatedToMember != null) {
             hql.append(" and exists (");

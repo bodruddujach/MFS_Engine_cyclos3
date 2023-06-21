@@ -15,5 +15,10 @@
         <property name="description" column="description" type="string" not-null="true"/>
         <property name="active" column="is_active" type="boolean" not-null="true"/>
         <property name="createDate" column="create_date" type="calendar" not-null="true"/>
+        <property name="typeTag" column="type_tag" length="30" not-null="true">
+            <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">
+                <param name="enumClassName">nl.strohalm.cyclos.mfs.entities.MfsTxnType$TxnTypeTag</param>
+            </type>
+   		</property>
     </class>
 </hibernate-mapping>

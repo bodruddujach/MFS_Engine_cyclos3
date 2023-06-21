@@ -78,6 +78,7 @@ import nl.strohalm.cyclos.entities.members.MemberTransactionSummaryReportData;
 import nl.strohalm.cyclos.entities.members.MemberTransactionSummaryVO;
 import nl.strohalm.cyclos.entities.members.MembersTransactionsReportParameters;
 import nl.strohalm.cyclos.entities.settings.LocalSettings.MemberResultDisplay;
+import nl.strohalm.cyclos.mfs.models.accounts.GetMfsTransactionsDTO;
 import nl.strohalm.cyclos.services.accountfees.AccountFeeServiceLocal;
 import nl.strohalm.cyclos.services.accounts.CreditLimitDTO.Entry;
 import nl.strohalm.cyclos.services.accounts.rates.RateServiceLocal;
@@ -827,6 +828,16 @@ public class AccountServiceImpl implements AccountServiceLocal {
                 throw new ValidationException();
             }
         }
+    }
+
+    @Override
+    public TransactionSummaryVO getDebitsMFS(final GetMfsTransactionsDTO params) {
+        return accountDao.getDebitsMFS(params);
+    }
+
+    @Override
+    public TransactionSummaryVO getCreditsMFS(final GetMfsTransactionsDTO params) {
+        return accountDao.getCreditsMFS(params);
     }
 
     private void closeBalance(final Account account, final Calendar day) {

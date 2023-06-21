@@ -28,6 +28,7 @@ import nl.strohalm.cyclos.entities.access.Channel;
 import nl.strohalm.cyclos.entities.accounts.AccountOwner;
 import nl.strohalm.cyclos.entities.accounts.Currency;
 import nl.strohalm.cyclos.entities.accounts.transactions.Ticket;
+import nl.strohalm.cyclos.entities.accounts.transactions.Transfer;
 import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
 import nl.strohalm.cyclos.entities.customization.fields.PaymentCustomField;
 import nl.strohalm.cyclos.entities.customization.fields.PaymentCustomFieldValue;
@@ -61,11 +62,17 @@ public class DoPaymentDTO extends DataObject implements CustomFieldsContainer<Pa
     private String note;
     private String invoiceNo;
     private String customerRefId;
-
+    private Element                             by;
     /**
      * @see #getTraceData()
      */
     private String                              traceData;
+    private String                              parentTraceData;
+    private Transfer                            parent;
+    private String                              mfsTransactionType;//mfs_context
+    private String                              externalCustomer;//mfs_context
+    private String                              systemWiseTxnId;//mfs_context
+    private Calendar                            systemWiseReqTime;//mfs_context
 
     public BigDecimal getAmount() {
         return amount;
@@ -237,4 +244,60 @@ public class DoPaymentDTO extends DataObject implements CustomFieldsContainer<Pa
     public void setCustomerRefId(String customerRefId) {
         this.customerRefId = customerRefId;
     }
+
+    public Element getBy() {
+        return by;
+    }
+
+    public void setBy(Element by) {
+        this.by = by;
+    }
+
+    public String getParentTraceData() {
+        return parentTraceData;
+    }
+
+    public void setParentTraceData(String parentTraceData) {
+        this.parentTraceData = parentTraceData;
+    }
+
+    public Transfer getParent() {
+        return parent;
+    }
+
+    public void setParent(Transfer parent) {
+        this.parent = parent;
+    }
+
+	public String getMfsTransactionType() {
+		return mfsTransactionType;
+	}
+
+	public void setMfsTransactionType(String mfsTransactionType) {
+		this.mfsTransactionType = mfsTransactionType;
+	}
+
+	public String getExternalCustomer() {
+		return externalCustomer;
+	}
+
+	public void setExternalCustomer(String externalCustomer) {
+		this.externalCustomer = externalCustomer;
+	}
+
+	public String getSystemWiseTxnId() {
+		return systemWiseTxnId;
+	}
+
+	public void setSystemWiseTxnId(String systemWiseTxnId) {
+		this.systemWiseTxnId = systemWiseTxnId;
+	}
+
+	public Calendar getSystemWiseReqTime() {
+		return systemWiseReqTime;
+	}
+
+	public void setSystemWiseReqTime(Calendar systemWiseReqTime) {
+		this.systemWiseReqTime = systemWiseReqTime;
+	}
 }

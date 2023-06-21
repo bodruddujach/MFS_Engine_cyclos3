@@ -19,11 +19,11 @@ public class TxnReversalRequest implements Serializable {
   private String txnId;
 
   @NotNull
-  @Size(min = 6, max = 11)
+  @Size(min = 6, max = 12)
   private String fromAc;
 
   @NotNull
-  @Size(min = 6, max = 11)
+  @Size(min = 6, max = 12)
   private String toAc;
 
   @NotNull

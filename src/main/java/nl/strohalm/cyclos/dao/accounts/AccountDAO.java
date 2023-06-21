@@ -44,6 +44,7 @@ import nl.strohalm.cyclos.entities.members.MemberTransactionDetailsReportData;
 import nl.strohalm.cyclos.entities.members.MemberTransactionSummaryVO;
 import nl.strohalm.cyclos.entities.members.MembersTransactionsReportParameters;
 import nl.strohalm.cyclos.entities.settings.LocalSettings.MemberResultDisplay;
+import nl.strohalm.cyclos.mfs.models.accounts.GetMfsTransactionsDTO;
 import nl.strohalm.cyclos.services.accounts.AccountDTO;
 import nl.strohalm.cyclos.services.accounts.BulkUpdateAccountDTO;
 import nl.strohalm.cyclos.services.accounts.GetTransactionsDTO;
@@ -164,5 +165,19 @@ public interface AccountDAO extends BaseDAO<Account>, InsertableDAO<Account>, Up
      * @throws DaoException General error
      */
     List<? extends Account> search(AccountQuery query) throws DaoException;
+
+    /**
+     * Returns the debits for the given mfs account
+     * @throws EntityNotFoundException The expected account does not exists
+     * @throws DaoException General error
+     */
+    TransactionSummaryVO getDebitsMFS(GetMfsTransactionsDTO dto);
+
+    /**
+     * Returns the credits for the given mfs account
+     * @throws EntityNotFoundException The expected account does not exists
+     * @throws DaoException General error
+     */
+    TransactionSummaryVO getCreditsMFS(GetMfsTransactionsDTO dto);
 
 }

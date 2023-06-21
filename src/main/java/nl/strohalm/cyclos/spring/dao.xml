@@ -12,6 +12,8 @@
     <bean id="mfsTxnTypeDao" class="nl.strohalm.cyclos.mfs.dao.MfsTxnTypeDaoImpl" />
     <bean id="mfsGroupConfigDao" class="nl.strohalm.cyclos.mfs.dao.MfsGroupConfigDaoImpl" />
     <bean id="txnLimitConfigDao" class="nl.strohalm.cyclos.mfs.dao.TxnLimitConfigDAOImpl" />
+    <bean id="mfsGenericLimitConfigDao" class="nl.strohalm.cyclos.mfs.dao.MfsGenericLimitConfigDAOImpl" />
+    <bean id="mfsTxnLimitConfigDao" class="nl.strohalm.cyclos.mfs.dao.MfsTxnLimitConfigDAOImpl" />
     <bean id="mfsMerchantDao" class="nl.strohalm.cyclos.mfs.dao.MFSMerchantDAOImpl" />
     <bean id="mfsLedgerAccountDao" class="nl.strohalm.cyclos.mfs.dao.MFSLedgerAccountDAOImpl" />
     <bean id="applicationDao" class="nl.strohalm.cyclos.dao.ApplicationDAOImpl" />

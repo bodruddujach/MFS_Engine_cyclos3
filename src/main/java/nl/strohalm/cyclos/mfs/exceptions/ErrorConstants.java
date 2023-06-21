@@ -36,7 +36,15 @@ public class ErrorConstants {
   public static final String AMOUNT_NOT_MATCHED = "4023";
   public static final String STATEMENT_NOT_SUPPORTED = "4024";
   public static final String TXN_ALREADY_REVERSE = "4025";
-
+  public static final String MIN_AMOUNT_PER_TXN_NOT_MET = "4026";
+  public static final String MAX_AMOUNT_PER_TXN_EXCEEDED = "4027";
+  public static final String MAX_NUMBER_OF_TXN_PER_DAY_EXCEEDED = "4028";
+  public static final String MAX_AMOUNT_PER_DAY_EXCEEDED = "4020";
+  public static final String MAX_NUMBER_OF_TXN_PER_MONTH_EXCEEDED = "4030";
+  public static final String MAX_AMOUNT_PER_MONTH_EXCEEDED = "4031";
+  public static final String TXN_LIMIT_CONFIGURATION_EXISTS = "4032";
+  public static final String INVALID_GENERIC_LIMIT_CONFIGURATION = "4033";
+  public static final String BY_AC_NOT_FOUND = "4033";
 
 
 
@@ -56,13 +64,14 @@ public class ErrorConstants {
     ERROR_MAP.put(INVALID_TXN_TYPE, "INVALID_TXN_TYPE");
     ERROR_MAP.put(FROM_AC_NOT_FOUND, "FROM_AC_NOT_FOUND");
     ERROR_MAP.put(TO_AC_NOT_FOUND, "TO_AC_NOT_FOUND");
+    ERROR_MAP.put(BY_AC_NOT_FOUND, "BY_AC_NOT_FOUND");
     ERROR_MAP.put(TXN_TYPE_NOT_FOUND, "TXN_TYPE_NOT_FOUND");
     ERROR_MAP.put(FROM_AC_IS_NOT_ACTIVE, "FROM_AC_IS_NOT_ACTIVE");
     ERROR_MAP.put(TO_AC_IS_SUSPENDED_OR_CLOSE, "TO_AC_IS_SUSPENDED_OR_CLOSE");
     ERROR_MAP.put(TXN_TYPE_IS_NOT_ENABLE, "TXN_TYPE_IS_NOT_ENABLE");
     ERROR_MAP.put(MINIMUM_AMOUNT_EXCEEDED, "MINIMUM_AMOUNT_EXCEEDED");
     ERROR_MAP.put(TRANSACTION_NOT_FOUND, "TRANSACTION_DETAIL_NOT_FOUND: ID %s");
-    ERROR_MAP.put(INVALID_PIN, "INVALID_PIN");
+    ERROR_MAP.put(INVALID_PIN, "Invalid Pin");
     ERROR_MAP.put(FROM_AC_STATUS_NOT_VALID, "FROM_AC_STATUS_NOT_VALID");
     ERROR_MAP.put(AC_STATUS_NOT_VALID, "AC_STATUS_NOT_VALID");
     ERROR_MAP.put(BLOCKED_PIN, "PIN is blocked");
@@ -72,6 +81,13 @@ public class ErrorConstants {
     ERROR_MAP.put(AMOUNT_NOT_MATCHED, "Amount is not matched with original transaction");
     ERROR_MAP.put(STATEMENT_NOT_SUPPORTED, "Statement not supported");
     ERROR_MAP.put(TXN_ALREADY_REVERSE, "Txn Already Reversed");
+    ERROR_MAP.put(MIN_AMOUNT_PER_TXN_NOT_MET, "Transactionn mimimum amount is not met");
+    ERROR_MAP.put(MAX_AMOUNT_PER_TXN_EXCEEDED, "Transaction max amount limit reached");
+    ERROR_MAP.put(MAX_NUMBER_OF_TXN_PER_DAY_EXCEEDED, "Daily max number of transaction reached");
+    ERROR_MAP.put(MAX_AMOUNT_PER_DAY_EXCEEDED, "Daily max amount limit reached");
+    ERROR_MAP.put(MAX_NUMBER_OF_TXN_PER_MONTH_EXCEEDED, "Monthly max number of transaction reached");
+    ERROR_MAP.put(MAX_AMOUNT_PER_MONTH_EXCEEDED, "Monthly max amount limit reached");
+    ERROR_MAP.put(TXN_LIMIT_CONFIGURATION_EXISTS, "Transaction Limit Configuration Already Exists ");
   }
 
 }

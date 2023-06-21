@@ -2,6 +2,7 @@ package nl.strohalm.cyclos.mfs.models.transactions;
 
 import com.google.common.base.MoreObjects;
 
+import nl.strohalm.cyclos.mfs.entities.MfsTxnType.TxnTypeTag;
 import nl.strohalm.cyclos.mfs.models.enums.TransactionType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -48,8 +49,9 @@ public class TxnRequest implements Serializable {
   private String externalCustomer;
   private String note;
   private String txnTag;
-
-  private String parentTxnNumber;
+  private String parentRequestId;
+  private TxnTypeTag txnTypeTag;
+  private String traceData;
 
   public String getFromAc() {
     return fromAc;
@@ -261,23 +263,40 @@ public class TxnRequest implements Serializable {
 
 
 
-  public String getParentTxnNumber() {
-    return parentTxnNumber;
+  public String getParentRequestId() {
+    return parentRequestId;
   }
 
-  public void setParentTxnNumber(String parentTxnNumber) {
-    this.parentTxnNumber = parentTxnNumber;
+  public void setParentRequestId(String parentRequestId) {
+    this.parentRequestId = parentRequestId;
   }
 
+  
 
-  @Override
+  public TxnTypeTag getTxnTypeTag() {
+    return txnTypeTag;
+  }
+
+  public void setTxnTypeTag(TxnTypeTag txnTypeTag) {
+    this.txnTypeTag = txnTypeTag;
+  }
+  
+public String getTraceData() {
+	return traceData;
+}
+
+public void setTraceData(String traceData) {
+	this.traceData = traceData;
+}
+
+@Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
         .add("fromAc", fromAc)
         .add("toAc", toAc)
         .add("amount", amount)
         .add("txnType", txnType)
-        .add("parentTxnNumber", parentTxnNumber)
+        .add("parentRequestId", parentRequestId)
         .toString();
   }
 }

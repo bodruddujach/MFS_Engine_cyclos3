@@ -1,11 +1,15 @@
 package nl.strohalm.cyclos.mfs.controllers;
 
+import nl.strohalm.cyclos.entities.accounts.transactions.Transfer;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnType.TxnTypeTag;
+import nl.strohalm.cyclos.mfs.models.accounts.BalanceResponse;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementResp;
 import nl.strohalm.cyclos.mfs.models.transactions.BulkTxnRequest;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnRequest;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnResponse;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnReversalRequest;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnReversalResponse;
+import nl.strohalm.cyclos.mfs.services.MfsAccountService;
 import nl.strohalm.cyclos.mfs.services.TransactionService;
 import nl.strohalm.cyclos.webservices.rest.BaseRestController;
 
@@ -21,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Controller
@@ -31,12 +36,11 @@ public class TxnController extends BaseRestController {
   @Autowired
   TransactionService transactionService;
 
-
   @RequestMapping(value = "/ping",method = RequestMethod.GET)
   @ResponseBody
   public String ping() {
     logger.info("Ping");
-    return "Welcome mfs core txn controller";
+    return "Welcome to mfs core";
   }
 
   @RequestMapping(method = RequestMethod.POST, headers = "Content-type=application/json")
@@ -45,13 +49,27 @@ public class TxnController extends BaseRestController {
     long s = System.currentTimeMillis();
     logger.info(String.format("Txn Request From: %s | To Ac: %s | Txn Type: %s | Amount: %s",
         request.getFromAc(), request.getToAc(), request.getTxnType(), request.getAmount()));
+    request.setTxnTypeTag(TxnTypeTag.MFS);
     TxnResponse result = transactionService.processTransaction(request);
     long e = System.currentTimeMillis();
     logger.info(String.format("Txn Resp: Status: %s | TxnID: %s | From: %s | To : %s | Type: %s | Amount: %s | Latency Time: %s ms",
         result.getStatus(), result.getTxnId(), request.getFromAc(), request.getToAc(),
         request.getTxnType(), request.getAmount(), (e - s)));
     return result;
+  }
 
+  @RequestMapping(value = "/dynamic", method = RequestMethod.POST, headers = "Content-type=application/json")
+  @ResponseBody
+  public List<TxnResponse> doDynamicPayment(@Validated @RequestBody final BulkTxnRequest bulkTxnRequest) {
+    long s = System.currentTimeMillis();
+    logger.info("Dynamic Txn Request, Total Payment Req: " + bulkTxnRequest.getTxnRequestList().size());
+    for (TxnRequest request: bulkTxnRequest.getTxnRequestList()) {
+        request.setTxnTypeTag(TxnTypeTag.MFS_DYNAMIC);
+    }
+    List<TxnResponse> resultList = transactionService.processDynamicTxn(bulkTxnRequest);
+    long e = System.currentTimeMillis();
+    logger.info("Dynamic Payment Resp Time: " + (e - s) + " ms");
+    return resultList;
   }
 
   @RequestMapping(value = "/estimate",method = RequestMethod.POST, headers = "Content-type=application/json")
@@ -75,6 +93,11 @@ public class TxnController extends BaseRestController {
     return transactionService.getTxnDetail(txnId);
   }
 
+  @RequestMapping(value = "/detail/reference/{customerRefId}", method = RequestMethod.GET)
+  @ResponseBody
+  public TxnResponse getTxnDetailByReferenceId(@PathVariable String customerRefId) {
+    return transactionService.getTxnDetailByCustomerRefId(customerRefId);
+  }
 
   @RequestMapping(value = "/bulk", method = RequestMethod.POST, headers = "Content-type=application/json")
   @ResponseBody
@@ -99,5 +122,34 @@ public class TxnController extends BaseRestController {
     return result;
   }
 
+  @RequestMapping(value = "/add-money", method = RequestMethod.POST, headers = "Content-type=application/json")
+  @ResponseBody
+  public TxnResponse performAddMoney(@Validated @RequestBody final TxnRequest request) {
+    long s = System.currentTimeMillis();
+    logger.info(String.format("Txn Request From: %s | To Ac: %s | Txn Type: %s | Amount: %s",
+        request.getFromAc(), request.getToAc(), request.getTxnType(), request.getAmount()));
+    request.setTxnTypeTag(TxnTypeTag.I_BANKING);
+    TxnResponse result = transactionService.processTransaction(request);
+    long e = System.currentTimeMillis();
+    logger.info(String.format("Txn Resp: Status: %s | TxnID: %s | From: %s | To : %s | Type: %s | Amount: %s | Latency Time: %s ms",
+        result.getStatus(), result.getTxnId(), request.getFromAc(), request.getToAc(),
+        request.getTxnType(), request.getAmount(), (e - s)));
+    return result;
+  }
 
+  @RequestMapping(value = "/internal", method = RequestMethod.POST, headers = "Content-type=application/json")
+  @ResponseBody
+  public TxnResponse performInternaltxn(@Validated @RequestBody final TxnRequest request) {
+    long s = System.currentTimeMillis();
+    logger.info(String.format("Txn Request From: %s | To Ac: %s | Txn Type: %s | Amount: %s",
+        request.getFromAc(), request.getToAc(), request.getTxnType(), request.getAmount()));
+    request.setTxnTypeTag(TxnTypeTag.INTERNAL);
+    TxnResponse result = transactionService.processTransaction(request);
+    long e = System.currentTimeMillis();
+    logger.info(String.format("Txn Resp: Status: %s | TxnID: %s | From: %s | To : %s | Type: %s | Amount: %s | Latency Time: %s ms",
+        result.getStatus(), result.getTxnId(), request.getFromAc(), request.getToAc(),
+        request.getTxnType(), request.getAmount(), (e - s)));
+    return result;
+
+  }
 }

@@ -47,6 +47,11 @@ public interface ElementServiceLocal extends ElementService {
     Member changeMemberProfileByWebService(ServiceClient client, Member member);
 
     /**
+     * Updates a member profile, used in mfs context
+     */
+    Member changeMemberProfile(Member member);
+
+    /**
      * Marks all members in the given group as if they had accepted the given registration agreement
      */
     void createAgreementForAllMembers(RegistrationAgreement registrationAgreement, MemberGroup group);
