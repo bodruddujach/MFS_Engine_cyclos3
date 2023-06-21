@@ -7,7 +7,7 @@
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.access.UsernameChangeLog" table="username_change_logs">
         <id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
 		<property name="date" column="datetime" type="calendar" not-null="true" update="false"/>
 		<many-to-one name="by" class="nl.strohalm.cyclos.entities.members.Element" update="false">

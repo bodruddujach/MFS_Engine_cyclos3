@@ -7,7 +7,7 @@
 	<class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.accounts.loans.Loan" table="loans">
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
 		<many-to-one name="transfer" class="nl.strohalm.cyclos.entities.accounts.transactions.Transfer">
 		    <column name="transfer_id" not-null="true" sql-type="bigint"/>

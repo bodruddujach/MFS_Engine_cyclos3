@@ -8,7 +8,7 @@
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.members.Element" abstract="true" table="members">
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
         <discriminator column="subclass" type="string" length="1"/>
         <property name="name" length="100" column="name" type="string" not-null="true"/>

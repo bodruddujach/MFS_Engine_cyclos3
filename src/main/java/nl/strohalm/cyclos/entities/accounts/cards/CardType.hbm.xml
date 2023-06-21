@@ -9,7 +9,7 @@
     	<cache usage="read-write"/>
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
         <property name="name" column="name" type="string" not-null="true" length="100" />
         <property name="cardFormatNumber" column="card_format_number" type="string" length="56" />

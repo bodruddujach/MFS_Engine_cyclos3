@@ -8,7 +8,7 @@
 	<class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.members.RegistrationAgreementLog" table="registration_agreement_logs">
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
 		<many-to-one name="member" class="nl.strohalm.cyclos.entities.members.Member">
 		    <column name="member_id" sql-type="integer" not-null="true"/>

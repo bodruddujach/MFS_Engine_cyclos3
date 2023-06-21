@@ -7,7 +7,7 @@
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.IndexOperation" table="index_operations">
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
 		<property name="date" type="calendar">
 			<column name="date" not-null="true" index="ix_indexops_date"/>

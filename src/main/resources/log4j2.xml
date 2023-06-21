@@ -30,6 +30,9 @@
 	</Appenders>
 
 	<Loggers>
+		<Logger name="com.mchange.v2.resourcepool.BasicResourcePool" level="debug" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
 		<Logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog" level="fatal" additivity="false">
 			<AppenderRef ref="Console" />
 		</Logger>

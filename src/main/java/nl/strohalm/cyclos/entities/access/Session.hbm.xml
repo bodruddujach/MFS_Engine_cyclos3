@@ -7,7 +7,7 @@
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.access.Session" table="sessions">
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
         <property name="identifier" column="identifier" unique="true" not-null="true" />
         <property name="creationDate" column="creation_date" type="calendar" not-null="true" />

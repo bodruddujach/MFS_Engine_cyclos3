@@ -8,7 +8,7 @@
     <class name="nl.strohalm.cyclos.entities.accounts.AccountLimitLog" table="account_limit_logs">
 		<id name="id" type="long">
 		    <column name="id" sql-type="bigint"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
 		<many-to-one name="account" update="false" class="nl.strohalm.cyclos.entities.accounts.Account">
 		    <column name="account_id" index="ix_acctlimlog_account_date" sql-type="integer" not-null="true"/>

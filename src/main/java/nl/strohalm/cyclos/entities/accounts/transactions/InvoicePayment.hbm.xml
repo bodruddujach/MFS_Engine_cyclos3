@@ -8,7 +8,7 @@
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.accounts.transactions.InvoicePayment" table="invoice_payments">
         <id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
 		<many-to-one name="invoice" update="false" class="nl.strohalm.cyclos.entities.accounts.transactions.Invoice">
 		    <column name="invoice_id" sql-type="integer"/>

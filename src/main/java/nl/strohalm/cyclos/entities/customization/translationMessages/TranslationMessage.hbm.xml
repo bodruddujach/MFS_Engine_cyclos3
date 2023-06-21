@@ -8,7 +8,7 @@
 	<class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.customization.translationMessages.TranslationMessage" table="translation_messages">
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
 		<property name="key" update="false" unique="true" column="msg_key" type="string" length="100" not-null="true"/>
 		<property name="value" column="value" type="text"/>

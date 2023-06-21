@@ -8,7 +8,7 @@
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.alerts.Alert" table="alerts" abstract="true">
         <id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
         <discriminator column="subclass" type="string" length="1" />
 		<property name="removed" column="removed" type="boolean" not-null="true"/>

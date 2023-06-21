@@ -9,7 +9,7 @@
     	<cache usage="read-write"/>
         <id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
         <discriminator column="subclass" length="10"/>
         <property name="internalName" column="internal_name" not-null="true" type="string" length="50"/>
@@ -27,7 +27,7 @@
                 <param name="enumClassName">nl.strohalm.cyclos.entities.customization.fields.CustomField$Control</param>
             </type>
 		</property>
-        <property name="field_size" column="size" length="1">
+        <property name="size" column="field_size" length="1">
             <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">
                 <param name="enumClassName">nl.strohalm.cyclos.entities.customization.fields.CustomField$Size</param>
             </type>

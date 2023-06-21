@@ -7,7 +7,7 @@
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.access.PermissionDeniedTrace" table="permission_denieds">
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
         <property name="date" column="datetime" type="calendar" not-null="true" />
 		<many-to-one name="user" class="nl.strohalm.cyclos.entities.access.User">

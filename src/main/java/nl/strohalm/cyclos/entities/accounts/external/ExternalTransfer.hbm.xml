@@ -7,7 +7,7 @@
 	<class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.accounts.external.ExternalTransfer" table="external_transfers">
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
 		
         <property name="status" column="status" length="1" not-null="true">

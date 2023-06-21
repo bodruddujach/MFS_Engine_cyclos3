@@ -8,7 +8,7 @@
 	<class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.ads.imports.ImportedAdCategory" table="imported_ad_categories">
     	<id name="id" type="long">
 			<column name="id" sql-type="integer"/>
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
        	<many-to-one name="adImport" class="nl.strohalm.cyclos.entities.ads.imports.AdImport">
 		    <column name="ad_import_id" sql-type="integer" not-null="true"/>

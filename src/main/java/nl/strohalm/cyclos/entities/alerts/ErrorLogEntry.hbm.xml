@@ -8,7 +8,7 @@
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.alerts.ErrorLogEntry" table="error_log_entries">
         <id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
 		<property name="date" not-null="true" column="datetime" type="calendar"/>
 		<property name="path" not-null="true" column="path" type="string" length="200"/>

@@ -9,7 +9,7 @@
     	<cache usage="read-write"/>
         <id name="id" type="long">
         	<column name="id" sql-type="integer" />
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
 		<many-to-one name="accountFee" class="nl.strohalm.cyclos.entities.accounts.fees.account.AccountFee">
 		    <column name="account_fee_id" not-null="true" sql-type="integer" unique-key="uk_fee_log_fee_date"/>

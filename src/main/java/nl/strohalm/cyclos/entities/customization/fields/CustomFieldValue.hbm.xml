@@ -8,7 +8,7 @@
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.customization.fields.CustomFieldValue" table="custom_field_values">
         <id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
         <discriminator column="subclass" length="10"/>
         <many-to-one name="field" class="nl.strohalm.cyclos.entities.customization.fields.CustomField" not-null="true">

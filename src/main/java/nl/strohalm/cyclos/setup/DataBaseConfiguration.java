@@ -423,7 +423,7 @@ public class DataBaseConfiguration {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(url, username, password);
-            connection.setAutoCommit(false);
+            connection.setAutoCommit(true);
         } catch (final SQLException e) {
             final String msg = "Error connecting to database at " + url;
             LOG.error(msg);

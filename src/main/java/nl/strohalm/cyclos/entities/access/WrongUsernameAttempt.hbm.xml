@@ -7,7 +7,7 @@
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.access.WrongUsernameAttempt" table="wrong_username_attempts">
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
         <property name="date" column="datetime" type="calendar" not-null="true" />
         <property name="remoteAddress" column="remote_address" index="ix_wua_remote_address" length="64" not-null="true" />

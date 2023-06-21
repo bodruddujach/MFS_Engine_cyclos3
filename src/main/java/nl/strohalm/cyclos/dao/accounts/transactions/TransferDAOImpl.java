@@ -19,6 +19,7 @@
  */
 package nl.strohalm.cyclos.dao.accounts.transactions;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import nl.strohalm.cyclos.CyclosConfiguration;
 import nl.strohalm.cyclos.dao.BaseDAOImpl;
 import nl.strohalm.cyclos.dao.accounts.AccountDAO;
 import nl.strohalm.cyclos.entities.Relationship;
@@ -158,6 +160,10 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         return response;
     }
     private String searchStatementQuery(StatementParams query, boolean countOnly) {
+        String dbSchema = "CORE";
+        try {
+            dbSchema = CyclosConfiguration.getCyclosProperties().getProperty("hibernate.default_schema", "CORE");
+        }catch (IOException ioException){ }
         StringBuilder sql = new StringBuilder();
         if (countOnly) {
             sql.append("SELECT count(*) as row_count FROM ( ");
@@ -179,12 +185,13 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         sql.append("t.from_account_id AS 'fromAcId', ");
         sql.append("t.to_account_id 'toAcId' ");
         sql.append("FROM transfers t ");
-        sql.append("LEFT JOIN accounts fa ON t.from_account_id = fa.id ");
-        sql.append("LEFT JOIN members fm ON fa.member_id = fm.id ");
-        sql.append("LEFT JOIN accounts ta ON t.to_account_id = ta.id ");
-        sql.append("LEFT JOIN members tm ON ta.member_id = tm.id ");
-        sql.append("LEFT JOIN transfer_types ty ON t.type_id = ty.id ");
-        sql.append("LEFT JOIN transaction_fees tf ON t.transaction_fee_id = tf.id ");
+        sql.append("from "+dbSchema+".transfers t ");
+        sql.append("LEFT JOIN "+dbSchema+".accounts fa ON t.from_account_id = fa.id ");
+        sql.append("LEFT JOIN "+dbSchema+".members fm ON fa.member_id = fm.id ");
+        sql.append("LEFT JOIN "+dbSchema+".accounts ta ON t.to_account_id = ta.id ");
+        sql.append("LEFT JOIN "+dbSchema+".members tm ON ta.member_id = tm.id ");
+        sql.append("LEFT JOIN "+dbSchema+".transfer_types ty ON t.type_id = ty.id ");
+        sql.append("LEFT JOIN "+dbSchema+".transaction_fees tf ON t.transaction_fee_id = tf.id ");
         sql.append("WHERE (t.from_account_id = :accountId OR t.to_account_id = :accountId) ");
         if (query.getBeginDate() != null) {
             sql.append("AND t.process_date >= :fromDate ");

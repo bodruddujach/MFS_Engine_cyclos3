@@ -9,7 +9,7 @@
 		
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
 		
 		<property name="posId" column="pos_id" type="string" length="64" not-null="true" unique="true"/>

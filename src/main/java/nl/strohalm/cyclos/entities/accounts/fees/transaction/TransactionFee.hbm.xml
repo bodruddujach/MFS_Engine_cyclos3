@@ -9,7 +9,7 @@
     	<cache usage="read-write"/>
         <id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
         <discriminator column="subclass" length="1"/>
         <property name="payer" column="payer" length="3" not-null="true">

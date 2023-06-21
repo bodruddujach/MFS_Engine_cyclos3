@@ -7,7 +7,7 @@
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.members.brokerings.DefaultBrokerCommission" table="default_broker_commissions">
         <id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
 		<many-to-one name="broker" not-null="true" update="false" class="nl.strohalm.cyclos.entities.members.Member">
 		    <column name="broker_id" sql-type="integer"/>

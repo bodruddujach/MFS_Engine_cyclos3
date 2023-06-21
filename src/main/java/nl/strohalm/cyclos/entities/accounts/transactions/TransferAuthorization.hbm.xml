@@ -8,7 +8,7 @@
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.accounts.transactions.TransferAuthorization" table="transfer_authorizations">
         <id name="id" type="long">
 		    <column name="id" sql-type="bigint"/>
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
 		<many-to-one name="by" update="false" class="nl.strohalm.cyclos.entities.members.Element">
 		    <column name="by_id" sql-type="integer"/>

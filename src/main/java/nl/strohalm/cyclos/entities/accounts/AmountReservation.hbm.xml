@@ -8,7 +8,7 @@
     <class name="nl.strohalm.cyclos.entities.accounts.AmountReservation" table="amount_reservations" abstract="true">
 		<id name="id" type="long">
 		    <column name="id" sql-type="bigint"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
 		<discriminator column="subclass" type="string" length="1"/>
 		<many-to-one name="account" update="false" class="nl.strohalm.cyclos.entities.accounts.Account">

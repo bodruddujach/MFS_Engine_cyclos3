@@ -7,7 +7,7 @@
 	<class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.accounts.external.ExternalTransferImport" table="external_transfer_imports">
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
 		
         <property name="date" column="datetime" type="calendar" not-null="true" />

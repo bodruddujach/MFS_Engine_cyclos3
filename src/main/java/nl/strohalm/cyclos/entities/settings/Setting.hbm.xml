@@ -8,7 +8,7 @@
 	<class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.settings.Setting" table="settings">
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
         <property name="type" column="type" not-null="true" update="false" unique-key="uk_type_name" length="15">
             <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">

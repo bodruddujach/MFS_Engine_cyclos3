@@ -8,7 +8,7 @@
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.accounts.AccountRates" table="account_rates">
 		<id name="id" type="long">
 		    <column name="id" sql-type="bigint"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
         <property name="emissionDate" column="emission_date" type="calendar"/>
         <property name="expirationDate" column="expiration_date" type="calendar"/>

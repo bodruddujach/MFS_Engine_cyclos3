@@ -8,7 +8,7 @@
 	<class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.members.messages.Message" table="messages">
 		<id name="id" type="long">
 			<column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
 		<property name="date" update="false" column="datetime" type="calendar" not-null="true" />
 		<property name="subject" update="false" column="subject" type="string" not-null="true" />

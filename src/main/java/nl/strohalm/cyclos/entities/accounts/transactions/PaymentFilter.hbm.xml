@@ -9,7 +9,7 @@
     	<cache usage="read-write"/>
         <id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
 		<many-to-one name="accountType" class="nl.strohalm.cyclos.entities.accounts.AccountType">
 		    <column name="account_type_id" not-null="true" sql-type="integer"/>
