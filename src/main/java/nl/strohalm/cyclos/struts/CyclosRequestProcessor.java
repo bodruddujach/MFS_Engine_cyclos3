@@ -453,7 +453,7 @@ public class CyclosRequestProcessor extends SecureTilesRequestProcessor {
 		}
 
 		// Disconnect the session
-		// sessionHolder.getSession().close();
+		 sessionHolder.getSession().disconnect();
 
 		if (lockingException) {
 			// There was a locking exception - throw it now, so the transaction will be
@@ -575,7 +575,7 @@ public class CyclosRequestProcessor extends SecureTilesRequestProcessor {
 		// sessionFactory.getSessionFactoryOptions().getServiceRegistry().getService(ConnectionProvider.class).getConnection();
 		final SessionHolder holder = (SessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
 		final Session session = holder.getSession();
-		session.setFlushMode(FlushMode.MANUAL);
+		session.setHibernateFlushMode(FlushMode.MANUAL);
 		session.setDefaultReadOnly(true);
 		// session.reconnect(connection);
 

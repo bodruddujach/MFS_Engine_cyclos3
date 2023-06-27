@@ -549,7 +549,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.from", account);
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.type", transferType);
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.by", operator);
-        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "ifnull(t.processDate, t.date)", Period.day(date));
+        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "NVL(t.processDate, t.date)", Period.day(date));
         BigDecimal sum = uniqueResult(hql.toString(), namedParameters);
         return BigDecimalHelper.nvl(sum);
     }
@@ -568,7 +568,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
 //        }
 //        HibernateHelper.addParameterToQuery(hql, namedParameters, "t.type", transferType);
 //        HibernateHelper.addParameterToQuery(hql, namedParameters, "t.by", operator);
-//        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "ifnull(t.processDate, t.date)", period);
+//        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "NVL(t.processDate, t.date)", period);
 //        TransactionSummaryVO txnSummary = buildSummary(uniqueResult(hql.toString(), namedParameters));
 //        Pair<Long, BigDecimal> txnCountAndSum = Pair.of(Long.valueOf(txnSummary.getCount()), txnSummary.getAmount());
 //        if (txnCountAndSum != null)
@@ -597,7 +597,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
             hql.append(" and (t.by = :by or t.receiver = :by)");
             namedParams.put("by", operator);
         }
-        HibernateHelper.addPeriodParameterToQuery(hql, namedParams, "ifnull(t.processDate,t.date)", period);
+        HibernateHelper.addPeriodParameterToQuery(hql, namedParams, "NVL(t.processDate,t.date)", period);
 
         TransactionSummaryVO txnSummary = buildSummary(uniqueResult(hql.toString(), namedParams));
         return txnSummary;
@@ -864,7 +864,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
             hql.append("      and ghl.group in (:groups) ");
             hql.append("      and ghl.period.begin < :end ");
             hql.append("      and (ghl.period.end is null or ghl.period.end >= :begin) ");
-            hql.append("      and t.processDate between ghl.period.begin and ifnull(ghl.period.end, t.processDate) ");
+            hql.append("      and t.processDate between ghl.period.begin and NVL(ghl.period.end, t.processDate) ");
             hql.append("    ) ");
             namedParameters.put("groups", dto.getGroups());
             namedParameters.put("begin", dto.getPeriod().getBegin());
@@ -882,7 +882,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.loanPayment", query.getLoanPayment());
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.parent", query.getParent());
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.type", query.getTransferType());
-        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "ifnull(t.processDate, t.date)", query.getPeriod());
+        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "NVL(t.processDate, t.date)", query.getPeriod());
         if (query.isRootOnly()) {
             hql.append(" and t.parent is null");
         }
@@ -1009,7 +1009,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
             final List<String> orders = new ArrayList<String>();
 
             // Order by date ...
-            String order = "ifnull(t.processDate, t.date)";
+            String order = "NVL(t.processDate, t.date)";
             if (query.isReverseOrder()) {
                 order += " desc";
             }
