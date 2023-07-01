@@ -561,6 +561,11 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
   public Transfer findByTxnId(String txnId){
     return transferDao.loadTransferByTxnNumber(txnId);
   }
+
+  public Transfer loadTransferByCustomerRefId(String customerRefId) {
+    return transferDao.loadTransferByCustomerRefId(customerRefId);
+  }
+
   private WalletStatementDetail adaptStatementDetail(Transfer transfer){
     WalletStatementDetail statementDetail =  new WalletStatementDetail();
     statementDetail.setId(transfer.getId());

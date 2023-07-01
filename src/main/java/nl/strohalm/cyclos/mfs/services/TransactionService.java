@@ -294,6 +294,14 @@ public class TransactionService {
     return paymentServiceLocal.findByTxnId(txnId);
   }
 
+  public TxnResponse getTxnDetailByCustomerRefId(String customerRefId) {
+     Transfer transfer = paymentServiceLocal.loadTransferByCustomerRefId(customerRefId);
+     if (transfer == null) {
+         throw new MFSCommonException(ErrorConstants.TRANSACTION_NOT_FOUND, String.format("TRANSACTION_DETAIL_NOT_FOUND: CUSTOMER_REF_ID %s", customerRefId), HttpStatus.NOT_FOUND);
+     }
+     return cyclosMiddleware.convertTxnResult(transfer, null);
+  }
+
   private void validateReversalTxn(TxnReversalRequest request, Transfer transfer) {
     //todo validate chargeback
     if (transfer == null) {

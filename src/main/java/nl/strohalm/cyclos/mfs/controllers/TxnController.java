@@ -93,6 +93,11 @@ public class TxnController extends BaseRestController {
     return transactionService.getTxnDetail(txnId);
   }
 
+  @RequestMapping(value = "/detail/reference/{customerRefId}", method = RequestMethod.GET)
+  @ResponseBody
+  public TxnResponse getTxnDetailByReferenceId(@PathVariable String customerRefId) {
+    return transactionService.getTxnDetailByCustomerRefId(customerRefId);
+  }
 
   @RequestMapping(value = "/bulk", method = RequestMethod.POST, headers = "Content-type=application/json")
   @ResponseBody
