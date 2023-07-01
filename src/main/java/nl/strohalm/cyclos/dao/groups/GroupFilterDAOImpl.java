@@ -60,18 +60,18 @@ public class GroupFilterDAOImpl extends BaseDAOImpl<GroupFilter> implements Grou
         HibernateHelper.addLikeParameterToQuery(hql, namedParameters, "gf.description", query.getDescription());
         HibernateHelper.addLikeParameterToQuery(hql, namedParameters, "gf.name", query.getName());
         if (query.getGroup() != null) {
-            hql.append(" and :group in elements(gf.groups) ");
+            hql.append(" and :group in (select g from gf.groups g) ");
             namedParameters.put("group", query.getGroup());
         }
         if (query.getViewableBy() != null) {
-            hql.append(" and :viewerGroup in elements(gf.viewableBy) ");
+            hql.append(" and :viewerGroup in (select vb from gf.viewableBy vb) ");
             namedParameters.put("viewerGroup", query.getViewableBy());
         }
         if (query.getAdminGroup() != null) {
             final AdminGroup adminGroup = getFetchDao().fetch(query.getAdminGroup(), AdminGroup.Relationships.MANAGES_GROUPS);
             final Collection<MemberGroup> adminManagedGroups = adminGroup.getManagesGroups();
             if (CollectionUtils.isNotEmpty(adminManagedGroups)) {
-                hql.append(" and exists (select g.id from Group g where g in (select g from gf.groups) and g in (:adminManagedGroups)) ");
+                hql.append(" and exists (select g.id from Group g where g in (select g from gf.groups g) and g in (:adminManagedGroups)) ");
                 namedParameters.put("adminManagedGroups", adminManagedGroups);
             }
         }

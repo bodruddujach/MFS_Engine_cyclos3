@@ -191,7 +191,7 @@ public class MessageDAOImpl extends BaseDAOImpl<Message> implements MessageDAO {
             case INBOX:
                 if (getter instanceof Administrator) {
                     hql.append(" and m.toMember is null");
-                    hql.append(" and (m.category is null or exists (select ag.id from AdminGroup ag where ag = :adminGroup and m.category in elements (ag.messageCategories)))");
+                    hql.append(" and (m.category is null or exists (select ag.id from AdminGroup ag where ag = :adminGroup and m.category in (select agmc from ag.messageCategories agmc)))");
                     namedParameters.put("adminGroup", getter.getGroup());
                 } else if (getter instanceof Member) {
                     hql.append(" and m.toMember = :getter");

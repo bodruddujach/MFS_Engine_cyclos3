@@ -612,7 +612,8 @@ public class CyclosRequestProcessor extends SecureTilesRequestProcessor {
 				} catch (final SQLException e1) {
 					LOG.warn("Error closing connection", e1);
 				} finally {
-					// TransactionSynchronizationManager.unbindResourceIfPossible(connectionProvider);
+					TransactionSynchronizationManager.unbindResourceIfPossible(sessionFactory.getSessionFactoryOptions().getServiceRegistry()
+							.getService(ConnectionProvider.class));
 					TransactionSynchronizationManager.unbindResourceIfPossible(sessionFactory);
 				}
 			}

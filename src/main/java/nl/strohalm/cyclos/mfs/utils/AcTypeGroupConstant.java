@@ -8,10 +8,10 @@ public class AcTypeGroupConstant {
   public static  HashMap<AccountType,Long> acTypeGroups = new HashMap();
 
   static {
-    acTypeGroups.put(AccountType.CUSTOMER,22L);
+    acTypeGroups.put(AccountType.CUSTOMER,45L);
     acTypeGroups.put(AccountType.MERCHANT,61L);
-    acTypeGroups.put(AccountType.AGENT,25L);
-    acTypeGroups.put(AccountType.DISTRIBUTOR,43L);
-    acTypeGroups.put(AccountType.DO,63L);
+    acTypeGroups.put(AccountType.AGENT,44L);
+    acTypeGroups.put(AccountType.DISTRIBUTOR,42L);
+    acTypeGroups.put(AccountType.DO,43L);
   }
 }

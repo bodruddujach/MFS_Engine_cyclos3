@@ -416,7 +416,7 @@ public class AccountDAOImpl extends BaseDAOImpl<Account> implements AccountDAO {
                 Long groupId = dto.getGroup().getId();
 
                 // Fist, mark for activation all accounts which where already there but are inactive
-                if (jdbc.isHSQLDB()) {
+                if (jdbc.isHSQLDB() || jdbc.isOracleDB()) {
                     // this is because HSQLDB (e.g.: used by Cyclos Standalone) doesn't support join in update statements
                     sql.append("update accounts a");
                     sql.append(" set member_action = 'A'");

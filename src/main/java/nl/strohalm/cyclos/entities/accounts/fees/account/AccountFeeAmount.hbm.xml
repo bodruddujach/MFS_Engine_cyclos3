@@ -13,7 +13,7 @@
 		<many-to-one name="account" class="nl.strohalm.cyclos.entities.accounts.MemberAccount">
 		    <column name="account_id" unique-key="uk_acctfeechg_account_date" not-null="true" sql-type="integer"/>
 		</many-to-one>
-		<property name="date" unique-key="uk_acctfeechg_account_date" type="calendar_date" not-null="true" />
+		<property name="date" column="datetime" unique-key="uk_acctfeechg_account_date" type="calendar_date" not-null="true" />
 		<property name="availableBalance" column="available_balance" type="big_decimal" precision="18" scale="6" not-null="true"/>
 		<property name="amount" column="amount" type="big_decimal" precision="15" scale="6" not-null="true"/>
 		<many-to-one name="accountFee" class="nl.strohalm.cyclos.entities.accounts.fees.account.AccountFee">

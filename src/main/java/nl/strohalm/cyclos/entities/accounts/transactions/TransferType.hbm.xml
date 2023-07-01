@@ -97,7 +97,7 @@
             </property>
         </component>
         
-		<bag name="groups" table="groups_transfer_types" inverse="true">
+		<bag name="groups" table="groups_transfer_types" inverse="true" fetch="join">
 			<cache usage="read-write"/>
 			<key>
 			    <column name="transfer_type_id" sql-type="integer"/>

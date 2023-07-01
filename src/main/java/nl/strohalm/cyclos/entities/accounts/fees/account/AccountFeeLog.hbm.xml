@@ -15,7 +15,7 @@
 		    <column name="account_fee_id" not-null="true" sql-type="integer" unique-key="uk_fee_log_fee_date"/>
 		</many-to-one>
 		<property name="date" type="calendar">
-		    <column name="date" not-null="true" unique-key="uk_fee_log_fee_date"/>
+		    <column name="datetime" not-null="true" unique-key="uk_fee_log_fee_date"/>
 		</property> 
 		<property name="rechargingFailed" column="recharging_failed" type="boolean" not-null="true" />
 		<property name="rechargeAttempt" type="int">

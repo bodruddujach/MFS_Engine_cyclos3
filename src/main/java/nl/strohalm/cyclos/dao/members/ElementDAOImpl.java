@@ -528,7 +528,7 @@ public class ElementDAOImpl extends IndexedDAOImpl<Element> implements ElementDA
             }
             // Group filters
             if (CollectionUtils.isNotEmpty(memberQuery.getGroupFilters())) {
-                hql.append(" and exists (select gf.id from GroupFilter gf where gf in (:groupFilters) and e.group in elements(gf.groups))");
+                hql.append(" and exists (select gf.id from GroupFilter gf where gf in (:groupFilters) and e.group in (select g from gf.groups g))");
                 namedParameters.put("groupFilters", memberQuery.getGroupFilters());
             }
         } else if (query instanceof OperatorQuery) {
@@ -540,7 +540,7 @@ public class ElementDAOImpl extends IndexedDAOImpl<Element> implements ElementDA
         }
 
         if (query.getViewableGroup() != null) {
-            hql.append(" and :mg in elements(e.group.canViewProfileOfGroups)");
+            hql.append(" and :mg in (select cvpog from e.group.canViewProfileOfGroups cvpog)");
             namedParameters.put("mg", query.getViewableGroup());
         }
         hibernateCustomFieldHandler.appendConditions(hql, namedParameters, query.getCustomValues());

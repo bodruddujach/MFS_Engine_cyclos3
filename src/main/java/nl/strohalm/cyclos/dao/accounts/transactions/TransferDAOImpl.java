@@ -171,21 +171,20 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
             sql.append("SELECT * FROM ( ");
         }
         sql.append("SELECT t.id, t.parent_id AS parentId, t.amount, ");
-        sql.append("fa.owner_name AS 'fromWallet', ");
-        sql.append("fm.name AS 'fromName', ");
-        sql.append(" ta.owner_name AS 'toWallet', ");
-        sql.append("tm.name AS 'toName', ");
-        sql.append("t.process_date AS 'txnTime', ");
-        sql.append("t.type_id AS 'typeId', ");
-        sql.append("t.transaction_number AS 'transactionNumber', ");
-        sql.append("case when t.transaction_fee_id is null then ty.name else tf.name end AS 'typeName', ");
+        sql.append("fa.owner_name AS fromWallet, ");
+        sql.append("fm.name AS fromName, ");
+        sql.append(" ta.owner_name AS toWallet, ");
+        sql.append("tm.name AS toName, ");
+        sql.append("t.process_date AS txnTime, ");
+        sql.append("t.type_id AS typeId, ");
+        sql.append("t.transaction_number AS transactionNumber, ");
+        sql.append("case when t.transaction_fee_id is null then ty.name else tf.name end AS typeName, ");
         sql.append("t.description, ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NULL AND t.chargedback_by_id IS NULL AND ty.name='PAYMENT' THEN TRUE ELSE FALSE END AS 'canReverse', ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN TRUE ELSE FALSE END AS 'reversedTxn', ");
-        sql.append("t.from_account_id AS 'fromAcId', ");
-        sql.append("t.to_account_id 'toAcId' ");
-        sql.append("FROM transfers t ");
-        sql.append("from "+dbSchema+".transfers t ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NULL AND t.chargedback_by_id IS NULL AND ty.name='PAYMENT' THEN 1 ELSE 0 END AS canReverse, ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN 1 ELSE 0 END AS reversedTxn, ");
+        sql.append("t.from_account_id AS fromAcId, ");
+        sql.append("t.to_account_id toAcId ");
+        sql.append("FROM "+dbSchema+".transfers t ");
         sql.append("LEFT JOIN "+dbSchema+".accounts fa ON t.from_account_id = fa.id ");
         sql.append("LEFT JOIN "+dbSchema+".members fm ON fa.member_id = fm.id ");
         sql.append("LEFT JOIN "+dbSchema+".accounts ta ON t.to_account_id = ta.id ");
@@ -211,7 +210,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
             sql.deleteCharAt(sql.length()-1);
             sql.append(")");
         }
-        sql.append(") as statement ");
+        sql.append(")");
         if (!countOnly) {
             if (query.getReverseOrder()) {
                 sql.append("ORDER BY txnTime DESC, id DESC ");
@@ -739,7 +738,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         if (authorizer instanceof Administrator) {
             final Administrator administrator = (Administrator) authorizer;
             hql.append(" and l.authorizer in (:ADMIN, :BROKER)");
-            hql.append(" and :adminGroup in elements(l.adminGroups)");
+            hql.append(" and :adminGroup in (select ag from l.adminGroups ag)");
             namedParameters.put("adminGroup", administrator.getAdminGroup());
         } else if (authorizer instanceof Operator) {
             hql.append(" and ((l.authorizer = :RECEIVER and exists (");
@@ -852,7 +851,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "t.processDate", dto.getPeriod());
         // PaymentFilter
         if (dto.getPaymentFilter() != null) {
-            hql.append(" and exists (select 1 from " + PaymentFilter.class.getName() + " pf where pf = :filter and t.type in elements(pf.transferTypes)) ");
+            hql.append(" and exists (select 1 from " + PaymentFilter.class.getName() + " pf where pf = :filter and t.type in (select pftt from pf.transferTypes pftt)) ");
             namedParameters.put("filter", dto.getPaymentFilter());
         }
         // Members groups
@@ -984,7 +983,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
                     + " select 1"
                     + " from PaymentFilter pf"
                     + " where pf in (:pfs)"
-                    + " and tt in elements(pf.transferTypes))";
+                    + " and tt in (select pftt from pf.transferTypes pftt))";
             final List<TransferType> transferTypes = list(ttHql, Collections.singletonMap("pfs", paymentFilters));
 
             HibernateHelper.addInParameterToQuery(hql, namedParameters, "t.type", transferTypes);

@@ -16,7 +16,7 @@
 			<column name="currency_id" sql-type="integer" not-null="true" />
 		</many-to-one>
 		<property name="date" update="true" type="calendar" >
-			<column name="date" index="ix_date" not-null="true" />
+			<column name="datetime" index="ix_date" not-null="true" />
 		</property>
 		<property name="creationValue" update="false" column="creation_value"
 			type="big_decimal" precision="15" scale="6" not-null="true" />

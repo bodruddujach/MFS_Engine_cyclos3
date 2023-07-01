@@ -13,7 +13,7 @@ public class MfsConstant {
   public static final String CUSTOMER = "CUSTOMER";
   public static final String AGENT = "AGENT";
   public static final String SYSTEM_ACCOUNT = "SYSTEM";
-  public static final String CHANNEL = "REST";
+  public static final String CHANNEL = "rest";
   public static final String PRINCIPAL_TYPE = "user";
   public static final String STATUS_SUCCESS = "SUCCESS";
   public static final String STATUS_PROCESSED = "PROCESSED";
