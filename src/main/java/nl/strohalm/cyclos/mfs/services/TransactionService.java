@@ -315,6 +315,7 @@ public class TransactionService {
   private void includeBalances(TxnRequest request, TxnResponse txnResponse) {
     if (request.getTxnType() == TransactionType.ADD_MONEY
         || request.getTxnType() == TransactionType.ADD_MONEY_SSL
+        || request.getTxnType() == TransactionType.ADD_MONEY_FIRSTCASH_FROM_FSIBL
         || request.getTxnType() == TransactionType.BANK_CASHIN
         || request.getTxnType() == TransactionType.BANK_CASHIN_MERCHANT
         || request.getTxnType() == TransactionType.PAY_DISTRIBUTOR_COMMISSION
@@ -336,7 +337,8 @@ public class TransactionService {
         || request.getTxnType() == TransactionType.PAYMENT
         || request.getTxnType() == TransactionType.SEND_MONEY
         || request.getTxnType() == TransactionType.TOPUP_AGENT
-        || request.getTxnType() == TransactionType.UTILITY_BILL_PAYMENT_WASA_SSL) { //Include from account balance
+        || request.getTxnType() == TransactionType.UTILITY_BILL_PAYMENT_WASA_SSL
+        || request.getTxnType() == TransactionType.FUND_TRANSFER) { //Include from account balance
         BalanceResponse fromAccountBalance = accountService.getCurrentBalance(txnResponse.getFromAccount(), null);
         txnResponse.setBalanceFrom(fromAccountBalance.getAvailableBalance());
     }
