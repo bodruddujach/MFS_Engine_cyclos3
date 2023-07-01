@@ -579,6 +579,9 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
     statementDetail.setToWallet(transfer.getTo().getOwnerName());
     statementDetail.setFromName(transfer.getFrom().getOwner().toString());
     statementDetail.setToName(transfer.getTo().getOwner().toString());
+    if ((transfer.isRoot() && transfer.getChargedBackBy() == null && transfer.getChargebackOf() == null)) {
+        statementDetail.setCanReverse(true);
+    }
     return statementDetail;
   }
   @Override
