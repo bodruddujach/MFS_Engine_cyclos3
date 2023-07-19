@@ -32,7 +32,7 @@ public class TxnRequest implements Serializable {
   private BigDecimal amount;
 
   @NotNull
-  private TransactionType txnType;
+  private String txnType;
 
   private String requestId; // from client side
   private String userType;
@@ -253,11 +253,11 @@ public class TxnRequest implements Serializable {
     this.txnTag = txnTag;
   }
 
-  public TransactionType getTxnType() {
+  public String getTxnType() {
     return txnType;
   }
 
-  public void setTxnType(TransactionType txnType) {
+  public void setTxnType(String txnType) {
     this.txnType = txnType;
   }
 

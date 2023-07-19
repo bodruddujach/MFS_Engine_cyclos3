@@ -45,7 +45,8 @@ public class ErrorConstants {
   public static final String TXN_LIMIT_CONFIGURATION_EXISTS = "4032";
   public static final String INVALID_GENERIC_LIMIT_CONFIGURATION = "4033";
   public static final String BY_AC_NOT_FOUND = "4033";
-
+  public static final String INVALID_FEE_OR_COMMISSION = "4034";
+  public static final String INVALID_TXN_REQUEST = "4035";
 
 
   public static final String INTERNAL_ERROR= "5001";
@@ -88,6 +89,8 @@ public class ErrorConstants {
     ERROR_MAP.put(MAX_NUMBER_OF_TXN_PER_MONTH_EXCEEDED, "Monthly max number of transaction reached");
     ERROR_MAP.put(MAX_AMOUNT_PER_MONTH_EXCEEDED, "Monthly max amount limit reached");
     ERROR_MAP.put(TXN_LIMIT_CONFIGURATION_EXISTS, "Transaction Limit Configuration Already Exists ");
+    ERROR_MAP.put(INVALID_FEE_OR_COMMISSION, "Requested fee or commission is not appropriate");
+    ERROR_MAP.put(INVALID_TXN_REQUEST, "Requested transaction is not appropriate");
   }
 
 }

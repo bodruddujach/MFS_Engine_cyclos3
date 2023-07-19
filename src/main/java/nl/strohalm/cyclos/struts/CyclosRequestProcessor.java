@@ -65,6 +65,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.internal.SessionImpl;
 import org.springframework.orm.hibernate5.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -593,10 +594,11 @@ public class CyclosRequestProcessor extends SecureTilesRequestProcessor {
 		SessionHolder holder = null;
 		Transaction transaction = null;
 		try {
-			connection = sessionFactory.getSessionFactoryOptions().getServiceRegistry()
-					.getService(ConnectionProvider.class).getConnection();
+//			connection = sessionFactory.getSessionFactoryOptions().getServiceRegistry()
+//					.getService(ConnectionProvider.class).getConnection();
 			// TransactionSynchronizationManager.bindResource(null,connection);
 			session = sessionFactory.openSession();
+			connection = ((SessionImpl) session).connection();
 			holder = new SessionHolder(session);
 			transaction = session.beginTransaction();
 			holder.setTransaction(transaction);
@@ -630,8 +632,10 @@ public class CyclosRequestProcessor extends SecureTilesRequestProcessor {
 		// TransactionSynchronizationManager.getResource(connectionProvider);
 
 		try {
-			Connection connection = sessionFactory.getSessionFactoryOptions().getServiceRegistry()
-					.getService(ConnectionProvider.class).getConnection();
+//			Connection connection = sessionFactory.getSessionFactoryOptions().getServiceRegistry()
+//					.getService(ConnectionProvider.class).getConnection();
+			Session session = sessionFactory.getCurrentSession();
+			Connection connection = ((SessionImpl) session).connection();
 			logDebug(request, "Rolling back read-only transaction");
 			connection.rollback();
 		} catch (final SQLException e) {
