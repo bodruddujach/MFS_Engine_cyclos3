@@ -79,6 +79,8 @@ import nl.strohalm.cyclos.entities.members.messages.MessageCategory;
 import nl.strohalm.cyclos.entities.members.records.MemberRecordType;
 import nl.strohalm.cyclos.entities.settings.AccessSettings;
 import nl.strohalm.cyclos.exceptions.PermissionDeniedException;
+import nl.strohalm.cyclos.mfs.dao.MfsAccountTypeGroupDao;
+import nl.strohalm.cyclos.mfs.entities.MfsAccountTypeGroup;
 import nl.strohalm.cyclos.scheduling.polling.AccountActivationPollingTask;
 import nl.strohalm.cyclos.services.access.ChannelServiceLocal;
 import nl.strohalm.cyclos.services.accounts.AccountServiceLocal;
@@ -108,6 +110,7 @@ import nl.strohalm.cyclos.utils.validation.Validator;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.ObjectUtils;
 
 /**
  * Implementation for group service.
@@ -267,6 +270,7 @@ public class GroupServiceImpl implements GroupServiceLocal {
     private ApplicationServiceLocal         applicationService;
     private AccountDAO                      accountDao;
     private AccountLimitLogDAO              accountLimitLogDao;
+    private MfsAccountTypeGroupDao          mfsAccountTypeGroupDao;
 
     @Override
     public int countPendingAccounts(final MemberGroup group, final MemberAccountType accountType) {
@@ -306,7 +310,16 @@ public class GroupServiceImpl implements GroupServiceLocal {
         return paymentFilterDao;
     }
 
-    @Override
+    
+    public MfsAccountTypeGroupDao getMfsAccountTypeGroupDao() {
+        return mfsAccountTypeGroupDao;
+    }
+
+    public void setMfsAccountTypeGroupDao(MfsAccountTypeGroupDao mfsAccountTypeGroupDao) {
+        this.mfsAccountTypeGroupDao = mfsAccountTypeGroupDao;
+    }
+
+	@Override
     public List<MemberGroup> getPossibleInitialGroups(GroupFilter groupFilter) {
         if (LoggedUser.hasUser() && LoggedUser.isBroker()) {
             BrokerGroup brokerGroup = LoggedUser.group();
@@ -422,6 +435,12 @@ public class GroupServiceImpl implements GroupServiceLocal {
             memberGroupAccountSettingsDao.update(defaultSettings);
         }
         final MemberGroupAccountSettings saved = memberGroupAccountSettingsDao.insert(settings);
+        MfsAccountTypeGroup mfsAccountTypeSetting = new MfsAccountTypeGroup();
+        mfsAccountTypeSetting.setAccountType(settings.getAccountType());
+        mfsAccountTypeSetting.setGroup(settings.getGroup());
+        mfsAccountTypeSetting.setGroupName(settings.getGroup().getName());
+        mfsAccountTypeSetting.setAccountTypeName(settings.getAccountType().getName());
+        final MfsAccountTypeGroup savedAccountTypeSetting = insertAccountTypeGroupSettings(mfsAccountTypeSetting);
 
         // When inserting an account to an inactive group, activate it
         if (!memberGroup.isActive()) {
@@ -483,6 +502,13 @@ public class GroupServiceImpl implements GroupServiceLocal {
     public void removeAccountTypeRelationship(final MemberGroup group, final MemberAccountType type) {
         // Remove the account settings
         memberGroupAccountSettingsDao.delete(group.getId(), type.getId());
+        // Check if the group is already related to the account type
+        try {
+            mfsAccountTypeGroupDao.load(type.getId(), group.getId());
+            mfsAccountTypeGroupDao.delete(type.getId(), group.getId());
+        } catch (final EntityNotFoundException e) {
+            // Ok, the account is not related to the group, so we can go on
+        }
         // mark all accounts for deactivation
         accountDao.markForDeactivation(type, group);
 
@@ -691,8 +717,13 @@ public class GroupServiceImpl implements GroupServiceLocal {
             defaultSettings.setDefault(false);
             memberGroupAccountSettingsDao.update(defaultSettings);
         }
-
         final MemberGroupAccountSettings saved = memberGroupAccountSettingsDao.update(settings);
+        MfsAccountTypeGroup mfsAccountTypeSetting = mfsAccountTypeGroupDao.load(settings.getAccountType().getId(), settings.getGroup().getId());
+        mfsAccountTypeSetting.setAccountType(settings.getAccountType());
+        mfsAccountTypeSetting.setGroup(settings.getGroup());
+        mfsAccountTypeSetting.setGroupName(settings.getGroup().getName());
+        mfsAccountTypeSetting.setAccountTypeName(settings.getAccountType().getName());
+        mfsAccountTypeGroupDao.update(mfsAccountTypeSetting);
 
         if (updateAccountLimits) {
             BulkUpdateAccountDTO dto = new BulkUpdateAccountDTO();
@@ -1511,4 +1542,61 @@ public class GroupServiceImpl implements GroupServiceLocal {
         return group;
     }
 
+    @Override
+    public MemberGroup getDefaultGroup(MemberAccountType at, Relationship... fetch) {
+        at = fetchService.fetch(at, MemberAccountType.Relationships.MFS_ACCOUNT_TYPE_SETTINGS);
+        Collection<MfsAccountTypeGroup> mfsAccountTypeSettings = at.getMfsAccountTypeSettings();
+        MfsAccountTypeGroup defaultGroup = null;
+        if (CollectionUtils.isNotEmpty(mfsAccountTypeSettings)) {
+            mfsAccountTypeSettings = fetchService.fetch(mfsAccountTypeSettings, MfsAccountTypeGroup.Relationships.GROUP);
+            for (final MfsAccountTypeGroup current : mfsAccountTypeSettings) {
+                if (current.isDefaultGroup()) {
+                    // Found the default account
+                    defaultGroup = current;
+                    break;
+                }
+            }
+            if (defaultGroup == null) {
+                // None found: get the first one
+                defaultGroup = mfsAccountTypeSettings.iterator().next();
+            }
+        }
+        return defaultGroup == null ? null : fetchService.fetch(defaultGroup.getGroup(), fetch);
+    }
+
+    @Override
+    public MfsAccountTypeGroup loadAccoutTypeGroupSetting(long accounTypeId, long groupId, Relationship... fetch) {
+        MfsAccountTypeGroup matg = null;
+        // Check if the group is already related to the account type
+        try {
+            matg = mfsAccountTypeGroupDao.load(accounTypeId, groupId, fetch);
+        } catch (final EntityNotFoundException e) {
+            // Ok, the account is not related to the group, so we can go on
+        }
+        return matg;
+    }
+
+    private MfsAccountTypeGroup insertAccountTypeGroupSettings(final MfsAccountTypeGroup mfsAccountTypeSetting) {
+        final MemberAccountType memberAccountType = fetchService.fetch(mfsAccountTypeSetting.getAccountType());
+        // Check if the group isn't already related to the account type
+        try {
+            mfsAccountTypeGroupDao.load(mfsAccountTypeSetting.getAccountType().getId(), mfsAccountTypeSetting.getGroup().getId());
+            throw new UnexpectedEntityException();
+        } catch (final EntityNotFoundException e) {
+            // Ok, the account is not related to the group, so we can go on
+        }
+        final MemberGroup currentDefault = getDefaultGroup(memberAccountType);
+        if (currentDefault == null) {
+            // When there's no current default, set this one as default
+            mfsAccountTypeSetting.setDefaultGroup(true);
+        } else if (mfsAccountTypeSetting.isDefaultGroup()) {
+            // When there was a default already and this one is marked as default, unmark the previous one
+            final MfsAccountTypeGroup defaultMfsAccountTypeSetting = mfsAccountTypeGroupDao.load(memberAccountType.getId(), currentDefault.getId());
+            defaultMfsAccountTypeSetting.setDefaultGroup(false);
+            mfsAccountTypeGroupDao.update(defaultMfsAccountTypeSetting);
+        }
+        final MfsAccountTypeGroup saved = mfsAccountTypeGroupDao.insert(mfsAccountTypeSetting);
+        return saved;
+    }
+    
 }

@@ -209,9 +209,13 @@ public class SchedulingHandler implements InitializingBean, DisposableBean, Loca
     private Date startsTaskAt() {
         final LocalSettings localSettings = settingsService.getLocalSettings();
         final Calendar startAt = Calendar.getInstance();
+        System.out.println("1. startAt: " + startAt.getTime());
         startAt.add(Calendar.HOUR_OF_DAY, 1);
+        System.out.println("2.After HOUR_OF_DAY,  startAt: " + startAt.getTime());
         startAt.set(Calendar.MINUTE, localSettings.getSchedulingMinute());
+        System.out.println("3.After MINUTE,  startAt: " + startAt.getTime());
         startAt.set(Calendar.SECOND, 30);
+        System.out.println("4.After SECOND,  startAt: " + startAt.getTime());
         return startAt.getTime();
     }
 

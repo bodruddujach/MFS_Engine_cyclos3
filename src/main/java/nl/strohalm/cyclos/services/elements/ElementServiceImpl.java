@@ -592,6 +592,119 @@ public class ElementServiceImpl implements ElementServiceLocal {
     }
 
     @Override
+    public <E extends Element> E changeGroupInMfsContext(E element, Group newGroup, final String comments) throws MemberHasBalanceException, MemberHasOpenInvoicesException, ValidationException {
+        newGroup = fetchService.fetch(newGroup);
+
+        // Validate the arguments
+        //final Element loggedElement = LoggedUser.element();
+        if (element == null || newGroup == null || StringUtils.isEmpty(comments) /*|| loggedElement.equals(element)*/) {
+            throw new ValidationException();
+        }
+
+        // Check the current group
+        element = load(element.getId(), Element.Relationships.USER, Element.Relationships.GROUP);
+        final Group oldGroup = element.getGroup();
+        if (oldGroup.equals(newGroup) || oldGroup.getStatus() == Group.Status.REMOVED) {
+            throw new ValidationException();
+        }
+
+        if (element instanceof Member) {
+            checkNewGroupInMfsContext((Member) element, (MemberGroup) newGroup);
+        }
+
+        if (newGroup.getStatus() == Group.Status.REMOVED) {
+            // Disconnect the user if he is logged in
+            try {
+                accessService.disconnect(element.getUser());
+            } catch (final NotConnectedException e) {
+                // Ok - not logged in
+            }
+
+            if (element instanceof Member) {
+                Member member = (Member) element;
+
+                // Remove all ads
+                final AdQuery adQuery = new AdQuery();
+                adQuery.setOwner(member);
+                adService.remove(EntityHelper.toIds(adService.search(adQuery)));
+
+                // Remove all ad interests
+                final AdInterestQuery adInterestQuery = new AdInterestQuery();
+                adInterestQuery.setOwner(member);
+                adInterestService.remove(EntityHelper.toIds(adInterestService.search(adInterestQuery)));
+
+                // Remove all notification preferences
+                notificationPreferenceDao.delete(EntityHelper.toIds(notificationPreferenceDao.load(member)));
+
+                // Remove all contacts
+                contactService.remove(EntityHelper.toIds(contactService.list(member)));
+
+                // Cancel all cards
+                cardService.cancelAllMemberCards(member);
+
+                // Unassign all pos
+                posService.unassignAllMemberPos(member);
+            }
+        }
+
+        boolean noLongerBroker = false;
+        if (element instanceof Member) {
+            Member member = (Member) element;
+            MemberGroup oldMemberGroup = (MemberGroup) oldGroup;
+            MemberGroup newMemberGroup = (MemberGroup) newGroup;
+
+            // Remove all brokerings if the member is no longer a broker
+            noLongerBroker = oldMemberGroup.isBroker() && (newGroup.getStatus() == Group.Status.REMOVED || !newMemberGroup.isBroker());
+            if (noLongerBroker) {
+                final BrokeringQuery brokeringQuery = new BrokeringQuery();
+                brokeringQuery.setBroker(member);
+                brokeringQuery.setResultType(ResultType.ITERATOR);
+                final MessageSettings messageSettings = settingsService.getMessageSettings();
+                String brokeringComments = messageSettings.getBrokerRemovedRemarkComments();
+                brokeringComments = MessageProcessingHelper.processVariables(brokeringComments, member, settingsService.getLocalSettings());
+                for (final Brokering brokering : brokeringService.search(brokeringQuery)) {
+                    brokeringService.remove(brokering, brokeringComments);
+                }
+            }
+
+            // Update broker commissions
+            if (oldMemberGroup.isBroker() || newMemberGroup.isBroker()) {
+                commissionService.updateBrokerCommissions(member, oldMemberGroup, newMemberGroup);
+            }
+
+        }
+
+        // Update the group
+        element.setGroup(newGroup);
+        elementDao.update(element);
+
+        // Handle the member accounts
+        if (element instanceof Member) {
+            Member member = (Member) element;
+            final boolean wasInactive = !member.isActive();
+            handleAccounts(member);
+            if (wasInactive && member.isActive()) {
+                sendActivationMailIfNeeded(ActivationMail.ONLINE, member);
+            }
+        }
+
+        // Creates the group remark and updates group history logs
+        createGroupRemark(element, oldGroup, newGroup, comments);
+
+        // Update the index
+        elementDao.addToIndex(element);
+
+        // Notify if was a broker and no longer is
+        if (element instanceof Member && noLongerBroker) {
+            Member member = (Member) element;
+            memberNotificationHandler.removedFromBrokerGroupNotification(member);
+        }
+
+        return element;
+    }
+
+
+    @Override
     public Member changeMemberProfileByWebService(final ServiceClient client, final Member member) {
         if (member.isTransient()) {
             throw new UnexpectedEntityException();
@@ -1401,6 +1514,64 @@ public class ElementServiceImpl implements ElementServiceLocal {
                 }
             }
         }
+
+        // Check if the member has any open invoices
+        final InvoiceQuery invoiceQuery = new InvoiceQuery();
+        invoiceQuery.setDirection(InvoiceQuery.Direction.INCOMING);
+        invoiceQuery.setOwner(member);
+        invoiceQuery.setStatus(Invoice.Status.OPEN);
+        for (final Invoice invoice : invoiceService.search(invoiceQuery)) {
+            boolean found = false;
+            final Iterator<MemberAccountType> accIt = accountTypes.iterator();
+            while (!found && accIt.hasNext()) {
+                accType = accIt.next();
+                final Iterator<TransferType> ttIt = accType.getFromTransferTypes().iterator();
+                while (!found && ttIt.hasNext()) {
+                    final TransferType tt = ttIt.next();
+                    if (tt.getTo().equals(invoice.getDestinationAccountType())) {
+                        found = true;
+                    }
+                }
+            }
+            if (!found) {
+                throw new MemberHasOpenInvoicesException(newGroup);
+            }
+        }
+
+        invoiceQuery.setDirection(InvoiceQuery.Direction.OUTGOING);
+        for (final Invoice invoice : invoiceService.search(invoiceQuery)) {
+            if (!accountTypes.contains(invoice.getDestinationAccountType())) {
+                throw new MemberHasOpenInvoicesException(newGroup);
+            }
+        }
+
+        // Cancel all incoming and outgoing scheduled payments and notify payers/receivers
+        // We cancel the payments here and not in the changeGroup method because we must check the balance after the cancellation
+        // to ensure we take in to account the reserved amount (if any) that will be returned to the from account.
+        cancelScheduledPaymentsAndNotify(member, newGroup);
+
+        // Check the account balance
+        final BigDecimal minimumPayment = paymentService.getMinimumPayment();
+        for (final Account account : accountService.getAccounts(member)) {
+            final BigDecimal balance = accountService.getBalance(new AccountDateDTO(account));
+            if (!accountTypes.contains(account.getType()) && (balance.abs().compareTo(minimumPayment) > 0)) {
+                throw new MemberHasBalanceException(newGroup, (MemberAccountType) account.getType());
+            }
+        }
+    }
+
+    private void checkNewGroupInMfsContext(final Member member, final MemberGroup newGroup) {
+        Collection<MemberAccountType> accountTypes = newGroup.getAccountTypes();
+        if (accountTypes == null) {
+            accountTypes = Collections.emptyList();
+        }
+
+        // Check if the member has any open loans
+        final LoanQuery lQuery = new LoanQuery();
+        lQuery.fetch(RelationshipHelper.nested(Loan.Relationships.TRANSFER, Payment.Relationships.TYPE));
+        lQuery.setStatus(Loan.Status.OPEN);
+        lQuery.setMember(member);
+        AccountType accType;
 
         // Check if the member has any open invoices
         final InvoiceQuery invoiceQuery = new InvoiceQuery();

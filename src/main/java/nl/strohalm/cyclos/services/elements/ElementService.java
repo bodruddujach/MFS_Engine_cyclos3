@@ -86,7 +86,7 @@ public interface ElementService extends Service {
      * removed
      */
     <E extends Element> E changeGroup(E element, Group newGroup, String comments) throws MemberHasBalanceException, MemberHasOpenInvoicesException, ValidationException;
-
+    <E extends Element> E changeGroupInMfsContext(E element, Group newGroup, String comments) throws MemberHasBalanceException, MemberHasOpenInvoicesException, ValidationException;
     /**
      * Used to save the profile of an element
      */

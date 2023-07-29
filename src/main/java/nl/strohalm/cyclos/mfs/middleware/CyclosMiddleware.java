@@ -5,7 +5,9 @@ import nl.strohalm.cyclos.entities.access.Channel;
 import nl.strohalm.cyclos.entities.access.MemberUser;
 import nl.strohalm.cyclos.entities.access.PrincipalType;
 import nl.strohalm.cyclos.entities.accounts.Account;
+import nl.strohalm.cyclos.entities.accounts.AccountType;
 import nl.strohalm.cyclos.entities.accounts.MemberAccount;
+import nl.strohalm.cyclos.entities.accounts.MemberAccountType;
 import nl.strohalm.cyclos.entities.accounts.SystemAccountOwner;
 import nl.strohalm.cyclos.entities.accounts.transactions.Payment;
 import nl.strohalm.cyclos.entities.accounts.transactions.Transfer;
@@ -13,18 +15,21 @@ import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
 import nl.strohalm.cyclos.entities.customization.fields.MemberCustomField;
 import nl.strohalm.cyclos.entities.customization.fields.MemberCustomFieldValue;
 import nl.strohalm.cyclos.entities.exceptions.EntityNotFoundException;
+import nl.strohalm.cyclos.entities.groups.Group;
 import nl.strohalm.cyclos.entities.groups.MemberGroup;
 import nl.strohalm.cyclos.entities.members.Element;
 import nl.strohalm.cyclos.entities.members.Member;
+import nl.strohalm.cyclos.mfs.entities.MfsAccountTypeGroup;
 import nl.strohalm.cyclos.mfs.entities.MfsGroupConfig;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnType;
 import nl.strohalm.cyclos.mfs.exceptions.ErrorConstants;
 import nl.strohalm.cyclos.mfs.exceptions.MFSCommonException;
 import nl.strohalm.cyclos.mfs.models.accounts.AcRegRequest;
+import nl.strohalm.cyclos.mfs.models.accounts.AccountCategoryDTO;
+import nl.strohalm.cyclos.mfs.models.accounts.AccountTypeDTO;
 import nl.strohalm.cyclos.mfs.models.accounts.UpdateAccountRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletInfoResponse;
 import nl.strohalm.cyclos.mfs.models.enums.AccountStatus;
-import nl.strohalm.cyclos.mfs.models.enums.AccountType;
 import nl.strohalm.cyclos.mfs.models.transactions.BulkTxnRequest;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnRequest;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnResponse;
@@ -35,6 +40,8 @@ import nl.strohalm.cyclos.mfs.utils.MfsConstant;
 import nl.strohalm.cyclos.services.access.ChannelServiceLocal;
 import nl.strohalm.cyclos.services.accounts.AccountDateDTO;
 import nl.strohalm.cyclos.services.accounts.AccountServiceLocal;
+import nl.strohalm.cyclos.services.accounts.AccountTypeServiceLocal;
+import nl.strohalm.cyclos.services.accounts.MemberAccountTypeQuery;
 import nl.strohalm.cyclos.services.customization.MemberCustomFieldServiceLocal;
 import nl.strohalm.cyclos.services.elements.ElementServiceLocal;
 import nl.strohalm.cyclos.services.groups.GroupServiceLocal;
@@ -42,8 +49,10 @@ import nl.strohalm.cyclos.services.transactions.DoPaymentDTO;
 import nl.strohalm.cyclos.services.transactions.TransactionContext;
 import nl.strohalm.cyclos.services.transfertypes.TransferTypeServiceLocal;
 import nl.strohalm.cyclos.utils.CustomFieldHelper;
+import nl.strohalm.cyclos.utils.RelationshipHelper;
 import nl.strohalm.cyclos.webservices.model.RegistrationFieldValueVO;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -75,7 +84,8 @@ public class CyclosMiddleware {
   ChannelServiceLocal channelServiceLocal;
   @Autowired
   AccountServiceLocal accountServiceLocal;
-
+  @Autowired
+  AccountTypeServiceLocal accountTypeServiceLocal;
   @Autowired
   MfsGroupService mfsGroupService;
   @Autowired
@@ -276,10 +286,31 @@ public class CyclosMiddleware {
     final MemberUser user = new MemberUser();
     user.setUsername(regRequest.getWalletNo());
     final Member member = new Member();
-    MemberGroup group;
-    AccountType accountType = regRequest.getAccountType();
-    MfsGroupConfig mfsGroupConfig = mfsGroupService.findByName(accountType.name());
-    group = groupServiceLocal.load(mfsGroupConfig.getGroupId());
+    MemberGroup group = null;
+    String accountType = regRequest.getAccountType();
+
+    MemberAccountTypeQuery memberAccountQuery = new MemberAccountTypeQuery();
+    memberAccountQuery.setName(accountType);
+    memberAccountQuery.fetch(MemberAccountType.Relationships.MFS_ACCOUNT_TYPE_SETTINGS, RelationshipHelper.nested(MfsAccountTypeGroup.Relationships.GROUP));
+    List<? extends AccountType> possibleMemberAccountTypes = accountTypeServiceLocal.search(memberAccountQuery);
+    if (CollectionUtils.isEmpty(possibleMemberAccountTypes)) {
+      throw new MFSCommonException(ErrorConstants.INVALID_AC_TYPE, ErrorConstants.ERROR_MAP.get(ErrorConstants.INVALID_AC_TYPE), HttpStatus.BAD_REQUEST);
+    }
+    MemberAccountType memberAccountType = (MemberAccountType) possibleMemberAccountTypes.get(0);
+    if (StringUtils.isEmpty(regRequest.getAccountCategory())) {
+      group = groupServiceLocal.getDefaultGroup(memberAccountType);
+    } else {
+      for (MfsAccountTypeGroup matg: memberAccountType.getMfsAccountTypeSettings()) {
+        if (regRequest.getAccountCategory().equalsIgnoreCase(matg.getGroup().getName())) {
+          group = matg.getGroup();
+          break;
+        }
+      }
+      if (group == null) {
+        throw new MFSCommonException(ErrorConstants.INVALID_AC_CATEGORY, ErrorConstants.ERROR_MAP.get(ErrorConstants.INVALID_AC_CATEGORY), HttpStatus.BAD_REQUEST);
+      }
+    }
+
     member.setGroup(group);
     member.setUser(user);
     member.setName(regRequest.getFullName());
@@ -335,14 +366,14 @@ public class CyclosMiddleware {
   public WalletInfoResponse getWalletInfoResponse(Member member, Account account) {
     WalletInfoResponse info = new WalletInfoResponse();
     MemberAccount memberAccount = (MemberAccount) account;
+    MemberAccountType memberAccountType = (MemberAccountType) account.getType();
+    Group memberGroup = member.getGroup();
     info.setStatus(MfsConstant.STATUS_SUCCESS);
     info.setWalletNo(member.getUsername());
     info.setName(member.getName());
-    for (Map.Entry entry : AcTypeGroupConstant.acTypeGroups.entrySet()) {
-      if (member.getGroup().getId().equals(entry.getValue()))
-        info.setUserType((AccountType) entry.getKey());
-    }
-
+    info.setUserType(memberAccount.getType().getName());
+    info.setAccountType(new AccountTypeDTO(memberAccountType.getId(), memberAccountType.getName()));
+    info.setAccountCategory(new AccountCategoryDTO(memberGroup.getId(), memberGroup.getName()));
     info.setAccountStatus(AccountStatus.valueOf(memberAccount.getStatus().name()));
     return info;
   }
@@ -395,4 +426,14 @@ public class CyclosMiddleware {
     }
     return mfsTxnType;
   }
+
+  public Group prepareMemberGroupInfoToUpdate(MemberAccount account, UpdateAccountRequest userRequest) {
+      //check whether new group is compatible with account type
+	  MfsAccountTypeGroup accountTypeGroupMapping = groupServiceLocal.loadAccoutTypeGroupSetting(account.getType().getId(), userRequest.getAccountCategoryId(), MfsAccountTypeGroup.Relationships.GROUP);
+      if (accountTypeGroupMapping == null) {
+        throw new MFSCommonException(ErrorConstants.INVALID_AC_CATEGORY, ErrorConstants.ERROR_MAP.get(ErrorConstants.INVALID_AC_CATEGORY), HttpStatus.BAD_REQUEST);
+      }
+      return accountTypeGroupMapping.getGroup();
+  }
+  
 }

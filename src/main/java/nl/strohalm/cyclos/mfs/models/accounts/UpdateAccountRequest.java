@@ -9,48 +9,50 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-
 public class UpdateAccountRequest implements Serializable {
 
-  private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-  @NotNull
-  private String walletNo;
+	@NotNull
+	private String walletNo;
+	private String name;
+	private Long accountCategoryId;
+	private List<RegistrationFieldValueVO> fields;
 
-  @NotNull
-  private String name;
+	public String getWalletNo() {
+		return walletNo;
+	}
 
-  private List<RegistrationFieldValueVO> fields;
+	public void setWalletNo(String walletNo) {
+		this.walletNo = walletNo;
+	}
 
-  public String getWalletNo() {
-    return walletNo;
-  }
+	public String getName() {
+		return name;
+	}
 
-  public void setWalletNo(String walletNo) {
-    this.walletNo = walletNo;
-  }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-  public String getName() {
-    return name;
-  }
+	public Long getAccountCategoryId() {
+		return accountCategoryId;
+	}
 
-  public void setName(String name) {
-    this.name = name;
-  }
+	public void setAccountCategoryId(Long accountCategoryId) {
+		this.accountCategoryId = accountCategoryId;
+	}
 
-  public List<RegistrationFieldValueVO> getFields() {
-    return fields;
-  }
+	public List<RegistrationFieldValueVO> getFields() {
+		return fields;
+	}
 
-  public void setFields(List<RegistrationFieldValueVO> fields) {
-    this.fields = fields;
-  }
+	public void setFields(List<RegistrationFieldValueVO> fields) {
+		this.fields = fields;
+	}
 
-@Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("walletNo", walletNo)
-        .add("name", name)
-        .toString();
-  }
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("walletNo", walletNo).add("name", name).toString();
+	}
 }

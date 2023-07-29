@@ -69,6 +69,13 @@ public class AccountController {
     return accountService.updateWalletInformation(userRequest);
   }
 
+  @RequestMapping(value = "/category", method = RequestMethod.PUT, headers = HEADER_JSON)
+  @ResponseBody
+  public Response updateWalletAccountCategory(@Validated @RequestBody UpdateAccountRequest userRequest)
+    throws Exception {
+    return accountService.updateWalletInformation(userRequest);
+  }
+
   @RequestMapping(value = "/check/pin", method = RequestMethod.POST, headers = HEADER_JSON)
   @ResponseBody
   public LoginResponse loginUser(@Validated @RequestBody CheckPinRequest checkPinRequest) {

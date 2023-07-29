@@ -9,17 +9,25 @@
             <column name="id" sql-type="integer"/>
             <generator class="identity"/>
         </id>
-        <property name="accountId" column="account_id" type="long" not-null="true"/>
-        <property name="parentId" column="parent_id" type="long" not-null="true"/>
+        <property name="accountId" column="account_id" type="long" not-null="false"/>
+        <many-to-one name="parentLedger" update="true"  class="nl.strohalm.cyclos.mfs.entities.MFSLedgerAccount" >
+            <column name="parent_id" sql-type="integer"/>
+        </many-to-one>
         <property name="code" column="code" type="string" not-null="true"/>
         <property name="level" column="ledger_level" type="string" not-null="true"/>
         <property name="category" column="category" type="string" not-null="true"/>
+        <property name="nature" column="nature" type="string" not-null="true"/>
         <property name="name" column="name" type="string" />
         <property name="description" column="description" type="string" />
         <property name="type" column="type" type="string" not-null="true"/>
         <property name="onlyParent" column="is_only_parent" type="boolean" not-null="false"/>
+        <property name="lastLevel" column="is_last_level" type="boolean" not-null="false"/>
         <property name="active" column="is_active" type="boolean" not-null="true"/>
         <property name="createDate" column="create_date" type="calendar" not-null="true"/>
         <property name="showInReports" column="show_in_reports" type="boolean" not-null="true"/>
+       <bag name="childLedgers" table="mfs_ledger_accounts" inverse="true" lazy="true">
+           <key column="parent_id"/>
+           <one-to-many class="nl.strohalm.cyclos.mfs.entities.MFSLedgerAccount"/>
+       </bag>
     </class>
 </hibernate-mapping>

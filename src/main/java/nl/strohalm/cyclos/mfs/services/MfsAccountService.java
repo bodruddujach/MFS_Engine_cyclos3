@@ -5,10 +5,12 @@ import nl.strohalm.cyclos.entities.access.Channel;
 import nl.strohalm.cyclos.entities.access.MemberUser;
 import nl.strohalm.cyclos.entities.accounts.Account;
 import nl.strohalm.cyclos.entities.accounts.AccountStatus;
+import nl.strohalm.cyclos.entities.accounts.AccountType;
 import nl.strohalm.cyclos.entities.accounts.MemberAccount;
 import nl.strohalm.cyclos.entities.accounts.SystemAccount;
 import nl.strohalm.cyclos.entities.accounts.transactions.Transfer;
 import nl.strohalm.cyclos.entities.exceptions.EntityNotFoundException;
+import nl.strohalm.cyclos.entities.groups.Group;
 import nl.strohalm.cyclos.entities.members.Member;
 import nl.strohalm.cyclos.entities.members.RegisteredMember;
 import nl.strohalm.cyclos.mfs.entities.MFSLedgerAccount;
@@ -168,7 +170,7 @@ public class MfsAccountService {
       throw new MFSCommonException(ErrorConstants.ACCOUNT_NOT_FOUND, ERROR_MAP.get(ErrorConstants.ACCOUNT_NOT_FOUND), HttpStatus.NOT_FOUND);
     }
     Account account = null;
-    for (final Account ac : accountServiceLocal.getAccounts(member)) {
+    for (final Account ac : accountServiceLocal.getAccounts(member, Account.Relationships.TYPE)) {
       account = ac;
     }
     if (account == null) {
@@ -248,21 +250,59 @@ public class MfsAccountService {
     if (member == null) {
       throw new MFSCommonException(ErrorConstants.ACCOUNT_NOT_FOUND, ERROR_MAP.get(ErrorConstants.ACCOUNT_NOT_FOUND), HttpStatus.NOT_FOUND);
     }
-
+    Account account = null;
+    for (final Account ac : accountServiceLocal.getAccounts(member, Account.Relationships.TYPE)) {
+      account = ac;
+    }
+    MemberAccount memberAccount = null;
+    if (account instanceof MemberAccount) {
+      memberAccount = (MemberAccount) account;
+    }
     member = (Member) member.clone();
     // Update regular fields
     if (StringUtils.isNotEmpty(updateAccountRequest.getName())) {
         member.setName(updateAccountRequest.getName());
     }
+    // Update new groups
+    Group newGroup = null;
+    if (updateAccountRequest.getAccountCategoryId() != null) {
+      newGroup = cyclosMiddleware.prepareMemberGroupInfoToUpdate(memberAccount, updateAccountRequest);
+    }
     member = cyclosMiddleware.prepareMemberCustomFiledstoUpdate(member, updateAccountRequest);
 //    member.setName(updateAccountRequest.getName());
 //    elementDAO.update(member);
+    elementServiceLocal.changeGroupInMfsContext(member, newGroup, "Test comment");
     elementServiceLocal.changeMemberProfile(member);
     response.setStatus(MfsConstant.STATUS_SUCCESS);
     response.setMessage("Wallet updated successfully");
     return response;
   }
 
+  public Response updateWalletAccountCategory(UpdateAccountRequest updateAccountRequest) throws Exception {
+    Response response = new Response();
+    Member member = cyclosMiddleware.getMember(updateAccountRequest.getWalletNo());
+    if (member == null) {
+      throw new MFSCommonException(ErrorConstants.ACCOUNT_NOT_FOUND, ERROR_MAP.get(ErrorConstants.ACCOUNT_NOT_FOUND), HttpStatus.NOT_FOUND);
+    }
+    Account account = null;
+    for (final Account ac : accountServiceLocal.getAccounts(member, Account.Relationships.TYPE)) {
+      account = ac;
+    }
+    MemberAccount memberAccount = null;
+    if (account instanceof MemberAccount) {
+      memberAccount = (MemberAccount) account;
+    }
+    member = (Member) member.clone();
+    // Update new groups
+    Group newGroup = null;
+    if (updateAccountRequest.getAccountCategoryId() != null) {
+      newGroup = cyclosMiddleware.prepareMemberGroupInfoToUpdate(memberAccount, updateAccountRequest);
+    }
+    elementServiceLocal.changeGroupInMfsContext(member, newGroup, "Test comment");
+    response.setStatus(MfsConstant.STATUS_SUCCESS);
+    response.setMessage("Wallet updated successfully");
+    return response;
+  }
 
   public WalletStatementResp walletStatement(WalletStatementRequest statementRequest) {
     if (statementRequest.getPageSize() == null || statementRequest.getPageSize() <= 0) {

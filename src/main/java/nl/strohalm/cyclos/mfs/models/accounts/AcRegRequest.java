@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class AcRegRequest implements Serializable {
@@ -26,7 +27,9 @@ public class AcRegRequest implements Serializable {
   @Digits(integer = 10, fraction = 0, message = "PIN should be numeric only")
   private String pin;
   private String gender;
-  private AccountType accountType;
+  @NotNull(message = "account type can not be empty")
+  private String accountType;
+  private String accountCategory;
   private AccountStatus accountStatus;
   private String remoteAddress;
   private List<RegistrationFieldValueVO> fields;
@@ -87,12 +90,20 @@ public class AcRegRequest implements Serializable {
     this.gender = gender;
   }
 
-  public AccountType getAccountType() {
+  public String getAccountType() {
     return accountType;
   }
 
-  public void setAccountType(AccountType accountType) {
+  public void setAccountType(String accountType) {
     this.accountType = accountType;
+  }
+
+  public String getAccountCategory() {
+    return accountCategory;
+  }
+
+  public void setAccountCategory(String accountCategory) {
+    this.accountCategory = accountCategory;
   }
 
   public String getRemoteAddress() {
