@@ -35,6 +35,8 @@ public class TxnLimitResponse implements Serializable {
 
 	private String coreTxnType;
 
+	private Long groupId;
+
 	private boolean enable;
 
 	public long getId() {
@@ -139,6 +141,14 @@ public class TxnLimitResponse implements Serializable {
 
 	public void setCoreTxnType(String coreTxnType) {
 		this.coreTxnType = coreTxnType;
+	}
+
+	public Long getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(Long groupId) {
+		this.groupId = groupId;
 	}
 
 	public boolean isEnable() {

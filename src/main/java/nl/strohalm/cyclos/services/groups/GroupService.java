@@ -139,4 +139,9 @@ public interface GroupService extends Service {
      * Returns the member account type group mapping for a given account type and group, with the given relationships initialized
      */
     MfsAccountTypeGroup loadAccoutTypeGroupSetting(long accounTypeId, long groupId, Relationship... fetch);
+
+    /**
+     * Returns the member account type group mapping for a given account type and group, with the given relationships initialized
+     */
+    List<MfsAccountTypeGroup> loadAllAccoutTypeGroupSetting();
 }

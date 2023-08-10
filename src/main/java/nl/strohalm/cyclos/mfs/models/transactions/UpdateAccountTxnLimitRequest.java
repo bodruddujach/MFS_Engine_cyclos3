@@ -9,13 +9,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import com.google.common.base.MoreObjects;
 
-import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig.LimitSubject;
+import nl.strohalm.cyclos.mfs.entities.MfsAccountTxnLimitConfig.LimitSubject;
 import nl.strohalm.cyclos.mfs.models.enums.TransactionType;
 
 //@JsonIgnoreProperties(ignoreUnknown = true)
-public class TxnLimitRequest implements Serializable {
+public class UpdateAccountTxnLimitRequest implements Serializable {
 
 	private static final long serialVersionUID = 5484733901352497958L;
+
+	@NotNull
+	private Long id;
 
 	private String mfsTypeDescription;
 
@@ -33,22 +36,20 @@ public class TxnLimitRequest implements Serializable {
 
 	private LimitSubject applyOn;
 
-	private Long groupId;
+//	@NotNull
+//	private TransactionType txnType;
 
-	@NotNull
-	private TransactionType txnType;
-
-	private String genericLimit;
-
-	public Long getGroupId() {
-		return groupId;
-	}
-
-	public void setGroupId(Long groupId) {
-		this.groupId = groupId;
-	}
+	private String genericAccountLimit;
 
 	private boolean enable;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	public String getMfsTypeDescription() {
 		return mfsTypeDescription;
@@ -122,26 +123,28 @@ public class TxnLimitRequest implements Serializable {
 		this.enable = enable;
 	}
 
-	public TransactionType getTxnType() {
-		return txnType;
+	
+//	public TransactionType getTxnType() {
+//		return txnType;
+//	}
+//
+//	public void setTxnType(TransactionType txnType) {
+//		this.txnType = txnType;
+//	}
+
+	public String getGenericAccountLimit() {
+		return genericAccountLimit;
 	}
 
-	public void setTxnType(TransactionType txnType) {
-		this.txnType = txnType;
-	}
-
-	public String getGenericLimit() {
-		return genericLimit;
-	}
-
-	public void setGenericLimit(String genericLimit) {
-		this.genericLimit = genericLimit;
+	public void setGenericAccountLimit(String genericAccountLimit) {
+		this.genericAccountLimit = genericAccountLimit;
 	}
 
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(this).add("minAmountPerTxn", minAmountPerTxn)
 				.add("maxAmountPerTxn", maxAmountPerTxn).add("maxNumberOfTxnPerDay", maxNumberOfTxnPerDay)
-				.add("txnType", txnType).add("maxNumberOfTxnPerMonth", maxNumberOfTxnPerMonth).toString();
+				/*.add("txnType", txnType)*/.add("maxNumberOfTxnPerMonth", maxNumberOfTxnPerMonth).toString();
 	}
+
 }

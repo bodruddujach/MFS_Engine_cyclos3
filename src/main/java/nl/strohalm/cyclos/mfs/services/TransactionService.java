@@ -135,7 +135,7 @@ public class TransactionService {
       mfsBulkTxnTypes.put(mfsTxnType.getName(), mfsTxnType);
       walletLogin(txnRequest, mfsTxnType);
       DoPaymentDTO doPaymentDTO = cyclosMiddleware.getValidateCyclosDoPaymentDTO(txnRequest, mfsTxnType);
-      doPaymentDTO.setMfsTransactionType(txnRequest.getTxnType().toString());
+      doPaymentDTO.setMfsTransactionType(txnRequest.getTxnType());
       if (StringUtils.isBlank(txnRequest.getRequestId())) {
         throw new MFSCommonException(ErrorConstants.INVALID_TXN_REQUEST, "Transaction request id is not found", HttpStatus.BAD_REQUEST);
       }

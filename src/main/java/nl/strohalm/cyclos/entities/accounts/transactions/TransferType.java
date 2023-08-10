@@ -39,6 +39,7 @@ import nl.strohalm.cyclos.entities.customization.fields.PaymentCustomField;
 import nl.strohalm.cyclos.entities.groups.Group;
 import nl.strohalm.cyclos.entities.members.Member;
 import nl.strohalm.cyclos.entities.members.Reference.Level;
+import nl.strohalm.cyclos.mfs.entities.MfsAccountTxnLimitConfig;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig;
 import nl.strohalm.cyclos.utils.StringValuedEnum;
 import nl.strohalm.cyclos.utils.TimePeriod;
@@ -154,6 +155,7 @@ public class TransferType extends Entity {
     private LoanParameters                       loan;
     private Collection<? extends TransactionFee> transactionFees;
     private Collection<? extends MfsTxnLimitConfig> mfsTransactionLimitConfigs;
+    private Collection<? extends MfsAccountTxnLimitConfig> mfsAccountTransactionLimitConfigs;
     private Collection<? extends TransactionFee> generatedByTransactionFees;
     private Collection<? extends AccountFee>     generatedByAccountFees;
     private Collection<? extends Group>          groups;
@@ -342,7 +344,16 @@ public class TransferType extends Entity {
         return transactionHierarchyVisibility;
     }
 
-    public String getTransferListenerClass() {
+    public Collection<? extends MfsAccountTxnLimitConfig> getMfsAccountTransactionLimitConfigs() {
+        return mfsAccountTransactionLimitConfigs;
+    }
+
+    public void setMfsAccountTransactionLimitConfigs(
+        Collection<? extends MfsAccountTxnLimitConfig> mfsAccountTransactionLimitConfigs) {
+        this.mfsAccountTransactionLimitConfigs = mfsAccountTransactionLimitConfigs;
+    }
+
+	public String getTransferListenerClass() {
         return transferListenerClass;
     }
 

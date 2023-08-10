@@ -61,11 +61,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
+import java.util.stream.Collectors;
 
 import static nl.strohalm.cyclos.mfs.utils.MfsConstant.DEBIT_ALLOWED_STATUS;
 import static nl.strohalm.cyclos.mfs.utils.MfsConstant.TXN_BLOCK_STATUS;
@@ -378,6 +379,19 @@ public class CyclosMiddleware {
     return info;
   }
 
+  public List<AccountTypeDTO> getAccountTypeWiseAccountCategories() {
+    List<AccountTypeDTO> accounttypeCategories = new ArrayList<>();
+    List<MfsAccountTypeGroup> accountTypeGroups= new ArrayList<>();
+    accountTypeGroups = groupServiceLocal.loadAllAccoutTypeGroupSetting();
+    Map<MemberAccountType, List<MemberGroup>> groupsByAccountType = accountTypeGroups.stream().collect(Collectors.groupingBy(MfsAccountTypeGroup::getAccountType, Collectors.mapping(MfsAccountTypeGroup::getGroup, Collectors.toList())));
+    for (Map.Entry<MemberAccountType,List<MemberGroup>> entry : groupsByAccountType.entrySet()) {
+        AccountTypeDTO accountTypeDTO = new AccountTypeDTO(entry.getKey().getId(), entry.getKey().getName());
+        List<AccountCategoryDTO> categories = entry.getValue().stream().map(c -> new AccountCategoryDTO(c.getId(), c.getName())).collect(Collectors.toList());
+        accountTypeDTO.setAccountCategories(categories);
+        accounttypeCategories.add(accountTypeDTO);
+    }
+    return accounttypeCategories;
+  }
 
   private void getAccountBalances(TxnResponse result, Transfer transfer) {
     AccountDateDTO dtoParams = new AccountDateDTO(transfer.getFrom());
@@ -429,7 +443,7 @@ public class CyclosMiddleware {
 
   public Group prepareMemberGroupInfoToUpdate(MemberAccount account, UpdateAccountRequest userRequest) {
       //check whether new group is compatible with account type
-	  MfsAccountTypeGroup accountTypeGroupMapping = groupServiceLocal.loadAccoutTypeGroupSetting(account.getType().getId(), userRequest.getAccountCategoryId(), MfsAccountTypeGroup.Relationships.GROUP);
+      MfsAccountTypeGroup accountTypeGroupMapping = groupServiceLocal.loadAccoutTypeGroupSetting(account.getType().getId(), userRequest.getAccountCategoryId(), MfsAccountTypeGroup.Relationships.GROUP);
       if (accountTypeGroupMapping == null) {
         throw new MFSCommonException(ErrorConstants.INVALID_AC_CATEGORY, ErrorConstants.ERROR_MAP.get(ErrorConstants.INVALID_AC_CATEGORY), HttpStatus.BAD_REQUEST);
       }

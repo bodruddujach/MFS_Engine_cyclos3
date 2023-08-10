@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import nl.strohalm.cyclos.dao.IndexedDAOImpl;
 import nl.strohalm.cyclos.dao.JDBCCallback;
@@ -462,8 +463,8 @@ public class ElementDAOImpl extends IndexedDAOImpl<Element> implements ElementDA
             hql.append(" and exists (select 1 from " + BrokerGroup.class.getName() + " bg where bg = e.group) ");
         }
         if (query.getExcludeElements() != null && !query.getExcludeElements().isEmpty()) {
-            hql.append(" and e not in (:excludeElements) ");
-            namedParameters.put("excludeElements", query.getExcludeElements());
+            hql.append(" and e.id not in (:excludeElements) ");
+            namedParameters.put("excludeElements", query.getExcludeElements().stream().map(Element::getId).collect(Collectors.toList()));
         }
         if (query.isExcludeRemoved()) {
             hql.append(" and e.group.status <> :removedStatus");

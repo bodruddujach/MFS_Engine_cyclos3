@@ -5,7 +5,7 @@
 
 <hibernate-mapping>
 
-    <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig" abstract="true" table="mfs_txn_limit_config">
+    <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.mfs.entities.MfsAccountTxnLimitConfig" abstract="true" table="mfs_account_txn_limit_config">
         <id name="id" type="long">
             <column name="id" sql-type="integer"/>
             <generator class="identity"/>
@@ -22,13 +22,13 @@
         <property name="maxAmountPerMonth" column="max_amount_per_month" type="big_decimal" not-null="false"/>
         <property name="applyOn" column="apply_on" length="3" not-null="true">
             <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">
-                <param name="enumClassName">nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig$LimitSubject</param>
+                <param name="enumClassName">nl.strohalm.cyclos.mfs.entities.MfsAccountTxnLimitConfig$LimitSubject</param>
             </type>
         </property>
         <many-to-one name="transferType" class="nl.strohalm.cyclos.entities.accounts.transactions.TransferType">
             <column name="transfer_type_id" not-null="true" sql-type="integer"/>
         </many-to-one>
-        <many-to-one name="genericLimit" class="nl.strohalm.cyclos.mfs.entities.MfsGenericLimitConfig">
+        <many-to-one name="accountGenericLimit" class="nl.strohalm.cyclos.mfs.entities.MfsAccountGenericLimitConfig">
             <column name="generic_limit_id" not-null="false" sql-type="integer"/>
         </many-to-one>
         <property name="enable" column="enabled" type="boolean" not-null="true"/>
@@ -40,8 +40,8 @@
             <column name="last_modified_by" sql-type="integer" not-null="false"/>
         </many-to-one>
         <property name="lastModifiedDate" column="last_modified_date" type="calendar" not-null="true" />
-        <many-to-one name="group" class="nl.strohalm.cyclos.entities.groups.MemberGroup">
-            <column name="group_id" not-null="false" sql-type="integer"/>
+        <many-to-one name="account" class="nl.strohalm.cyclos.entities.accounts.MemberAccount">
+            <column name="account_id" not-null="false" sql-type="integer"/>
         </many-to-one>
     </class>
 

@@ -1,6 +1,7 @@
 package nl.strohalm.cyclos.mfs.dao;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import nl.strohalm.cyclos.dao.BaseDAOImpl;
@@ -33,5 +34,13 @@ public class MfsAccountTypeGroupDaoImpl extends BaseDAOImpl<MfsAccountTypeGroup>
 		} else {
 			return matg;
 		}
+	}
+
+	@Override
+	public List<MfsAccountTypeGroup> loadAll() {
+		final StringBuilder hql = new StringBuilder();
+		hql.append(" select matg");
+		hql.append(" from MfsAccountTypeGroup matg");
+		return list(hql.toString(), null);
 	}
 }

@@ -738,6 +738,41 @@ public class GroupServiceImpl implements GroupServiceLocal {
     }
 
     @Override
+    public MemberGroupAccountSettings updateAccountSettingsByRest(final MemberGroupAccountSettings settings, final boolean updateAccountLimits) {
+
+        final MemberGroup memberGroup = settings.getGroup();
+
+        final MemberAccountType currentDefault = accountTypeService.getDefault(memberGroup);
+        if (currentDefault == null || currentDefault.equals(settings.getAccountType())) {
+            // When there's no current default, or is this one, set as default
+            settings.setDefault(true);
+        } else if (settings.isDefault()) {
+            // When there was a default already and this one is marked as default, unmark the previous one
+            final MemberGroupAccountSettings defaultSettings = memberGroupAccountSettingsDao.load(memberGroup.getId(), currentDefault.getId());
+            defaultSettings.setDefault(false);
+            memberGroupAccountSettingsDao.update(defaultSettings);
+        }
+        final MemberGroupAccountSettings saved = memberGroupAccountSettingsDao.update(settings);
+        MfsAccountTypeGroup mfsAccountTypeSetting = mfsAccountTypeGroupDao.load(settings.getAccountType().getId(), settings.getGroup().getId());
+        mfsAccountTypeSetting.setAccountType(settings.getAccountType());
+        mfsAccountTypeSetting.setGroup(settings.getGroup());
+        mfsAccountTypeSetting.setGroupName(settings.getGroup().getName());
+        mfsAccountTypeSetting.setAccountTypeName(settings.getAccountType().getName());
+        mfsAccountTypeGroupDao.update(mfsAccountTypeSetting);
+
+        if (updateAccountLimits) {
+            BulkUpdateAccountDTO dto = new BulkUpdateAccountDTO();
+            dto.setType(saved.getAccountType());
+            dto.setGroup(settings.getGroup());
+            dto.setCreditLimit(saved.getDefaultCreditLimit());
+            dto.setUpperCreditLimit(saved.getDefaultUpperCreditLimit());
+            accountDao.bulkUpdateCreditLimites(dto);
+            accountLimitLogDao.insertAfterCreditLimitBulkUpdate(saved.getAccountType(), settings.getGroup());
+        }
+        return saved;
+    }
+
+    @Override
     public boolean usesPin(MemberGroup group) {
         group = fetchService.fetch(group, MemberGroup.Relationships.CHANNELS);
         final Collection<Channel> channels = group.getChannels();
@@ -1597,6 +1632,11 @@ public class GroupServiceImpl implements GroupServiceLocal {
         }
         final MfsAccountTypeGroup saved = mfsAccountTypeGroupDao.insert(mfsAccountTypeSetting);
         return saved;
+    }
+
+    @Override
+    public List<MfsAccountTypeGroup> loadAllAccoutTypeGroupSetting() {
+        return mfsAccountTypeGroupDao.loadAll();
     }
     
 }

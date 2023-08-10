@@ -3,21 +3,21 @@ package nl.strohalm.cyclos.mfs.models.transactions;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import javax.validation.constraints.NotNull;
+import nl.strohalm.cyclos.mfs.entities.MfsAccountTxnLimitConfig.LimitSubject;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+public class AccountTxnLimitResponse implements Serializable {
 
-import com.google.common.base.MoreObjects;
+	private static final long serialVersionUID = -8060456222893541999L;
 
-import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig.LimitSubject;
-import nl.strohalm.cyclos.mfs.models.enums.TransactionType;
+	private long id;
 
-//@JsonIgnoreProperties(ignoreUnknown = true)
-public class TxnLimitRequest implements Serializable {
-
-	private static final long serialVersionUID = 5484733901352497958L;
+	private String mfsTypeName;
 
 	private String mfsTypeDescription;
+
+	private String fromAcType;
+
+	private String toAcType;
 
 	private BigDecimal minAmountPerTxn;
 
@@ -33,22 +33,27 @@ public class TxnLimitRequest implements Serializable {
 
 	private LimitSubject applyOn;
 
-	private Long groupId;
+	private String coreTxnType;
 
-	@NotNull
-	private TransactionType txnType;
-
-	private String genericLimit;
-
-	public Long getGroupId() {
-		return groupId;
-	}
-
-	public void setGroupId(Long groupId) {
-		this.groupId = groupId;
-	}
+	private String walletNo;
 
 	private boolean enable;
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public String getMfsTypeName() {
+		return mfsTypeName;
+	}
+
+	public void setMfsTypeName(String mfsTypeName) {
+		this.mfsTypeName = mfsTypeName;
+	}
 
 	public String getMfsTypeDescription() {
 		return mfsTypeDescription;
@@ -56,6 +61,22 @@ public class TxnLimitRequest implements Serializable {
 
 	public void setMfsTypeDescription(String mfsTypeDescription) {
 		this.mfsTypeDescription = mfsTypeDescription;
+	}
+
+	public String getFromAcType() {
+		return fromAcType;
+	}
+
+	public void setFromAcType(String fromAcType) {
+		this.fromAcType = fromAcType;
+	}
+
+	public String getToAcType() {
+		return toAcType;
+	}
+
+	public void setToAcType(String toAcType) {
+		this.toAcType = toAcType;
 	}
 
 	public BigDecimal getMinAmountPerTxn() {
@@ -114,6 +135,22 @@ public class TxnLimitRequest implements Serializable {
 		this.applyOn = applyOn;
 	}
 
+	public String getCoreTxnType() {
+		return coreTxnType;
+	}
+
+	public void setCoreTxnType(String coreTxnType) {
+		this.coreTxnType = coreTxnType;
+	}
+
+	public String getWalletNo() {
+		return walletNo;
+	}
+
+	public void setWalletNo(String walletNo) {
+		this.walletNo = walletNo;
+	}
+
 	public boolean isEnable() {
 		return enable;
 	}
@@ -122,26 +159,4 @@ public class TxnLimitRequest implements Serializable {
 		this.enable = enable;
 	}
 
-	public TransactionType getTxnType() {
-		return txnType;
-	}
-
-	public void setTxnType(TransactionType txnType) {
-		this.txnType = txnType;
-	}
-
-	public String getGenericLimit() {
-		return genericLimit;
-	}
-
-	public void setGenericLimit(String genericLimit) {
-		this.genericLimit = genericLimit;
-	}
-
-	@Override
-	public String toString() {
-		return MoreObjects.toStringHelper(this).add("minAmountPerTxn", minAmountPerTxn)
-				.add("maxAmountPerTxn", maxAmountPerTxn).add("maxNumberOfTxnPerDay", maxNumberOfTxnPerDay)
-				.add("txnType", txnType).add("maxNumberOfTxnPerMonth", maxNumberOfTxnPerMonth).toString();
-	}
 }

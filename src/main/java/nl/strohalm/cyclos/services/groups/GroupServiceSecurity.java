@@ -244,4 +244,10 @@ public class GroupServiceSecurity extends BaseServiceSecurity implements GroupSe
         checkManageAccountSettings();
         return loadAccoutTypeGroupSetting(accounTypeId, groupId, fetch);
     }
+
+	@Override
+	public List<MfsAccountTypeGroup> loadAllAccoutTypeGroupSetting() {
+        checkManageAccountSettings();
+		return loadAllAccoutTypeGroupSetting();
+	}
 }

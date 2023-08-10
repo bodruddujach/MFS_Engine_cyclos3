@@ -147,7 +147,13 @@
 			</key>
 			<one-to-many class="nl.strohalm.cyclos.mfs.entities.MfsAccountTypeGroup"/>
     	</bag>
-    	
+		<bag name="groupTxnLimitConfigs" inverse="true" cascade="all-delete-orphan" fetch="select" >
+			<cache usage="read-write" />
+			<key>
+				<column name="group_id" sql-type="integer"/>
+			</key>
+			<one-to-many class="nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig"/>
+		</bag>	
         <bag name="canViewProfileOfGroups" table="group_view_profile_permissions">
 			<cache usage="read-write" />
 			<key>

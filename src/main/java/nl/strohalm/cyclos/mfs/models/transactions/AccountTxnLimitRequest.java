@@ -5,15 +5,13 @@ import java.math.BigDecimal;
 
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import com.google.common.base.MoreObjects;
 
-import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig.LimitSubject;
-import nl.strohalm.cyclos.mfs.models.enums.TransactionType;
+import nl.strohalm.cyclos.mfs.entities.MfsAccountTxnLimitConfig.LimitSubject;
 
 //@JsonIgnoreProperties(ignoreUnknown = true)
-public class TxnLimitRequest implements Serializable {
+public class AccountTxnLimitRequest implements Serializable {
 
 	private static final long serialVersionUID = 5484733901352497958L;
 
@@ -33,19 +31,19 @@ public class TxnLimitRequest implements Serializable {
 
 	private LimitSubject applyOn;
 
-	private Long groupId;
+	private String walletNo;
 
 	@NotNull
-	private TransactionType txnType;
+	private String txnType;
 
-	private String genericLimit;
+	private String genericAccountLimit;
 
-	public Long getGroupId() {
-		return groupId;
+	public String getWalletNo() {
+		return walletNo;
 	}
 
-	public void setGroupId(Long groupId) {
-		this.groupId = groupId;
+	public void setWalletNo(String walletNo) {
+		this.walletNo = walletNo;
 	}
 
 	private boolean enable;
@@ -122,20 +120,20 @@ public class TxnLimitRequest implements Serializable {
 		this.enable = enable;
 	}
 
-	public TransactionType getTxnType() {
+	public String getTxnType() {
 		return txnType;
 	}
 
-	public void setTxnType(TransactionType txnType) {
+	public void setTxnType(String txnType) {
 		this.txnType = txnType;
 	}
 
-	public String getGenericLimit() {
-		return genericLimit;
+	public String getGenericAccountLimit() {
+		return genericAccountLimit;
 	}
 
-	public void setGenericLimit(String genericLimit) {
-		this.genericLimit = genericLimit;
+	public void setGenericAccountLimit(String genericAccountLimit) {
+		this.genericAccountLimit = genericAccountLimit;
 	}
 
 	@Override

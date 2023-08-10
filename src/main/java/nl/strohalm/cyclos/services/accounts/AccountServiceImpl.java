@@ -79,6 +79,7 @@ import nl.strohalm.cyclos.entities.members.MemberTransactionSummaryVO;
 import nl.strohalm.cyclos.entities.members.MembersTransactionsReportParameters;
 import nl.strohalm.cyclos.entities.settings.LocalSettings.MemberResultDisplay;
 import nl.strohalm.cyclos.mfs.models.accounts.GetMfsTransactionsDTO;
+import nl.strohalm.cyclos.services.access.exceptions.NotConnectedException;
 import nl.strohalm.cyclos.services.accountfees.AccountFeeServiceLocal;
 import nl.strohalm.cyclos.services.accounts.CreditLimitDTO.Entry;
 import nl.strohalm.cyclos.services.accounts.rates.RateServiceLocal;
@@ -750,11 +751,17 @@ public class AccountServiceImpl implements AccountServiceLocal {
                 if (limitHasChanged) {
                     // Update the account
                     account = accountDao.update(account);
-
+                    Administrator adminforMfs;
+                    try {
+                        adminforMfs = (Administrator) LoggedUser.element();
+                    } catch (NotConnectedException e) {
+                        adminforMfs = LoggedUser.defaultElementForMfs();
+                    }
                     // Generate the log
                     AccountLimitLog log = new AccountLimitLog();
                     log.setAccount(account);
-                    log.setBy((Administrator) LoggedUser.element());
+//                    log.setBy((Administrator) LoggedUser.element());
+                    log.setBy((Administrator) LoggedUser.defaultElementForMfs());
                     log.setDate(Calendar.getInstance());
                     log.setCreditLimit(limit);
                     log.setUpperCreditLimit(upperLimit);

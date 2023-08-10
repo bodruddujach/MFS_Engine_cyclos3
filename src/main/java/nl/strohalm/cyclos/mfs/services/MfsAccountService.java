@@ -7,6 +7,7 @@ import nl.strohalm.cyclos.entities.accounts.Account;
 import nl.strohalm.cyclos.entities.accounts.AccountStatus;
 import nl.strohalm.cyclos.entities.accounts.AccountType;
 import nl.strohalm.cyclos.entities.accounts.MemberAccount;
+import nl.strohalm.cyclos.entities.accounts.MemberAccountType;
 import nl.strohalm.cyclos.entities.accounts.SystemAccount;
 import nl.strohalm.cyclos.entities.accounts.transactions.Transfer;
 import nl.strohalm.cyclos.entities.exceptions.EntityNotFoundException;
@@ -19,6 +20,7 @@ import nl.strohalm.cyclos.mfs.exceptions.ErrorConstants;
 import nl.strohalm.cyclos.mfs.exceptions.MFSCommonException;
 import nl.strohalm.cyclos.mfs.middleware.CyclosMiddleware;
 import nl.strohalm.cyclos.mfs.models.accounts.AcRegRequest;
+import nl.strohalm.cyclos.mfs.models.accounts.AccountTypeDTO;
 import nl.strohalm.cyclos.mfs.models.accounts.BalanceResponse;
 import nl.strohalm.cyclos.mfs.models.accounts.ChangePinRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.CheckPinRequest;
@@ -33,6 +35,7 @@ import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementDetail;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementResp;
 import nl.strohalm.cyclos.mfs.models.enums.TransactionType;
+import nl.strohalm.cyclos.mfs.models.transactions.AccountCreditLimitDTO;
 import nl.strohalm.cyclos.mfs.models.transactions.AccountLimitData;
 import nl.strohalm.cyclos.mfs.models.transactions.Response;
 import nl.strohalm.cyclos.mfs.utils.MfsConstant;
@@ -43,6 +46,7 @@ import nl.strohalm.cyclos.services.access.exceptions.InvalidCredentialsException
 import nl.strohalm.cyclos.services.accounts.AccountDTO;
 import nl.strohalm.cyclos.services.accounts.AccountDateDTO;
 import nl.strohalm.cyclos.services.accounts.AccountServiceLocal;
+import nl.strohalm.cyclos.services.accounts.CreditLimitDTO;
 import nl.strohalm.cyclos.services.accounts.MemberAccountHandler;
 import nl.strohalm.cyclos.services.elements.ElementServiceLocal;
 import nl.strohalm.cyclos.services.transactions.PaymentServiceLocal;
@@ -61,7 +65,9 @@ import org.springframework.transaction.TransactionStatus;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static nl.strohalm.cyclos.mfs.exceptions.ErrorConstants.*;
 
@@ -496,6 +502,40 @@ public class MfsAccountService {
 	    balanceResult.setAvailableBalance(balanceResult.getBalance());
 	    return balanceResult;
 	  }
+
+  public MemberAccount getWalletAccount(final String walletNo) {
+    final Member member = cyclosMiddleware.getMember(walletNo);
+    if (member == null) {
+      throw new MFSCommonException(ErrorConstants.ACCOUNT_NOT_FOUND, ERROR_MAP.get(ErrorConstants.ACCOUNT_NOT_FOUND), HttpStatus.NOT_FOUND);
+    }
+    MemberAccount account = null;
+    for (final Account ac : accountServiceLocal.getAccounts(member, Account.Relationships.TYPE)) {
+      account = (MemberAccount) ac;
+    }
+    if (account == null) {
+      throw new MFSCommonException(ErrorConstants.ACCOUNT_NOT_FOUND, ERROR_MAP.get(ErrorConstants.ACCOUNT_NOT_FOUND), HttpStatus.NOT_FOUND);
+    }
+    return account;
+  }
+
+  public MemberAccount setAccountLimit(MemberAccount account, AccountCreditLimitDTO accountCreditLimit) {
+      Member owner = account.getMember();
+      AccountType accountType = account.getType();
+      CreditLimitDTO limits = new CreditLimitDTO();
+      Map<AccountType, BigDecimal> limitPerType = new HashMap<>();
+      Map<AccountType, BigDecimal> upperLimitPerType = new HashMap<>();
+      limitPerType.put(accountType, accountCreditLimit.getLowerCreditLimit());
+      upperLimitPerType.put(accountType, accountCreditLimit.getUpperCreditLimit());
+      limits.setLimitPerType(limitPerType);
+      limits.setUpperLimitPerType(upperLimitPerType);
+      accountServiceLocal.setCreditLimit(owner, limits);
+      return account;
+  }
+  public List<AccountTypeDTO> getAccoutCategoriesgroupByAccounttype() {
+    final List<AccountTypeDTO> categories = cyclosMiddleware.getAccountTypeWiseAccountCategories();
+    return categories;
+  }
+
   private void isValidPin(String pin) {
     if (StringUtils.isEmpty(pin) || pin.length() < 4) {
       throw new MFSCommonException(ErrorConstants.INVALID_PIN, ERROR_MAP.get(ErrorConstants.INVALID_PIN), HttpStatus.BAD_REQUEST);

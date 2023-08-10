@@ -20,6 +20,8 @@
 				<value>/nl/strohalm/cyclos/mfs/entities/TxnLimitConfig.hbm.xml</value>
 				<value>/nl/strohalm/cyclos/mfs/entities/MfsGenericLimitConfig.hbm.xml</value>
 				<value>/nl/strohalm/cyclos/mfs/entities/MfsTxnLimitConfig.hbm.xml</value>
+				<value>/nl/strohalm/cyclos/mfs/entities/MfsAccountGenericLimitConfig.hbm.xml</value>
+				<value>/nl/strohalm/cyclos/mfs/entities/MfsAccountTxnLimitConfig.hbm.xml</value>
 				<value>/nl/strohalm/cyclos/mfs/entities/MFSMerchant.hbm.xml</value>
 				<value>/nl/strohalm/cyclos/mfs/entities/MFSLedgerAccount.hbm.xml</value>
 				<value>/nl/strohalm/cyclos/mfs/entities/MfsAccountTypeGroup.hbm.xml</value>

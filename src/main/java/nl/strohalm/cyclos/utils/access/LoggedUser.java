@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import nl.strohalm.cyclos.entities.access.AdminUser;
 import nl.strohalm.cyclos.entities.access.User;
 import nl.strohalm.cyclos.entities.accounts.AccountOwner;
 import nl.strohalm.cyclos.entities.accounts.pos.Pos;
@@ -31,6 +32,7 @@ import nl.strohalm.cyclos.entities.groups.BrokerGroup;
 import nl.strohalm.cyclos.entities.groups.Group;
 import nl.strohalm.cyclos.entities.groups.MemberGroup;
 import nl.strohalm.cyclos.entities.groups.OperatorGroup;
+import nl.strohalm.cyclos.entities.members.Administrator;
 import nl.strohalm.cyclos.entities.members.Element;
 import nl.strohalm.cyclos.entities.members.Member;
 import nl.strohalm.cyclos.entities.members.Operator;
@@ -88,6 +90,20 @@ public class LoggedUser {
         }
         return (E) element;
     }
+
+    /**
+     * Returns the logged element
+     */
+    @SuppressWarnings("unchecked")
+    public static <E extends Element> E defaultElementForMfs() {
+        final Element element = new Administrator();
+        element.setId(1L);
+        User user = new AdminUser();
+        user.setId(1L);
+        element.setUser(user);
+        return (E) element;
+    }
+
 
     /**
      * Returns the access type for the current execution

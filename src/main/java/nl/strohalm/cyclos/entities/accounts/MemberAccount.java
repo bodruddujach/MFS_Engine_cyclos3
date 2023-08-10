@@ -21,10 +21,14 @@ package nl.strohalm.cyclos.entities.accounts;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
+import java.util.Collection;
 
 import nl.strohalm.cyclos.entities.Relationship;
 import nl.strohalm.cyclos.entities.accounts.AccountType.Nature;
 import nl.strohalm.cyclos.entities.members.Member;
+import nl.strohalm.cyclos.mfs.entities.MfsAccountTxnLimitConfig;
+import nl.strohalm.cyclos.mfs.entities.MfsAccountTypeGroup;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig;
 import nl.strohalm.cyclos.utils.FormatObject;
 import nl.strohalm.cyclos.utils.StringValuedEnum;
 
@@ -49,7 +53,7 @@ public class MemberAccount extends Account {
     }
 
     public static enum Relationships implements Relationship {
-        MEMBER("member");
+        MEMBER("member"), ACCOUNT_LIMIT_CONFIGS("accountTxnLimitConfigs");
         private final String name;
 
         private Relationships(final String name) {
@@ -87,6 +91,7 @@ public class MemberAccount extends Account {
     private Status            status           = Status.ACTIVE;
     private Action            action;
     private Calendar          lastLowUnitsSent;
+    private Collection<MfsAccountTxnLimitConfig> accountTxnLimitConfigs;
 
     public MemberAccount() {
     }
@@ -147,7 +152,39 @@ public class MemberAccount extends Account {
         this.status = status;
     }
 
-    @Override
+    
+    public Collection<MfsAccountTxnLimitConfig> getAccountTxnLimitConfigs() {
+        return accountTxnLimitConfigs;
+    }
+
+    public void setAccountTxnLimitConfigs(Collection<MfsAccountTxnLimitConfig> accountTxnLimitConfigs) {
+        this.accountTxnLimitConfigs = accountTxnLimitConfigs;
+    }
+
+    public void addAccountTxnLimitConfig(MfsAccountTxnLimitConfig child){
+        if(child!=null){
+          this.accountTxnLimitConfigs.add(child);
+          child.setAccount(this);   
+        }
+   }
+
+   public void removeAccountTxnLimitConfig(MfsAccountTxnLimitConfig child){
+        if(child!=null){
+          this.accountTxnLimitConfigs.remove(child);
+          child.setAccount(null);   
+        }
+   }
+
+   public void updateAccountTxnLimitConfigs(Collection<MfsAccountTxnLimitConfig> children) {
+       for (MfsAccountTxnLimitConfig c: accountTxnLimitConfigs) {
+           if(!children.contains(c)) {
+               this.removeAccountTxnLimitConfig(c);
+           }
+       }
+       children.forEach(this::addAccountTxnLimitConfig);
+   }
+   
+	@Override
     public String toString() {
         return getId() + ", type: " + FormatObject.formatObject(getType()) + ", member: " + FormatObject.formatObject(getMember());
     }

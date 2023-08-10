@@ -21,6 +21,7 @@ package nl.strohalm.cyclos.services.groups;
 
 import java.util.List;
 
+import nl.strohalm.cyclos.entities.accounts.MemberGroupAccountSettings;
 import nl.strohalm.cyclos.entities.groups.MemberGroup;
 import nl.strohalm.cyclos.entities.groups.OperatorGroup;
 
@@ -43,5 +44,8 @@ public interface GroupServiceLocal extends GroupService {
      * Returns all operator groups for all members in the given group
      */
     List<OperatorGroup> iterateOperatorGroups(MemberGroup memberGroup);
+
+	MemberGroupAccountSettings updateAccountSettingsByRest(MemberGroupAccountSettings settings,
+			boolean updateAccountLimits);
 
 }

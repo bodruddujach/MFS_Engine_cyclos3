@@ -10,12 +10,13 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import nl.strohalm.cyclos.entities.Entity;
 import nl.strohalm.cyclos.entities.Relationship;
 import nl.strohalm.cyclos.entities.access.User;
+import nl.strohalm.cyclos.entities.accounts.MemberAccount;
 import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
 import nl.strohalm.cyclos.entities.groups.MemberGroup;
 import nl.strohalm.cyclos.utils.StringValuedEnum;
 
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-public class MfsTxnLimitConfig extends Entity {
+public class MfsAccountTxnLimitConfig extends Entity {
 
 	public static enum LimitSubject implements StringValuedEnum {
 		FROM("src"), TO("dst");
@@ -33,7 +34,7 @@ public class MfsTxnLimitConfig extends Entity {
 	}
 
 	public static enum Relationships implements Relationship {
-		TransferType("transferType"), MFS_GENERIC_LIMIT("genericLimit"), GROUP("group");
+		TransferType("transferType"), MFS_ACCOUNT_GENERIC_LIMIT("accountGenericLimit"), ACCOUNT("account");
 
 		private final String name;
 
@@ -69,11 +70,11 @@ public class MfsTxnLimitConfig extends Entity {
 
 	private LimitSubject applyOn;
 
-	private MemberGroup group;
+	private MemberAccount account;
 
 	private TransferType transferType;
 
-	private MfsGenericLimitConfig genericLimit;
+	private MfsAccountGenericLimitConfig accountGenericLimit;
 
 	private boolean enable;
 
@@ -173,12 +174,12 @@ public class MfsTxnLimitConfig extends Entity {
 		this.applyOn = applyOn;
 	}
 
-	public MemberGroup getGroup() {
-		return group;
+	public MemberAccount getAccount() {
+		return account;
 	}
 
-	public void setGroup(MemberGroup group) {
-		this.group = group;
+	public void setAccount(MemberAccount account) {
+		this.account = account;
 	}
 
 	@JsonIgnore
@@ -191,12 +192,12 @@ public class MfsTxnLimitConfig extends Entity {
 	}
 
 //	@JsonIgnore
-	public MfsGenericLimitConfig getGenericLimit() {
-		return genericLimit;
+	public MfsAccountGenericLimitConfig getAccountGenericLimit() {
+		return accountGenericLimit;
 	}
 
-	public void setGenericLimit(MfsGenericLimitConfig genericLimit) {
-		this.genericLimit = genericLimit;
+	public void setAccountGenericLimit(MfsAccountGenericLimitConfig accountGenericLimit) {
+		this.accountGenericLimit = accountGenericLimit;
 	}
 
 	public boolean isEnable() {
