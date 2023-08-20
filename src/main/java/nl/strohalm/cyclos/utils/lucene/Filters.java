@@ -274,7 +274,7 @@ public class Filters extends Filter implements Cloneable {
             return;
         }
         boolean used = false;
-        final List<Term> terms = Collections.emptyList();
+        List<Term> terms = new ArrayList<>();
         for (final Object object : values) {
             final String term = CoercionHelper.coerce(String.class, object);
             if (StringUtils.isNotEmpty(term)) {
@@ -284,6 +284,9 @@ public class Filters extends Filter implements Cloneable {
         }
         if (used) {
             add(terms.isEmpty() ? new TermsFilter() : new TermsFilter(terms));
+        }
+        if (CollectionUtils.isEmpty(values)) {
+            return;
         }
     }
 

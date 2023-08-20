@@ -1426,9 +1426,8 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
         accountGroups.put(from.getId(), toMember.getGroup());
     }
 //ACCOUNT RELATED
-    
-    final Collection<? extends MfsAccountTxnLimitConfig> mfsAccountTxnLimitConfigs = mfsAccountTxnLimitConfigDao.getMfsAccountTxnLimitConfigsByStatusAndTransferTypeAndAccountsIn(true, transferType, accounts);
-    if (CollectionUtils.isNotEmpty(mfsAccountTxnLimitConfigs)) {
+    if (CollectionUtils.isNotEmpty(accounts)) {
+        final Collection<? extends MfsAccountTxnLimitConfig> mfsAccountTxnLimitConfigs = mfsAccountTxnLimitConfigDao.getMfsAccountTxnLimitConfigsByStatusAndTransferTypeAndAccountsIn(true, transferType, accounts);
         Set<MfsAccountTxnLimitConfig> coveredAccountLimitConfigs = new HashSet<>();
         for(MfsAccountTxnLimitConfig config: mfsAccountTxnLimitConfigs) {
             if (config.isEnable() && !coveredAccountLimitConfigs.contains(config)) {
@@ -1498,9 +1497,9 @@ public class PaymentServiceImpl implements PaymentServiceLocal {
     }
   //ACCOUNT RELATED
 //    final Collection<? extends MfsTxnLimitConfig> mfstxnLimitConfigs = transferType.getMfsTransactionLimitConfigs();
-    final Collection<? extends MfsTxnLimitConfig> mfstxnLimitConfigs = mfsTxnLimitConfigDao.getMfsTxnLimitConfigsByStatusAndTransferTypeAndGroupsIn(true, transferType, groups);
     
-    if (mfstxnLimitConfigs != null && !mfstxnLimitConfigs.isEmpty()) {
+    if (CollectionUtils.isNotEmpty(groups)) {
+      final Collection<? extends MfsTxnLimitConfig> mfstxnLimitConfigs = mfsTxnLimitConfigDao.getMfsTxnLimitConfigsByStatusAndTransferTypeAndGroupsIn(true, transferType, groups);
       Set<MfsTxnLimitConfig> coveredLimitConfigs = new HashSet<>();
       for(MfsTxnLimitConfig config: mfstxnLimitConfigs) {
         if (config.isEnable() && !coveredLimitConfigs.contains(config)) {

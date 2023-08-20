@@ -535,6 +535,9 @@ public class MfsAccountService {
     final List<AccountTypeDTO> categories = cyclosMiddleware.getAccountTypeWiseAccountCategories();
     return categories;
   }
+  public void closeAccountBalances() {
+    accountServiceLocal.closeBalances(Calendar.getInstance());
+  }
 
   private void isValidPin(String pin) {
     if (StringUtils.isEmpty(pin) || pin.length() < 4) {

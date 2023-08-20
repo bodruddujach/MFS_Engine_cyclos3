@@ -420,6 +420,7 @@ public class TxnLimitService {
               wl.setEnable(groupConfig.isEnable());
               wl.setApplyOn(groupConfig.getApplyOn().name());
               wl.setGroupName(groupConfig.getGroup().getName());
+              wl.setAccountId(account.getId());
               walletLimits.add(wl);
           }
         }
@@ -438,6 +439,7 @@ public class TxnLimitService {
                 wl.setEnable(accountConfig.isEnable());
                 wl.setApplyOn(accountConfig.getApplyOn().name());
                 walletLimits.add(wl);
+                wl.setAccountId(account.getId());
             }
         }
         response.setLimits(walletLimits);

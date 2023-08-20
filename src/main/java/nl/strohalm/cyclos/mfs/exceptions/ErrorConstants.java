@@ -39,7 +39,7 @@ public class ErrorConstants {
   public static final String MIN_AMOUNT_PER_TXN_NOT_MET = "4026";
   public static final String MAX_AMOUNT_PER_TXN_EXCEEDED = "4027";
   public static final String MAX_NUMBER_OF_TXN_PER_DAY_EXCEEDED = "4028";
-  public static final String MAX_AMOUNT_PER_DAY_EXCEEDED = "4020";
+  public static final String MAX_AMOUNT_PER_DAY_EXCEEDED = "4029";
   public static final String MAX_NUMBER_OF_TXN_PER_MONTH_EXCEEDED = "4030";
   public static final String MAX_AMOUNT_PER_MONTH_EXCEEDED = "4031";
   public static final String TXN_LIMIT_CONFIGURATION_EXISTS = "4032";

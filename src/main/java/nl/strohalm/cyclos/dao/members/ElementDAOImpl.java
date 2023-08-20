@@ -796,6 +796,6 @@ public class ElementDAOImpl extends IndexedDAOImpl<Element> implements ElementDA
         final Map<String, Float> boosts = new HashMap<String, Float>();
         boosts.put("name", 2.0F);
         boosts.put("username", 1.5F);
-        return new MultiFieldQueryParser(LuceneUtils.LUCENE_VERSION, FIELDS_FULL_TEXT, analyzer, boosts);
+        return new MultiFieldQueryParser(FIELDS_FULL_TEXT, analyzer, boosts);
     }
 }
