@@ -8,10 +8,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>nl.strohalm.cyclos</groupId>
-    <artifactId>mfs-core</artifactId>
+    <artifactId>dfs-core</artifactId>
     <version>3.7.3</version>
 
-    <name>mfs-core</name>
+    <name>dfs-core</name>
 
     <packaging>war</packaging>
     <properties>
@@ -401,7 +401,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>mfs-core</finalName>
+        <finalName>dfs-core</finalName>
         <resources>
             <resource>
                 <directory>src/main/java</directory>
