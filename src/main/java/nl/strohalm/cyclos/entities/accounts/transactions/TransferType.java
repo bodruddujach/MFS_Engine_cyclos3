@@ -100,7 +100,7 @@ public class TransferType extends Entity {
     }
 
     public static enum Relationships implements Relationship {
-        FROM("from"), GROUPS("groups"), GROUPS_AS_MEMBER("groupsAsMember"), TO("to"), TRANSACTION_FEES("transactionFees"), GENERATED_BY_TRANSACTION_FEES("generatedByTransactionFees"), GENERATED_BY_ACCOUNT_FEES("generatedByAccountFees"), PAYMENT_FILTERS("paymentFilters"), AUTHORIZATION_LEVELS("authorizationLevels"), CUSTOM_FIELDS("customFields"), LINKED_CUSTOM_FIELDS("linkedCustomFields"), CHANNELS("channels"), MFS_TRANSACTION_LIMIT_CONFIGS("mfsTransactionLimitConfigs");
+        FROM("from"), GROUPS("groups"), GROUPS_AS_MEMBER("groupsAsMember"), TO("to"), TRANSACTION_FEES("transactionFees"), GENERATED_BY_TRANSACTION_FEES("generatedByTransactionFees"), GENERATED_BY_ACCOUNT_FEES("generatedByAccountFees"), PAYMENT_FILTERS("paymentFilters"), AUTHORIZATION_LEVELS("authorizationLevels"), CUSTOM_FIELDS("customFields"), LINKED_CUSTOM_FIELDS("linkedCustomFields"), CHANNELS("channels"), MFS_TRANSACTION_LIMIT_CONFIGS("mfsTransactionLimitConfigs"), GROUPS_RESTRICTED_TO("groupsRestrictedTo");
         private final String name;
 
         private Relationships(final String name) {
@@ -160,6 +160,7 @@ public class TransferType extends Entity {
     private Collection<? extends AccountFee>     generatedByAccountFees;
     private Collection<? extends Group>          groups;
     private Collection<? extends Group>          groupsAsMember;
+    private Collection<? extends Group>          groupsRestrictedTo;
     private Collection<PaymentFilter>            paymentFilters;
     private boolean                              requiresAuthorization;
     private Collection<AuthorizationLevel>       authorizationLevels;
@@ -288,7 +289,15 @@ public class TransferType extends Entity {
         return groupsAsMember;
     }
 
-    public Collection<PaymentCustomField> getLinkedCustomFields() {
+    public Collection<? extends Group> getGroupsRestrictedTo() {
+        return groupsRestrictedTo;
+    }
+
+    public void setGroupsRestrictedTo(Collection<? extends Group> groupsRestrictedTo) {
+        this.groupsRestrictedTo = groupsRestrictedTo;
+    }
+
+	public Collection<PaymentCustomField> getLinkedCustomFields() {
         return linkedCustomFields;
     }
 

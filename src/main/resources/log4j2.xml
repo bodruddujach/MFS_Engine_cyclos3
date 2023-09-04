@@ -30,12 +30,15 @@
 	</Appenders>
 
 	<Loggers>
-		<Logger name="com.mchange.v2.resourcepool.BasicResourcePool" level="debug" additivity="false">
-			<AppenderRef ref="Console" />
-		</Logger>
-		<Logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog" level="fatal" additivity="false">
-			<AppenderRef ref="Console" />
-		</Logger>
+<!-- 		<Logger name="com.mchange.v2.resourcepool.BasicResourcePool" level="debug" additivity="false"> -->
+<!-- 			<AppenderRef ref="Console" /> -->
+<!-- 		</Logger> -->
+<!-- 		<Logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog" level="fatal" additivity="false"> -->
+<!-- 			<AppenderRef ref="Console" /> -->
+<!-- 		</Logger> -->
+<!-- 		<Logger name="org.springframework.security" level="trace" additivity="false"> -->
+<!-- 			<AppenderRef ref="Console" /> -->
+<!-- 		</Logger> -->
 		<!-- ROOT LOGGER -->
 		<Root level="INFO">
 			<AppenderRef ref="Console" />

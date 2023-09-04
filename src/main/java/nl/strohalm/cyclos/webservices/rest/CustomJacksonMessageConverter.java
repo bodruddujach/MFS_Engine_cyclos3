@@ -21,6 +21,7 @@ package nl.strohalm.cyclos.webservices.rest;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.TimeZone;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -58,10 +59,12 @@ public class CustomJacksonMessageConverter extends MappingJackson2HttpMessageCon
     public CustomJacksonMessageConverter() {
         ObjectMapper objectMapper = new CustomObjectMapper()
                 .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+                .disable(SerializationFeature.FAIL_ON_SELF_REFERENCES)
                 .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .disable(SerializationFeature.WRITE_NULL_MAP_VALUES);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        objectMapper.setTimeZone(TimeZone.getDefault());
         setObjectMapper(objectMapper);
     }
 

@@ -101,6 +101,22 @@
 						</td>
 					</tr>
 				</c:if>
+				<c:if test="${(isInsert || !transferType.toSystem)}">
+					<tr class="toAllGroup" style="display:none">
+						<td class="label"><bean:message key='transferType.restrictedToGroup.toAllGroups'/></td>
+						<td><html:checkbox styleId="toAllCheck" disabled="true" property="transferType(toAllGroups)" value="true" /></td>
+					</tr>
+					<tr id="trToGroups" style="display:none">
+						<td class="label" valign="top"><bean:message key='transferType.restrictedToGroup.toGroups'/></td>
+						<td>
+							<cyclos:multiDropDown varName="toGroupsSelect" name="transferType(toGroups)" disabled="true" size="5">
+								<c:forEach var="group" items="${possibleToGroups}">
+									<cyclos:option value="${group.id}" text="${group.name}" selected="${cyclos:contains(transferType.toGroups, group)}"/>
+								</c:forEach>
+							</cyclos:multiDropDown>
+						</td>
+					</tr>
+				</c:if>
 				<tr id="trEnabled" style="display:none">
 					<td class="label"><bean:message key="transferType.enabled"/></td>
 					<td><html:checkbox property="transferType(enabled)" disabled="true" styleClass="checkbox InputBoxDisabled" value="true"/></td>

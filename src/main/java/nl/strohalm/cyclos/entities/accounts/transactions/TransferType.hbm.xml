@@ -117,6 +117,16 @@
 			</many-to-many>
 		</bag>
 
+		<bag name="groupsRestrictedTo" table="to_groups_transfer_types" inverse="true">
+			<cache usage="read-write"/>
+			<key>
+				<column name="transfer_type_id" sql-type="integer"/>
+			</key>
+			<many-to-many class="nl.strohalm.cyclos.entities.groups.Group">
+				<column name="group_id" sql-type="integer"/>	
+			</many-to-many>
+		</bag>
+
 		<bag name="transactionFees" inverse="true" cascade="delete" order-by="name">
 			<cache usage="read-write"/>
             <key>
