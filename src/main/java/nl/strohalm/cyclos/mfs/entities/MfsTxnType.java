@@ -2,15 +2,22 @@ package nl.strohalm.cyclos.mfs.entities;
 
 import nl.strohalm.cyclos.entities.Entity;
 import nl.strohalm.cyclos.entities.Relationship;
+import nl.strohalm.cyclos.entities.accounts.AccountType;
 import nl.strohalm.cyclos.utils.StringValuedEnum;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
+
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 public class MfsTxnType extends Entity {
 
   public static enum Relationships implements Relationship {
-        PARENT_TYPE("parentType");
+        PARENT_TYPE("parentType"), CHILD_TYPES("childTypes"), FROM("from"), TO("to");
         private final String name;
 
         private Relationships(final String name) {
@@ -51,7 +58,29 @@ public class MfsTxnType extends Entity {
     }
   }
 
+    public static enum AccountTypeNature implements StringValuedEnum {
+        MEMBER("M"), SYSTEM("S");
+
+        private final String value;
+
+        private AccountTypeNature(final String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+    }
+
+  @NotNull(message="core Ttxn type Id should not be empty")
   private Long coreTxnTypeId;
+  private Long fromTypeId;
+  private String fromTypeName;
+  private AccountTypeNature fromTypeNature;
+  private Long toTypeId;
+  private String toTypeName;
+  private AccountTypeNature toTypeNature;
   private Integer txnCode;
   private String name; // BANK_CASH_IN, CASH_OUT_TO_AGENT
   private String description;
@@ -65,6 +94,7 @@ public class MfsTxnType extends Entity {
   private boolean byAcPinEnabled;
   private TypeCategory typeCategory;
   private MfsTxnType parentType;
+  private Collection<MfsTxnType> childTypes;
 
   public Long getCoreTxnTypeId() {
     return coreTxnTypeId;
@@ -72,6 +102,54 @@ public class MfsTxnType extends Entity {
 
   public void setCoreTxnTypeId(Long coreTxnTypeId) {
     this.coreTxnTypeId = coreTxnTypeId;
+  }
+
+  public Long getFromTypeId() {
+    return fromTypeId;
+  }
+
+  public void setFromTypeId(Long fromTypeId) {
+    this.fromTypeId = fromTypeId;
+  }
+
+  public Long getToTypeId() {
+    return toTypeId;
+  }
+
+  public void setToTypeId(Long toTypeId) {
+    this.toTypeId = toTypeId;
+  }
+
+  public String getFromTypeName() {
+    return fromTypeName;
+  }
+
+  public void setFromTypeName(String fromTypeName) {
+    this.fromTypeName = fromTypeName;
+  }
+
+  public AccountTypeNature getFromTypeNature() {
+    return fromTypeNature;
+  }
+
+  public void setFromTypeNature(AccountTypeNature fromTypeNature) {
+    this.fromTypeNature = fromTypeNature;
+  }
+
+  public String getToTypeName() {
+    return toTypeName;
+  }
+
+  public void setToTypeName(String toTypeName) {
+    this.toTypeName = toTypeName;
+  }
+
+  public AccountTypeNature getToTypeNature() {
+    return toTypeNature;
+  }
+
+  public void setToTypeNature(AccountTypeNature toTypeNature) {
+    this.toTypeNature = toTypeNature;
   }
 
   public Integer getTxnCode() {
@@ -173,6 +251,7 @@ public class MfsTxnType extends Entity {
     this.typeCategory = typeCategory;
   }
 
+  @JsonBackReference
   public MfsTxnType getParentType() {
     return parentType;
   }
@@ -181,7 +260,16 @@ public class MfsTxnType extends Entity {
     this.parentType = parentType;
   }
 
-  @Override
+  @JsonManagedReference
+  public Collection<MfsTxnType> getChildTypes() {
+    return childTypes;
+  }
+
+  public void setChildTypes(Collection<MfsTxnType> childTypes) {
+    this.childTypes = childTypes;
+  }
+
+@Override
   public String toString() {
     return name;
   }
