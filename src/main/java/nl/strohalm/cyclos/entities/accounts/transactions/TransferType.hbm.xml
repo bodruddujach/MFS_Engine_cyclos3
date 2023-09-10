@@ -61,6 +61,7 @@
                 <param name="enumClassName">nl.strohalm.cyclos.entities.accounts.transactions.TransferType$TransactionHierarchyVisibility</param>
             </type>
 		</property>
+		<property name="restrictedToAllGroups" column="restricted_to_all_groups" type="boolean" not-null="true"/>
         <component name="loan" class="nl.strohalm.cyclos.entities.accounts.loans.LoanParameters">
             <property name="type" column="loan_type" length="1">
                 <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">

@@ -160,6 +160,7 @@ public class TransferType extends Entity {
     private Collection<? extends AccountFee>     generatedByAccountFees;
     private Collection<? extends Group>          groups;
     private Collection<? extends Group>          groupsAsMember;
+    private boolean                              restrictedToAllGroups = true;
     private Collection<? extends Group>          groupsRestrictedTo;
     private Collection<PaymentFilter>            paymentFilters;
     private boolean                              requiresAuthorization;
@@ -295,6 +296,15 @@ public class TransferType extends Entity {
 
     public void setGroupsRestrictedTo(Collection<? extends Group> groupsRestrictedTo) {
         this.groupsRestrictedTo = groupsRestrictedTo;
+    }
+
+    
+    public boolean isRestrictedToAllGroups() {
+        return restrictedToAllGroups;
+    }
+
+    public void setRestrictedToAllGroups(boolean restrictedToAllGroups) {
+        this.restrictedToAllGroups = restrictedToAllGroups;
     }
 
 	public Collection<PaymentCustomField> getLinkedCustomFields() {

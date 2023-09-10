@@ -230,6 +230,11 @@ public class TransferTypeDAOImpl extends BaseDAOImpl<TransferType> implements Tr
             namedParameters.put("group", query.getGroup());
         }
 
+        // toGroup Permission
+        if (!CollectionUtils.isEmpty(query.getToGroups())) {
+            hql.append(" and (tt.restrictedToAllGroups = true or :toGroup in (select tg from tt.groupsRestrictedTo tg))");
+            namedParameters.put("toGroup", query.getToGroups().stream().findFirst().get());
+        }
         // Flags
         if (query.isPriority()) {
             hql.append(" and tt.priority = true ");
