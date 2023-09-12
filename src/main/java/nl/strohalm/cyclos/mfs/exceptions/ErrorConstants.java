@@ -39,14 +39,15 @@ public class ErrorConstants {
   public static final String MIN_AMOUNT_PER_TXN_NOT_MET = "4026";
   public static final String MAX_AMOUNT_PER_TXN_EXCEEDED = "4027";
   public static final String MAX_NUMBER_OF_TXN_PER_DAY_EXCEEDED = "4028";
-  public static final String MAX_AMOUNT_PER_DAY_EXCEEDED = "4020";
+  public static final String MAX_AMOUNT_PER_DAY_EXCEEDED = "4029";
   public static final String MAX_NUMBER_OF_TXN_PER_MONTH_EXCEEDED = "4030";
   public static final String MAX_AMOUNT_PER_MONTH_EXCEEDED = "4031";
   public static final String TXN_LIMIT_CONFIGURATION_EXISTS = "4032";
   public static final String INVALID_GENERIC_LIMIT_CONFIGURATION = "4033";
   public static final String BY_AC_NOT_FOUND = "4033";
-
-
+  public static final String INVALID_FEE_OR_COMMISSION = "4034";
+  public static final String INVALID_TXN_REQUEST = "4035";
+  public static final String INVALID_AC_CATEGORY = "4036";
 
   public static final String INTERNAL_ERROR= "5001";
 
@@ -57,7 +58,7 @@ public class ErrorConstants {
     ERROR_MAP.put(INVALID_ACCOUNT, "Invalid Account");
     ERROR_MAP.put(ACCOUNT_NOT_ACTIVE, "Account is not Active");
     ERROR_MAP.put(ACCOUNT_NOT_FOUND, "Account Not Found");
-    ERROR_MAP.put(INVALID_AC_TYPE, "Invalid AC Type");
+    ERROR_MAP.put(INVALID_AC_TYPE, "Invalid Account Type");
     ERROR_MAP.put(INVALID_INPUT, "Invitation Input Data");
     ERROR_MAP.put(INVALID_AMOUNT, "Debit And Credit Amount is not equal");
     ERROR_MAP.put(NOT_ENOUGH_BALANCE, "NOT_ENOUGH_BALANCE");
@@ -88,6 +89,9 @@ public class ErrorConstants {
     ERROR_MAP.put(MAX_NUMBER_OF_TXN_PER_MONTH_EXCEEDED, "Monthly max number of transaction reached");
     ERROR_MAP.put(MAX_AMOUNT_PER_MONTH_EXCEEDED, "Monthly max amount limit reached");
     ERROR_MAP.put(TXN_LIMIT_CONFIGURATION_EXISTS, "Transaction Limit Configuration Already Exists ");
+    ERROR_MAP.put(INVALID_FEE_OR_COMMISSION, "Requested fee or commission is not appropriate");
+    ERROR_MAP.put(INVALID_TXN_REQUEST, "Requested transaction is not appropriate");
+    ERROR_MAP.put(INVALID_AC_CATEGORY, "Requested account category is invalid for account type");
   }
 
 }

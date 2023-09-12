@@ -21,7 +21,7 @@ package nl.strohalm.cyclos.webservices.model;
 
 import nl.strohalm.cyclos.webservices.ads.AbstractAdSearchParameters.AdVOStatus;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Extension of {@link AdVO} with fields only visible to the ad owner

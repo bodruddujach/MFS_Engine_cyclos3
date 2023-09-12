@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC 
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 
@@ -9,7 +9,7 @@
     	<cache usage="read-write"/>
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
 		<property name="name" column="name" type="string" not-null="true" length="100" />
         <property name="symbol" column="symbol" type="string" not-null="true" length="20" />

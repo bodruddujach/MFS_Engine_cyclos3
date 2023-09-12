@@ -39,7 +39,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ILock;
+import com.hazelcast.cp.lock.FencedLock;
 
 /**
  * A lock handler factory which uses Hazelcast for distributed locks
@@ -91,7 +91,7 @@ public class HazelcastLockHandlerFactory extends BaseLockHandlerFactory implemen
      */
     private class HazelcastLockHandler implements LockHandler {
 
-        private final Map<LockKey, ILock> acquiredLocks = new HashMap<LockKey, ILock>();
+        private final Map<LockKey, FencedLock> acquiredLocks = new HashMap<LockKey, FencedLock>();
 
         @Override
         public void lock(final Account... accounts) throws LockingException {
@@ -114,7 +114,7 @@ public class HazelcastLockHandlerFactory extends BaseLockHandlerFactory implemen
 
         @Override
         public void release() {
-            for (ILock lock : acquiredLocks.values()) {
+            for (FencedLock lock : acquiredLocks.values()) {
                 HazelcastHelper.release(lock);
             }
         }
@@ -124,16 +124,12 @@ public class HazelcastLockHandlerFactory extends BaseLockHandlerFactory implemen
                 // Already own the lock
                 return;
             }
-            ILock lock = hazelcastInstance.getLock(key);
-            try {
-                if (lock.tryLock(timeoutSeconds, TimeUnit.SECONDS)) {
-                    acquiredLocks.put(key, lock);
-                } else {
-                    throw new LockingException();
-                }
-            } catch (InterruptedException e) {
-                throw new LockingException(e);
-            }
+            FencedLock lock = hazelcastInstance.getCPSubsystem().getLock(key.toString());
+            if (lock.tryLock(timeoutSeconds, TimeUnit.SECONDS)) {
+			    acquiredLocks.put(key, lock);
+			} else {
+			    throw new LockingException();
+			}
 
         }
 

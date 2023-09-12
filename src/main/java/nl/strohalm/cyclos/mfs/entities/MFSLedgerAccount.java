@@ -1,16 +1,33 @@
 package nl.strohalm.cyclos.mfs.entities;
 
 import nl.strohalm.cyclos.entities.Entity;
+import nl.strohalm.cyclos.entities.Relationship;
 
 import java.util.Calendar;
+import java.util.Collection;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class MFSLedgerAccount extends Entity {
 
+  public enum Relationships implements Relationship {
+      PARENT_LEDGER("parentLedger");
+      private final String name;
+
+      private Relationships(final String name) {
+        this.name = name;
+      }
+
+      @Override
+      public String getName() {
+          return name;
+      }
+  }
   public enum LedgerType {MEMBER, SYSTEM}
 
   Long accountId;
 
-  Long parentId;
+  MFSLedgerAccount parentLedger;
 
   String code;
 
@@ -22,7 +39,11 @@ public class MFSLedgerAccount extends Entity {
 
   String category;
 
+  String nature;
+
   boolean onlyParent;
+
+  boolean lastLevel;
 
   boolean active;
 
@@ -31,6 +52,9 @@ public class MFSLedgerAccount extends Entity {
   boolean showInReports;
 
   Calendar createDate;
+
+  @JsonIgnore
+  private Collection<MFSLedgerAccount> childLedgers;
 
   public String getCode() {
     return code;
@@ -56,6 +80,14 @@ public class MFSLedgerAccount extends Entity {
     this.category = category;
   }
 
+  public String getNature() {
+    return nature;
+  }
+
+  public void setNature(String nature) {
+    this.nature = nature;
+  }
+
   public Long getAccountId() {
     return accountId;
   }
@@ -64,12 +96,18 @@ public class MFSLedgerAccount extends Entity {
     this.accountId = accountId;
   }
 
-  public Long getParentId() {
-    return parentId;
+  public MFSLedgerAccount getParentLedger() {
+    return parentLedger;
   }
 
-  public void setParentId(Long parentId) {
-    this.parentId = parentId;
+  public void setParentLedger(MFSLedgerAccount parentLedger) {
+    this.parentLedger = parentLedger;
+  }
+
+  public void changeParentLedger(MFSLedgerAccount newParentLedger) {
+    this.getParentLedger().getChildLedgers().remove(this);
+    this.setParentLedger(newParentLedger);
+    newParentLedger.getChildLedgers().add(this);
   }
 
   public boolean isOnlyParent() {
@@ -80,7 +118,14 @@ public class MFSLedgerAccount extends Entity {
     this.onlyParent = onlyParent;
   }
 
-  
+  public boolean isLastLevel() {
+    return lastLevel;
+  }
+
+  public void setLastLevel(boolean lastlevel) {
+    this.lastLevel = lastlevel;
+  }
+
   public String getName() {
     return name;
   }
@@ -128,12 +173,19 @@ public class MFSLedgerAccount extends Entity {
   public void setShowInReports(boolean showInReports) {
     this.showInReports = showInReports;
   }
+  
+  public Collection<MFSLedgerAccount> getChildLedgers() {
+    return childLedgers;
+  }
+
+  public void setChildLedgers(Collection<MFSLedgerAccount> childLedgers) {
+    this.childLedgers = childLedgers;
+  }
 
 @Override
   public String toString() {
     return "MFSLedgerAccount{" +
       "accountId=" + accountId +
-      ", parentId=" + parentId +
       ", code='" + code + '\'' +
       ", level='" + level + '\'' +
       ", category='" + category + '\'' +

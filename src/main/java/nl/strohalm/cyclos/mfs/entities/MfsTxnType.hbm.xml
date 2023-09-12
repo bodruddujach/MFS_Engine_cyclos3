@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.mfs.entities.MfsTxnType" table="mfs_txn_type">
@@ -10,6 +10,20 @@
             <generator class="identity"/>
         </id>
         <property name="coreTxnTypeId" column="core_txn_type_id" type="long" not-null="true"/>
+        <property name="fromTypeId" column="from_account_type_id" type="long" not-null="true"/>
+        <property name="fromTypeName" column="from_account_type_name" length="100" type="string"/>
+        <property name="fromTypeNature" column="from_account_type_subclass" length="1">
+            <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">
+                <param name="enumClassName">nl.strohalm.cyclos.mfs.entities.MfsTxnType$AccountTypeNature</param>
+            </type>
+        </property>
+        <property name="toTypeId" column="to_account_type_id" type="long" not-null="true"/>
+        <property name="toTypeName" column="to_account_type_name" length="100" type="string"/>
+        <property name="toTypeNature" column="to_account_type_subclass" length="1">
+            <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">
+                <param name="enumClassName">nl.strohalm.cyclos.mfs.entities.MfsTxnType$AccountTypeNature</param>
+            </type>
+        </property>
         <property name="txnCode" column="txn_code" type="integer" />
         <property name="name" column="name" type="string" not-null="true"/>
         <property name="description" column="description" type="string" not-null="true"/>
@@ -19,6 +33,26 @@
             <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">
                 <param name="enumClassName">nl.strohalm.cyclos.mfs.entities.MfsTxnType$TxnTypeTag</param>
             </type>
-   		</property>
+        </property>
+        <property name="includeFeeInResponse" column="fee_in_response" type="boolean" not-null="true"/>
+        <property name="includeFromAcBalanceInResponse" column="from_ac_balance_in_response" type="boolean" not-null="true"/>
+        <property name="includeToAcBalanceInResponse" column="to_ac_balance_in_response" type="boolean" not-null="true"/>
+        <property name="fromAcPinEnabled" column="from_ac_pin_enabled" type="boolean" not-null="true"/>
+        <property name="byAcPinEnabled" column="by_ac_pin_enabled" type="boolean" not-null="true"/>
+        <property name="typeCategory" column="type_category" length="100" not-null="true">
+            <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">
+                <param name="enumClassName">nl.strohalm.cyclos.mfs.entities.MfsTxnType$TypeCategory</param>
+            </type>
+        </property>
+        <many-to-one name="parentType" update="false" class="nl.strohalm.cyclos.mfs.entities.MfsTxnType">
+            <column name="parent_type_id" sql-type="integer"/>
+        </many-to-one>
+        <bag name="childTypes" inverse="true" cascade="delete" order-by="name">
+            <cache usage="read-write"/>
+            <key>
+                <column name="parent_type_id" sql-type="integer"/>
+            </key>
+	        <one-to-many class="nl.strohalm.cyclos.mfs.entities.MfsTxnType"/>
+	    </bag>
     </class>
 </hibernate-mapping>

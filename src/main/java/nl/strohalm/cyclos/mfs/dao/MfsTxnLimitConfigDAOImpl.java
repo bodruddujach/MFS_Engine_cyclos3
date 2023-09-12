@@ -3,11 +3,15 @@ package nl.strohalm.cyclos.mfs.dao;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import nl.strohalm.cyclos.dao.BaseDAOImpl;
 import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
+import nl.strohalm.cyclos.entities.groups.Group;
+import nl.strohalm.cyclos.entities.groups.MemberGroup;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig.LimitSubject;
 import nl.strohalm.cyclos.utils.hibernate.HibernateHelper;
@@ -57,7 +61,42 @@ public class MfsTxnLimitConfigDAOImpl extends BaseDAOImpl<MfsTxnLimitConfig> imp
         hql.append(" and mtlc.enable = :enabled");
         hql.append(" and (mtlc.fromAcType = :accountType or mtlc.toAcType = :accountType)");
         return list(hql.toString(), namedParameters);
+    }
+
+    @Override
+    public List<MfsTxnLimitConfig> loadMfsTxnLimitConfigByTransferTypeAndGroupAndApplyOn(TransferType transferType, Group group, LimitSubject applyOn) {
+        final Map<String, Object> namedParameters = new HashMap<String, Object>();
+        final StringBuilder hql = HibernateHelper.getInitialQuery(getEntityType(), "mtlc");
+        HibernateHelper.addParameterToQuery(hql, namedParameters, "transferType", transferType);
+        HibernateHelper.addParameterToQuery(hql, namedParameters, "group", group);
+        HibernateHelper.addParameterToQuery(hql, namedParameters, "applyOn", applyOn);
+        return list(hql.toString(), namedParameters);
+	}
+	@Override
+    public List<MfsTxnLimitConfig> getMfsTxnLimitConfigsByStatusAndTransferTypeAndGroupsIn(boolean enabled, TransferType transferType, Set<Group> groups) {
+        if (CollectionUtils.isEmpty(groups)) {
+            throw new IllegalArgumentException("groups must be provided");
+        }
+        final Map<String, Object> namedParameters = new HashMap<>();
+        namedParameters.put("enabled", enabled);
+        namedParameters.put("transferType", transferType);
+        namedParameters.put("groups", groups);
+
+        final StringBuilder hql = new StringBuilder();
+        hql.append(" from MfsTxnLimitConfig mtlc ");
+        hql.append(" where 1=1 ");
+        hql.append(" and mtlc.enable = :enabled");
+        hql.append(" and mtlc.transferType = :transferType");
+        hql.append(" and (mtlc.group IN (:groups))");
+        return list(hql.toString(), namedParameters);
 	}
 
+	@Override
+	public List<MfsTxnLimitConfig> loadMfsTxnLimitConfigByGroup(Group group) {
+        final Map<String, Object> namedParameters = new HashMap<String, Object>();
+        final StringBuilder hql = HibernateHelper.getInitialQuery(getEntityType(), "mtlc");
+        HibernateHelper.addParameterToQuery(hql, namedParameters, "group", group);
+        return list(hql.toString(), namedParameters);
+	}
 
 }

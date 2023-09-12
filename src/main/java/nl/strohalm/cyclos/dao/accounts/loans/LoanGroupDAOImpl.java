@@ -55,10 +55,10 @@ public class LoanGroupDAOImpl extends BaseDAOImpl<LoanGroup> implements LoanGrou
         HibernateHelper.addLikeParameterToQuery(hql, namedParameters, "lg.name", query.getName());
         if (query.getMember() != null) {
             if (query.isNotOfMember()) {
-                hql.append(" and :notMember not in elements(lg.members) ");
+                hql.append(" and :notMember not in (select m from lg.members m) ");
             } else {
-                hql.append(" and (:member in elements(lg.members) or exists ( ");
-                hql.append("     select 1 from Member m where m.broker = :member and m in elements(lg.members) ");
+                hql.append(" and (:member in (select m from lg.members m) or exists ( ");
+                hql.append("     select 1 from Member m where m.broker = :member and m in (select m from lg.members m) ");
                 hql.append("))");
             }
             namedParameters.put("member", query.getMember());

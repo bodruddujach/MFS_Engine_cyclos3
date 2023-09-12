@@ -54,7 +54,7 @@ public class WrongUsernameAttemptsDAOImpl extends BaseDAOImpl<WrongUsernameAttem
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("limit", limit);
         params.put("remoteAddress", remoteAddress);
-        return this.<Integer> uniqueResult("select count(*) from WrongUsernameAttempt a where a.date >= :limit and a.remoteAddress = :remoteAddress", params);
+        return this.<Long> uniqueResult("select count(*) from WrongUsernameAttempt a where a.date >= :limit and a.remoteAddress = :remoteAddress", params).intValue();
     }
 
     @Override

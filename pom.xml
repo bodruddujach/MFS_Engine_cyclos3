@@ -15,13 +15,16 @@
 
     <packaging>war</packaging>
     <properties>
-        <spring.version>3.2.4.RELEASE</spring.version>
-        <spring.security>3.1.0.RELEASE</spring.security>
+        <spring.version>5.3.27</spring.version>
+        <spring.security>5.8.5</spring.security>
         <struts.version>1.3.10</struts.version>
-        <cxf.version>2.6.1</cxf.version>
-        <lucene.version>3.6.1</lucene.version>
-        <aspectj.version>1.6.8</aspectj.version>
-        <hibernate.version>3.6.10.Final</hibernate.version>
+        <cxf.version>3.2.14</cxf.version>
+        <lucene.version>4.10.4</lucene.version>
+        <aspectj.version>1.8.9</aspectj.version>
+        <hibernate.version>5.6.15.Final</hibernate.version>
+        <jackson.version>2.14.3</jackson.version>
+        <log4j.version>2.17.1</log4j.version>
+        <mysql.jdbc.version>21.1.0.0</mysql.jdbc.version>
     </properties>
 
     <dependencies>
@@ -75,8 +78,13 @@
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-ehcache</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>4.3.2.Final</version>
+            <version>6.0.21.Final</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -87,13 +95,17 @@
                     <groupId>org.hibernate</groupId>
                     <artifactId>jtidy</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>asm</groupId>
+                    <artifactId>asm</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.hibernate.javax.persistence</groupId>
-            <artifactId>hibernate-jpa-2.0-api</artifactId>
-            <version>1.0.0.Final</version>
-        </dependency>
+<!--         <dependency> -->
+<!--             <groupId>org.hibernate.javax.persistence</groupId> -->
+<!--             <artifactId>hibernate-jpa-2.0-api</artifactId> -->
+<!--             <version>1.0.0.Final</version> -->
+<!--         </dependency> -->
         <dependency>
             <groupId>org.apache.struts</groupId>
             <artifactId>struts-core</artifactId>
@@ -129,17 +141,6 @@
             <artifactId>standard</artifactId>
             <version>1.1.2</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-core</artifactId>
-            <version>${cxf.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.sun.xml.bind</groupId>
-                    <artifactId>jaxb-impl</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -163,23 +164,6 @@
             <version>${cxf.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-management</artifactId>
-            <version>${cxf.version}</version>
-        </dependency>
-
-        <!--<dependency>-->
-        <!--<groupId>org.apache.cxf</groupId>-->
-        <!--<artifactId>cxf-common-utilities</artifactId>-->
-        <!--<version>2.4.0</version>-->
-        <!--<exclusions>-->
-        <!--<exclusion>-->
-        <!--<groupId>org.springframework</groupId>-->
-        <!--<artifactId>spring-context</artifactId>-->
-        <!--</exclusion>-->
-        <!--</exclusions>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>jfree</groupId>
             <artifactId>jfreechart</artifactId>
@@ -211,9 +195,16 @@
             <artifactId>lucene-core</artifactId>
             <version>${lucene.version}</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-queryparser -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers</artifactId>
+            <artifactId>lucene-queryparser</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-common</artifactId>
             <version>${lucene.version}</version>
         </dependency>
         <dependency>
@@ -228,12 +219,6 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>sslext</groupId>
             <artifactId>sslext</artifactId>
             <version>1.2-0</version>
@@ -245,9 +230,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>javassist</groupId>
+            <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
-            <version>3.11.0.GA</version>
+            <version>3.18.1-GA</version>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
@@ -279,12 +264,11 @@
                     <groupId>crimson</groupId>
                     <artifactId>crimson</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-core</artifactId>
-            <version>2.3.1</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -301,12 +285,16 @@
             <artifactId>jtidy</artifactId>
             <version>r938</version>
         </dependency>
+<!--         <dependency> -->
+<!--             <groupId>mysql</groupId> -->
+<!--             <artifactId>mysql-connector-java</artifactId> -->
+<!--             <version>8.0.33</version> -->
+<!--         </dependency> -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.49</version>
         </dependency>
-
         <dependency>
             <groupId>com.google.code</groupId>
             <artifactId>kaptcha</artifactId>
@@ -348,16 +336,26 @@
             <version>4.8.1</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.6.2</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${log4j.version}</version>
+            <exclusions>
+                <exclusion>
+                   <groupId>org.slf4j</groupId>
+                   <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>log4j</groupId>-->
-        <!--<artifactId>log4j</artifactId>-->
-        <!--<version>1.2.16</version>-->
-        <!--</dependency>-->
-
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
         <!-- New dependency for 3.7.3-->
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -367,21 +365,21 @@
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-asl</artifactId>
-            <version>1.9.4</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.4</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-            <version>1.4</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
@@ -393,30 +391,9 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>2.5</version>
+            <version>4.2.8</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jsp-2.1</artifactId>
-            <version>6.0.0</version>
-        </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.springframework.data</groupId>-->
-        <!--<artifactId>spring-data-jpa</artifactId>-->
-        <!--<version>2.0.8.RELEASE</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-        <!--<groupId>com.fasterxml.jackson.core</groupId>-->
-        <!--<artifactId>jackson-core</artifactId>-->
-        <!--<version>2.0.0</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>com.fasterxml.jackson.core</groupId>-->
-        <!--<artifactId>jackson-databind</artifactId>-->
-        <!--<version>2.0.0</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -435,31 +412,17 @@
         </resources>
         <plugins>
             <plugin>
-                  <groupId>org.mortbay.jetty</groupId>
-                   <artifactId>maven-jetty-plugin</artifactId>
-                    <version>6.1.26</version>
-                <configuration>
-                    <connectors>
-                        <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
-                            <port>8089</port>
-                        </connector>
-                    </connectors>
-                    <scanIntervalSeconds>5</scanIntervalSeconds>
-                    <contextPath>/mfs-core</contextPath>
-                    <!--<webDefaultXml>src/main/webapp/WEB-INF/jettyweb.xml</webDefaultXml>-->
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.1.1</version>
+                <version>3.3.1</version>
                 <configuration>
                     <webResources>
                         <resource>

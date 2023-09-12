@@ -32,6 +32,7 @@ import nl.strohalm.cyclos.entities.groups.GroupFilter;
 import nl.strohalm.cyclos.entities.groups.GroupQuery;
 import nl.strohalm.cyclos.entities.groups.MemberGroup;
 import nl.strohalm.cyclos.entities.groups.SystemGroup;
+import nl.strohalm.cyclos.mfs.entities.MfsAccountTypeGroup;
 import nl.strohalm.cyclos.services.Service;
 
 /**
@@ -129,4 +130,18 @@ public interface GroupService extends Service {
      */
     void validate(MemberGroupAccountSettings settings);
 
+    /**
+     * Returns the default member group for a given account type, with the given relationships initialized
+     */
+    MemberGroup getDefaultGroup(MemberAccountType at, Relationship... fetch);
+
+    /**
+     * Returns the member account type group mapping for a given account type and group, with the given relationships initialized
+     */
+    MfsAccountTypeGroup loadAccoutTypeGroupSetting(long accounTypeId, long groupId, Relationship... fetch);
+
+    /**
+     * Returns the member account type group mapping for a given account type and group, with the given relationships initialized
+     */
+    List<MfsAccountTypeGroup> loadAllAccoutTypeGroupSetting();
 }

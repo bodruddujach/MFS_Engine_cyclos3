@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC 
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 
@@ -9,7 +9,7 @@
     	<cache usage="read-write"/>
         <id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
 		<many-to-one name="from" class="nl.strohalm.cyclos.entities.accounts.AccountType">
 		    <column name="from_account_type_id" sql-type="integer" not-null="true"/>
@@ -61,6 +61,7 @@
                 <param name="enumClassName">nl.strohalm.cyclos.entities.accounts.transactions.TransferType$TransactionHierarchyVisibility</param>
             </type>
 		</property>
+		<property name="restrictedToAllGroups" column="restricted_to_all_groups" type="boolean" not-null="true"/>
         <component name="loan" class="nl.strohalm.cyclos.entities.accounts.loans.LoanParameters">
             <property name="type" column="loan_type" length="1">
                 <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">
@@ -97,7 +98,7 @@
             </property>
         </component>
         
-		<bag name="groups" table="groups_transfer_types" inverse="true">
+		<bag name="groups" table="groups_transfer_types" inverse="true" fetch="join">
 			<cache usage="read-write"/>
 			<key>
 			    <column name="transfer_type_id" sql-type="integer"/>
@@ -117,6 +118,16 @@
 			</many-to-many>
 		</bag>
 
+		<bag name="groupsRestrictedTo" table="to_groups_transfer_types" inverse="true">
+			<cache usage="read-write"/>
+			<key>
+				<column name="transfer_type_id" sql-type="integer"/>
+			</key>
+			<many-to-many class="nl.strohalm.cyclos.entities.groups.Group">
+				<column name="group_id" sql-type="integer"/>	
+			</many-to-many>
+		</bag>
+
 		<bag name="transactionFees" inverse="true" cascade="delete" order-by="name">
 			<cache usage="read-write"/>
             <key>
@@ -125,13 +136,21 @@
 	        <one-to-many class="nl.strohalm.cyclos.entities.accounts.fees.transaction.TransactionFee"/>
 	    </bag>
 
-		<bag name="mfsTransactionLimitConfigs" inverse="true" cascade="delete">
-			<cache usage="read-write"/>
+       <bag name="mfsAccountTransactionLimitConfigs" inverse="true" cascade="delete">
+            <cache usage="read-write"/>
             <key>
-            	<column name="transfer_type_id" sql-type="integer"/>
+                <column name="transfer_type_id" sql-type="integer"/>
             </key>
-	        <one-to-many class="nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig"/>
-	    </bag>
+            <one-to-many class="nl.strohalm.cyclos.mfs.entities.MfsAccountTxnLimitConfig"/>
+       </bag>
+
+        <bag name="mfsTransactionLimitConfigs" inverse="true" cascade="delete">
+            <cache usage="read-write"/>
+            <key>
+                <column name="transfer_type_id" sql-type="integer"/>
+            </key>
+            <one-to-many class="nl.strohalm.cyclos.mfs.entities.MfsAccountTxnLimitConfig"/>
+        </bag>
 
 		<bag name="generatedByTransactionFees" inverse="true" cascade="delete">
 			<cache usage="read-write"/>

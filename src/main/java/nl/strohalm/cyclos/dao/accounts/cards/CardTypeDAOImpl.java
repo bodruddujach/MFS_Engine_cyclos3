@@ -49,7 +49,7 @@ public class CardTypeDAOImpl extends BaseDAOImpl<CardType> implements CardTypeDA
         hql.append(" left join c.cardType ct");
         hql.append(" where ct.id = :cardTypeId ");
         namedParameters.put("cardTypeId", cardTypeId);
-        final Integer count = (Integer) (uniqueResult(hql.toString(), namedParameters));
+        final Long count = (Long) (uniqueResult(hql.toString(), namedParameters));
         final boolean hasCardType = count == 0 ? false : true;
         return hasCardType;
     }

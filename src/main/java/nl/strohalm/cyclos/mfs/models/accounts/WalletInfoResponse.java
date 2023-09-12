@@ -5,40 +5,63 @@ import nl.strohalm.cyclos.mfs.models.enums.AccountType;
 import nl.strohalm.cyclos.mfs.models.transactions.Response;
 
 public class WalletInfoResponse extends Response {
-  private String walletNo;
-  private String name;
-  private AccountType userType;
-  private AccountStatus accountStatus;
 
-  public String getWalletNo() {
-    return walletNo;
-  }
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1865460926496253449L;
+	private String walletNo;
+	private String name;
+	private String userType;
+	private AccountTypeDTO accountType;
+	private AccountCategoryDTO accountCategory;
+	private AccountStatus accountStatus;
 
-  public void setWalletNo(String walletNo) {
-    this.walletNo = walletNo;
-  }
+	public String getWalletNo() {
+		return walletNo;
+	}
 
-  public String getName() {
-    return name;
-  }
+	public void setWalletNo(String walletNo) {
+		this.walletNo = walletNo;
+	}
 
-  public void setName(String name) {
-    this.name = name;
-  }
+	public String getName() {
+		return name;
+	}
 
-  public AccountType getUserType() {
-    return userType;
-  }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-  public void setUserType(AccountType userType) {
-    this.userType = userType;
-  }
+	public String getUserType() {
+		return userType;
+	}
 
-  public AccountStatus getAccountStatus() {
-    return accountStatus;
-  }
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
 
-  public void setAccountStatus(AccountStatus accountStatus) {
-    this.accountStatus = accountStatus;
-  }
+	public AccountTypeDTO getAccountType() {
+		return accountType;
+	}
+
+	public void setAccountType(AccountTypeDTO accountType) {
+		this.accountType = accountType;
+	}
+
+	public AccountCategoryDTO getAccountCategory() {
+		return accountCategory;
+	}
+
+	public void setAccountCategory(AccountCategoryDTO accountCategory) {
+		this.accountCategory = accountCategory;
+	}
+
+	public AccountStatus getAccountStatus() {
+		return accountStatus;
+	}
+
+	public void setAccountStatus(AccountStatus accountStatus) {
+		this.accountStatus = accountStatus;
+	}
 }

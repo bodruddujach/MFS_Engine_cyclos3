@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.accounts.Account" abstract="true" table="accounts">
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
         <discriminator column="subclass" type="string" length="1"/>
         <property name="creationDate" update="false" column="creation_date" type="calendar" not-null="true"/>

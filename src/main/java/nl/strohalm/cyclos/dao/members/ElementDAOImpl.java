@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import nl.strohalm.cyclos.dao.IndexedDAOImpl;
 import nl.strohalm.cyclos.dao.JDBCCallback;
@@ -76,8 +77,8 @@ import nl.strohalm.cyclos.utils.query.QueryParameters.ResultType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.queryParser.MultiFieldQueryParser;
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
@@ -132,7 +133,7 @@ public class ElementDAOImpl extends IndexedDAOImpl<Element> implements ElementDA
         Sort sort = null;
         if (keywords == null) {
             query = new MatchAllDocsQuery();
-            sort = new Sort(new SortField("creationDate", SortField.STRING, true));
+            sort = new Sort(new SortField("creationDate", SortField.Type.STRING, true));
         } else {
             try {
                 query = keywords == null ? new MatchAllDocsQuery() : getQueryParser(analyzer).parse(keywords);
@@ -425,7 +426,7 @@ public class ElementDAOImpl extends IndexedDAOImpl<Element> implements ElementDA
             final String statement = " delete from members_channels " +
                     " where channel_id in (:channelIds) " +
                     " and member_id in (select id from members where group_id = :groupId) ";
-            final SQLQuery query = getSession().createSQLQuery(statement);
+            final SQLQuery query = currentSession().createSQLQuery(statement);
             getHibernateQueryHandler().setQueryParameters(query, parameters);
             query.executeUpdate();
         }
@@ -462,8 +463,8 @@ public class ElementDAOImpl extends IndexedDAOImpl<Element> implements ElementDA
             hql.append(" and exists (select 1 from " + BrokerGroup.class.getName() + " bg where bg = e.group) ");
         }
         if (query.getExcludeElements() != null && !query.getExcludeElements().isEmpty()) {
-            hql.append(" and e not in (:excludeElements) ");
-            namedParameters.put("excludeElements", query.getExcludeElements());
+            hql.append(" and e.id not in (:excludeElements) ");
+            namedParameters.put("excludeElements", query.getExcludeElements().stream().map(Element::getId).collect(Collectors.toList()));
         }
         if (query.isExcludeRemoved()) {
             hql.append(" and e.group.status <> :removedStatus");
@@ -528,7 +529,7 @@ public class ElementDAOImpl extends IndexedDAOImpl<Element> implements ElementDA
             }
             // Group filters
             if (CollectionUtils.isNotEmpty(memberQuery.getGroupFilters())) {
-                hql.append(" and exists (select gf.id from GroupFilter gf where gf in (:groupFilters) and e.group in elements(gf.groups))");
+                hql.append(" and exists (select gf.id from GroupFilter gf where gf in (:groupFilters) and e.group in (select g from gf.groups g))");
                 namedParameters.put("groupFilters", memberQuery.getGroupFilters());
             }
         } else if (query instanceof OperatorQuery) {
@@ -540,7 +541,7 @@ public class ElementDAOImpl extends IndexedDAOImpl<Element> implements ElementDA
         }
 
         if (query.getViewableGroup() != null) {
-            hql.append(" and :mg in elements(e.group.canViewProfileOfGroups)");
+            hql.append(" and :mg in (select cvpog from e.group.canViewProfileOfGroups cvpog)");
             namedParameters.put("mg", query.getViewableGroup());
         }
         hibernateCustomFieldHandler.appendConditions(hql, namedParameters, query.getCustomValues());
@@ -561,7 +562,7 @@ public class ElementDAOImpl extends IndexedDAOImpl<Element> implements ElementDA
 
     @SuppressWarnings("unchecked")
     public Iterator<Member> searchActiveMembers(final Collection<Group> toSearch) {
-        return getHibernateTemplate().iterate(" from " + Member.class.getName() + " m  where m.group in (?)  and exists (select 1 from " + Account.class.getName() + " a where a.member = m) ", toSearch);
+        return (Iterator<Member>) getHibernateTemplate().iterate(" from " + Member.class.getName() + " m  where m.group in (?)  and exists (select 1 from " + Account.class.getName() + " a where a.member = m) ", toSearch);
     }
 
     @Override
@@ -780,12 +781,12 @@ public class ElementDAOImpl extends IndexedDAOImpl<Element> implements ElementDA
             }
         }
         if (memberSortOrder == SortOrder.CHRONOLOGICAL) {
-            sort = new Sort(new SortField("creationDate", SortField.STRING, true));
+            sort = new Sort(new SortField("creationDate", SortField.Type.STRING, true));
         } else {
             if (elementQuery.getNameDisplay() == MemberResultDisplay.NAME) {
-                sort = new Sort(new SortField("nameForSort", SortField.STRING));
+                sort = new Sort(new SortField("nameForSort", SortField.Type.STRING));
             } else {
-                sort = new Sort(new SortField("usernameForSort", SortField.STRING));
+                sort = new Sort(new SortField("usernameForSort", SortField.Type.STRING));
             }
         }
         return sort;
@@ -795,6 +796,6 @@ public class ElementDAOImpl extends IndexedDAOImpl<Element> implements ElementDA
         final Map<String, Float> boosts = new HashMap<String, Float>();
         boosts.put("name", 2.0F);
         boosts.put("username", 1.5F);
-        return new MultiFieldQueryParser(LuceneUtils.LUCENE_VERSION, FIELDS_FULL_TEXT, analyzer, boosts);
+        return new MultiFieldQueryParser(FIELDS_FULL_TEXT, analyzer, boosts);
     }
 }

@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -60,16 +60,16 @@ public class TxnController extends BaseRestController {
 
   @RequestMapping(value = "/dynamic", method = RequestMethod.POST, headers = "Content-type=application/json")
   @ResponseBody
-  public List<TxnResponse> doDynamicPayment(@Validated @RequestBody final BulkTxnRequest bulkTxnRequest) {
+  public TxnResponse doDynamicPayment(@Validated @RequestBody final BulkTxnRequest bulkTxnRequest) {
     long s = System.currentTimeMillis();
     logger.info("Dynamic Txn Request, Total Payment Req: " + bulkTxnRequest.getTxnRequestList().size());
     for (TxnRequest request: bulkTxnRequest.getTxnRequestList()) {
         request.setTxnTypeTag(TxnTypeTag.MFS_DYNAMIC);
     }
-    List<TxnResponse> resultList = transactionService.processDynamicTxn(bulkTxnRequest);
+    TxnResponse result = transactionService.processDynamicTxn(bulkTxnRequest);
     long e = System.currentTimeMillis();
     logger.info("Dynamic Payment Resp Time: " + (e - s) + " ms");
-    return resultList;
+    return result;
   }
 
   @RequestMapping(value = "/estimate",method = RequestMethod.POST, headers = "Content-type=application/json")

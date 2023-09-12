@@ -54,7 +54,7 @@ import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.collection.PersistentCollection;
+import org.hibernate.collection.spi.PersistentCollection;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.proxy.LazyInitializer;
@@ -62,8 +62,8 @@ import org.hibernate.type.CollectionType;
 import org.hibernate.type.EntityType;
 import org.hibernate.type.MapType;
 import org.hibernate.type.Type;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.HibernateTemplate;
 
 /**
  * Handler for entity queries using Hibernate
@@ -202,7 +202,7 @@ public class HibernateQueryHandler {
             return;
         }
         final ClassMetadata metaData = getClassMetaData(source);
-        final Object[] values = metaData.getPropertyValues(source, EntityMode.POJO);
+        final Object[] values = metaData.getPropertyValues(source);
         // Skip the collections
         final Type[] types = metaData.getPropertyTypes();
         for (int i = 0; i < types.length; i++) {
@@ -211,7 +211,7 @@ public class HibernateQueryHandler {
                 values[i] = null;
             }
         }
-        metaData.setPropertyValues(dest, values, EntityMode.POJO);
+        metaData.setPropertyValues(dest, values);
     }
 
     /**
@@ -276,7 +276,7 @@ public class HibernateQueryHandler {
             // Reassociate the collection with the current session
             return getHibernateTemplate().execute(new HibernateCallback<Object>() {
                 @Override
-                public Object doInHibernate(final Session session) throws HibernateException, SQLException {
+                public Object doInHibernate(final Session session) throws HibernateException {
                     final PersistentCollection persistentCollection = ((PersistentCollection) object);
                     Entity owner = (Entity) persistentCollection.getOwner();
                     final String role = persistentCollection.getRole();
@@ -472,7 +472,8 @@ public class HibernateQueryHandler {
                 final Query query = session.createQuery(transformToCount(hql.toString()));
                 setQueryParameters(query, namedParameters);
                 setCacheRegion(query, cacheRegion);
-                return (Integer) query.uniqueResult();
+                long result = (long) query.uniqueResult();
+                return (Integer) Math.toIntExact(result);
             }
         });
 

@@ -337,7 +337,7 @@ public class TransactionFeeServiceImpl implements TransactionFeeServiceLocal {
                         return null;
                     }
                     if (when == BrokerCommission.When.COUNT) {
-                        final int count = brokeringCommissionStatus.getTotal().getCount();
+                        final long count = brokeringCommissionStatus.getTotal().getCount();
                         // Number of transactions exceeded, don't charge commission anymore
                         if (count >= maxCount) {
                             return null;

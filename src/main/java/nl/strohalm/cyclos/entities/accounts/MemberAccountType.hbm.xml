@@ -1,27 +1,38 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC 
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 
-    <subclass dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.accounts.MemberAccountType" extends="nl.strohalm.cyclos.entities.accounts.AccountType" discriminator-value="M">
+	<subclass dynamic-insert="true" dynamic-update="true"
+		name="nl.strohalm.cyclos.entities.accounts.MemberAccountType"
+		extends="nl.strohalm.cyclos.entities.accounts.AccountType"
+		discriminator-value="M">
 
 		<bag name="accounts" inverse="true" cascade="delete">
-			<key column="type_id"/>
-			<one-to-many class="nl.strohalm.cyclos.entities.accounts.MemberAccount"/>
-    	</bag>    	
-
-		<bag name="settings" inverse="true" cascade="delete">
-			<key column="type_id"/>
-			<one-to-many class="nl.strohalm.cyclos.entities.accounts.MemberGroupAccountSettings"/>
-    	</bag>    	
-        
-        <bag name="accountFees" inverse="true" cascade="delete">
-		    <key column="account_type_id"/>
-			<one-to-many class="nl.strohalm.cyclos.entities.accounts.fees.account.AccountFee"/>
+			<key column="type_id" />
+			<one-to-many
+				class="nl.strohalm.cyclos.entities.accounts.MemberAccount" />
 		</bag>
 
-    </subclass>
-    
+		<bag name="settings" inverse="true" cascade="delete">
+			<key column="type_id" />
+			<one-to-many
+				class="nl.strohalm.cyclos.entities.accounts.MemberGroupAccountSettings" />
+		</bag>
+
+		<bag name="accountFees" inverse="true" cascade="delete">
+			<key column="account_type_id" />
+			<one-to-many
+				class="nl.strohalm.cyclos.entities.accounts.fees.account.AccountFee" />
+		</bag>
+
+		<bag name="mfsAccountTypeSettings" inverse="true" cascade="delete">
+			<key column="account_type_id" />
+			<one-to-many
+				class="nl.strohalm.cyclos.mfs.entities.MfsAccountTypeGroup" />
+		</bag>
+	</subclass>
+
 </hibernate-mapping>

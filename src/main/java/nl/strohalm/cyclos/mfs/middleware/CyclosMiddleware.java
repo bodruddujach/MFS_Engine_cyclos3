@@ -1,13 +1,13 @@
 package nl.strohalm.cyclos.mfs.middleware;
 
-import com.google.common.base.Strings;
 
-import nl.strohalm.cyclos.dao.accounts.transactions.TransferDAO;
 import nl.strohalm.cyclos.entities.access.Channel;
 import nl.strohalm.cyclos.entities.access.MemberUser;
 import nl.strohalm.cyclos.entities.access.PrincipalType;
 import nl.strohalm.cyclos.entities.accounts.Account;
+import nl.strohalm.cyclos.entities.accounts.AccountType;
 import nl.strohalm.cyclos.entities.accounts.MemberAccount;
+import nl.strohalm.cyclos.entities.accounts.MemberAccountType;
 import nl.strohalm.cyclos.entities.accounts.SystemAccountOwner;
 import nl.strohalm.cyclos.entities.accounts.transactions.Payment;
 import nl.strohalm.cyclos.entities.accounts.transactions.Transfer;
@@ -15,20 +15,21 @@ import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
 import nl.strohalm.cyclos.entities.customization.fields.MemberCustomField;
 import nl.strohalm.cyclos.entities.customization.fields.MemberCustomFieldValue;
 import nl.strohalm.cyclos.entities.exceptions.EntityNotFoundException;
+import nl.strohalm.cyclos.entities.groups.Group;
 import nl.strohalm.cyclos.entities.groups.MemberGroup;
 import nl.strohalm.cyclos.entities.members.Element;
 import nl.strohalm.cyclos.entities.members.Member;
+import nl.strohalm.cyclos.mfs.entities.MfsAccountTypeGroup;
 import nl.strohalm.cyclos.mfs.entities.MfsGroupConfig;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnType;
-import nl.strohalm.cyclos.mfs.entities.MfsTxnType.TxnTypeTag;
 import nl.strohalm.cyclos.mfs.exceptions.ErrorConstants;
 import nl.strohalm.cyclos.mfs.exceptions.MFSCommonException;
 import nl.strohalm.cyclos.mfs.models.accounts.AcRegRequest;
+import nl.strohalm.cyclos.mfs.models.accounts.AccountCategoryDTO;
+import nl.strohalm.cyclos.mfs.models.accounts.AccountTypeDTO;
 import nl.strohalm.cyclos.mfs.models.accounts.UpdateAccountRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletInfoResponse;
 import nl.strohalm.cyclos.mfs.models.enums.AccountStatus;
-import nl.strohalm.cyclos.mfs.models.enums.AccountType;
-import nl.strohalm.cyclos.mfs.models.enums.TransactionType;
 import nl.strohalm.cyclos.mfs.models.transactions.BulkTxnRequest;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnRequest;
 import nl.strohalm.cyclos.mfs.models.transactions.TxnResponse;
@@ -36,13 +37,13 @@ import nl.strohalm.cyclos.mfs.services.MfsGroupService;
 import nl.strohalm.cyclos.mfs.services.MfsTxnTypeService;
 import nl.strohalm.cyclos.mfs.utils.AcTypeGroupConstant;
 import nl.strohalm.cyclos.mfs.utils.MfsConstant;
-import nl.strohalm.cyclos.mfs.utils.TxnTypeConstant;
 import nl.strohalm.cyclos.services.access.ChannelServiceLocal;
 import nl.strohalm.cyclos.services.accounts.AccountDateDTO;
 import nl.strohalm.cyclos.services.accounts.AccountServiceLocal;
+import nl.strohalm.cyclos.services.accounts.AccountTypeServiceLocal;
+import nl.strohalm.cyclos.services.accounts.MemberAccountTypeQuery;
 import nl.strohalm.cyclos.services.customization.MemberCustomFieldServiceLocal;
 import nl.strohalm.cyclos.services.elements.ElementServiceLocal;
-import nl.strohalm.cyclos.services.fetch.FetchServiceLocal;
 import nl.strohalm.cyclos.services.groups.GroupServiceLocal;
 import nl.strohalm.cyclos.services.transactions.DoPaymentDTO;
 import nl.strohalm.cyclos.services.transactions.TransactionContext;
@@ -51,26 +52,21 @@ import nl.strohalm.cyclos.utils.CustomFieldHelper;
 import nl.strohalm.cyclos.utils.RelationshipHelper;
 import nl.strohalm.cyclos.webservices.model.RegistrationFieldValueVO;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletResponse;
+import java.util.stream.Collectors;
 
 import static nl.strohalm.cyclos.mfs.utils.MfsConstant.DEBIT_ALLOWED_STATUS;
 import static nl.strohalm.cyclos.mfs.utils.MfsConstant.TXN_BLOCK_STATUS;
@@ -89,7 +85,8 @@ public class CyclosMiddleware {
   ChannelServiceLocal channelServiceLocal;
   @Autowired
   AccountServiceLocal accountServiceLocal;
-
+  @Autowired
+  AccountTypeServiceLocal accountTypeServiceLocal;
   @Autowired
   MfsGroupService mfsGroupService;
   @Autowired
@@ -99,7 +96,7 @@ public class CyclosMiddleware {
   @Autowired
   CustomFieldHelper customFieldHelper;
 
-  public DoPaymentDTO getValidateCyclosDoPaymentDTO(TxnRequest txnRequest) {
+  public DoPaymentDTO getValidateCyclosDoPaymentDTO(TxnRequest txnRequest, MfsTxnType mfsTxnType) {
     DoPaymentDTO doPaymentDTO = new DoPaymentDTO();
     Member fromMember = null;
     Member toMember = null;
@@ -173,7 +170,7 @@ public class CyclosMiddleware {
           //validateStatus((MemberAccount) byAc, true);
         } 
       
-      TransferType transferType = resolveCoreTxnType(txnRequest);
+      TransferType transferType = resolveCoreTxnType(mfsTxnType);
 
       doPaymentDTO.setTransferType(transferType);
       doPaymentDTO.setDescription(getPaymentDescription(txnRequest, transferType, fromMember, toMember));
@@ -208,11 +205,10 @@ public class CyclosMiddleware {
 
   }
 
-  private void validateFromPin(MemberAccount memberAccount, String PIN) {
+  private void validateAccountPin(MemberAccount memberAccount, String PIN) {
     if (PIN == null || PIN.length() < 4) {
-      throw new MFSCommonException(ErrorConstants.INVALID_PIN, ErrorConstants.ERROR_MAP.get(ErrorConstants.INVALID_PIN), HttpStatus.BAD_REQUEST);
+        throw new MFSCommonException(ErrorConstants.INVALID_PIN, ErrorConstants.ERROR_MAP.get(ErrorConstants.INVALID_PIN), HttpStatus.BAD_REQUEST);
     }
-
   }
 
   public String getPaymentDescription(TxnRequest txnRequest, TransferType transferType, Member fromMember, Member toMember) {
@@ -264,8 +260,8 @@ public class CyclosMiddleware {
     result.setFromAccount(transfer.getFrom().getOwnerName());
     result.setToAccount(transfer.getTo().getOwnerName());
     result.setTxnId(transfer.getTransactionNumber());
-    result.setTxnType(request != null ? request.getTxnType().name() : transfer.getMfsTransactionType());
-    result.setTxnTypeName(request != null ? request.getTxnType().getDescription() : transfer.getMfsTransactionType());
+    result.setTxnType(request != null ? request.getTxnType() : transfer.getMfsTransactionType());
+    result.setTxnTypeName(request != null ? request.getTxnType() : transfer.getMfsTransactionType());
     result.setInvoiceNo(transfer.getInvoiceNo());
     result.setCustomerRefId(transfer.getCustomerRefId());
     result.setNote(request != null ? request.getNote() : transfer.getDescription());
@@ -278,7 +274,8 @@ public class CyclosMiddleware {
   public List<DoPaymentDTO> getBulkPaymentDTOList(BulkTxnRequest bulkTxnRequest) {
     List<DoPaymentDTO> doPaymentDTOList = new LinkedList<DoPaymentDTO>();
     for (TxnRequest txnRequest : bulkTxnRequest.getTxnRequestList()) {
-      DoPaymentDTO doPaymentDTO = getValidateCyclosDoPaymentDTO(txnRequest);
+      MfsTxnType mfsTxnType = validateMFSTxnType(txnRequest);
+      DoPaymentDTO doPaymentDTO = getValidateCyclosDoPaymentDTO(txnRequest, mfsTxnType);
       doPaymentDTO.setMfsTransactionType(txnRequest.getTxnType().toString());
       doPaymentDTOList.add(doPaymentDTO);
     }
@@ -290,10 +287,31 @@ public class CyclosMiddleware {
     final MemberUser user = new MemberUser();
     user.setUsername(regRequest.getWalletNo());
     final Member member = new Member();
-    MemberGroup group;
-    AccountType accountType = regRequest.getAccountType();
-    MfsGroupConfig mfsGroupConfig = mfsGroupService.findByName(accountType.name());
-    group = groupServiceLocal.load(mfsGroupConfig.getGroupId());
+    MemberGroup group = null;
+    String accountType = regRequest.getAccountType();
+
+    MemberAccountTypeQuery memberAccountQuery = new MemberAccountTypeQuery();
+    memberAccountQuery.setName(accountType);
+    memberAccountQuery.fetch(MemberAccountType.Relationships.MFS_ACCOUNT_TYPE_SETTINGS, RelationshipHelper.nested(MfsAccountTypeGroup.Relationships.GROUP));
+    List<? extends AccountType> possibleMemberAccountTypes = accountTypeServiceLocal.search(memberAccountQuery);
+    if (CollectionUtils.isEmpty(possibleMemberAccountTypes)) {
+      throw new MFSCommonException(ErrorConstants.INVALID_AC_TYPE, ErrorConstants.ERROR_MAP.get(ErrorConstants.INVALID_AC_TYPE), HttpStatus.BAD_REQUEST);
+    }
+    MemberAccountType memberAccountType = (MemberAccountType) possibleMemberAccountTypes.get(0);
+    if (StringUtils.isEmpty(regRequest.getAccountCategory())) {
+      group = groupServiceLocal.getDefaultGroup(memberAccountType);
+    } else {
+      for (MfsAccountTypeGroup matg: memberAccountType.getMfsAccountTypeSettings()) {
+        if (regRequest.getAccountCategory().equalsIgnoreCase(matg.getGroup().getName())) {
+          group = matg.getGroup();
+          break;
+        }
+      }
+      if (group == null) {
+        throw new MFSCommonException(ErrorConstants.INVALID_AC_CATEGORY, ErrorConstants.ERROR_MAP.get(ErrorConstants.INVALID_AC_CATEGORY), HttpStatus.BAD_REQUEST);
+      }
+    }
+
     member.setGroup(group);
     member.setUser(user);
     member.setName(regRequest.getFullName());
@@ -349,18 +367,31 @@ public class CyclosMiddleware {
   public WalletInfoResponse getWalletInfoResponse(Member member, Account account) {
     WalletInfoResponse info = new WalletInfoResponse();
     MemberAccount memberAccount = (MemberAccount) account;
+    MemberAccountType memberAccountType = (MemberAccountType) account.getType();
+    Group memberGroup = member.getGroup();
     info.setStatus(MfsConstant.STATUS_SUCCESS);
     info.setWalletNo(member.getUsername());
     info.setName(member.getName());
-    for (Map.Entry entry : AcTypeGroupConstant.acTypeGroups.entrySet()) {
-      if (member.getGroup().getId().equals(entry.getValue()))
-        info.setUserType((AccountType) entry.getKey());
-    }
-
+    info.setUserType(memberAccount.getType().getName());
+    info.setAccountType(new AccountTypeDTO(memberAccountType.getId(), memberAccountType.getName()));
+    info.setAccountCategory(new AccountCategoryDTO(memberGroup.getId(), memberGroup.getName()));
     info.setAccountStatus(AccountStatus.valueOf(memberAccount.getStatus().name()));
     return info;
   }
 
+  public List<AccountTypeDTO> getAccountTypeWiseAccountCategories() {
+    List<AccountTypeDTO> accounttypeCategories = new ArrayList<>();
+    List<MfsAccountTypeGroup> accountTypeGroups= new ArrayList<>();
+    accountTypeGroups = groupServiceLocal.loadAllAccoutTypeGroupSetting();
+    Map<MemberAccountType, List<MemberGroup>> groupsByAccountType = accountTypeGroups.stream().collect(Collectors.groupingBy(MfsAccountTypeGroup::getAccountType, Collectors.mapping(MfsAccountTypeGroup::getGroup, Collectors.toList())));
+    for (Map.Entry<MemberAccountType,List<MemberGroup>> entry : groupsByAccountType.entrySet()) {
+        AccountTypeDTO accountTypeDTO = new AccountTypeDTO(entry.getKey().getId(), entry.getKey().getName());
+        List<AccountCategoryDTO> categories = entry.getValue().stream().map(c -> new AccountCategoryDTO(c.getId(), c.getName())).collect(Collectors.toList());
+        accountTypeDTO.setAccountCategories(categories);
+        accounttypeCategories.add(accountTypeDTO);
+    }
+    return accounttypeCategories;
+  }
 
   private void getAccountBalances(TxnResponse result, Transfer transfer) {
     AccountDateDTO dtoParams = new AccountDateDTO(transfer.getFrom());
@@ -389,20 +420,34 @@ public class CyclosMiddleware {
     return account;
   }
 
-  private TransferType resolveCoreTxnType(TxnRequest txnRequest) {
-    MfsTxnType mfsTxnType = null;
-    if (txnRequest.getTxnTypeTag() == null) {
-      mfsTxnType  = mfsTxnTypeService.findByName(txnRequest.getTxnType().name());
-    } else {
-      mfsTxnType = mfsTxnTypeService.findByNameAndTypeTag(txnRequest.getTxnType().name(), txnRequest.getTxnTypeTag());
-    }
-    if (mfsTxnType == null) {
-      throw new MFSCommonException(ErrorConstants.TXN_TYPE_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.TXN_TYPE_NOT_FOUND), HttpStatus.BAD_REQUEST);
-    }  
+  private TransferType resolveCoreTxnType(MfsTxnType mfsTxnType) { 
     TransferType transferType = transferTypeServiceLocal.load(mfsTxnType.getCoreTxnTypeId());
     if (transferType == null) {
       throw new MFSCommonException(ErrorConstants.TXN_TYPE_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.TXN_TYPE_NOT_FOUND), HttpStatus.BAD_REQUEST);
     }
     return transferType;
   }
+
+  public MfsTxnType validateMFSTxnType(TxnRequest txnRequest) {
+    MfsTxnType mfsTxnType = null;
+    if (txnRequest.getTxnTypeTag() == null) {
+      mfsTxnType  = mfsTxnTypeService.findByName(txnRequest.getTxnType());
+    } else {
+      mfsTxnType = mfsTxnTypeService.findByNameAndTypeTag(txnRequest.getTxnType(), txnRequest.getTxnTypeTag());
+    }
+    if (mfsTxnType == null) {
+      throw new MFSCommonException(ErrorConstants.TXN_TYPE_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.TXN_TYPE_NOT_FOUND), HttpStatus.BAD_REQUEST);
+    }
+    return mfsTxnType;
+  }
+
+  public Group prepareMemberGroupInfoToUpdate(MemberAccount account, UpdateAccountRequest userRequest) {
+      //check whether new group is compatible with account type
+      MfsAccountTypeGroup accountTypeGroupMapping = groupServiceLocal.loadAccoutTypeGroupSetting(account.getType().getId(), userRequest.getAccountCategoryId(), MfsAccountTypeGroup.Relationships.GROUP);
+      if (accountTypeGroupMapping == null) {
+        throw new MFSCommonException(ErrorConstants.INVALID_AC_CATEGORY, ErrorConstants.ERROR_MAP.get(ErrorConstants.INVALID_AC_CATEGORY), HttpStatus.BAD_REQUEST);
+      }
+      return accountTypeGroupMapping.getGroup();
+  }
+  
 }

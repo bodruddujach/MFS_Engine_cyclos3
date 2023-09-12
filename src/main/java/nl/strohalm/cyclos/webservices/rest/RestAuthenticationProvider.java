@@ -46,7 +46,7 @@ import nl.strohalm.cyclos.webservices.model.ServerErrorVO;
 import nl.strohalm.cyclos.webservices.utils.WebServiceHelper;
 
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -95,6 +95,50 @@ public class RestAuthenticationProvider implements AuthenticationProvider {
         }
         LoggedUser.init(client, request.getRemoteAddr(), null);
 
+
+//        final String remoteAddr = request.getRemoteAddr();
+//
+//        // Load the channel
+//        Channel channel = channelService.loadByInternalName(Channel.REST);
+//        final PrincipalType principalType = channelService.resolvePrincipalType(Channel.REST, channel.getDefaultPrincipalType().getPrincipal().name());
+//
+//        // Validate the user
+//        String usernameToVerify = principal;
+//        Member member = null;
+//        try {
+//            member = elementService.loadByPrincipal(principalType, principal, Element.Relationships.USER, Element.Relationships.GROUP);
+//            usernameToVerify = member.getUsername();
+//        } catch (final EntityNotFoundException e) {
+//            usernameToVerify = "";
+//        }
+//        // Verify username
+//        try {
+//            accessService.verifyLogin(null, usernameToVerify, remoteAddr);
+//        } catch (UserNotFoundException e) {
+//            sendError("Invalid username / password", INVALID_CREDENTIALS);
+//            throw new InvalidCredentialsException();
+//        }
+//
+//        // Check if the channel is enabled for the specific member
+//        if (!accessService.isChannelEnabledForMember(channel, member)) {
+//            sendError("Channel disabled for the member", CHANNEL_DISABLED);
+//            throw new InvalidChannelException(member.getUsername(), channel.getInternalName());
+//        }
+//
+//        // Check the credentials
+//        try {
+//            accessService.checkCredentials(channel, member.getMemberUser(), credentials, remoteAddr, null);
+//        } catch (BlockedCredentialsException e) {
+//            sendError("Credentials blocked", BLOCKED_CREDENTIALS);
+//            throw e;
+//        } catch (CredentialsException e) {
+//            sendError("Invalid username / password", INVALID_CREDENTIALS);
+//            throw e;
+//        }
+//
+//        // Initialize the LoggedUser, so it is accessible from the services
+//        WebServiceContext.setRestMember(member);
+//        LoggedUser.init(member.getUser(), remoteAddr);
         // Authentication succeeded
         Collection<SimpleGrantedAuthority> authority = Collections.singleton(new SimpleGrantedAuthority("ROLE_REST"));
         return new UsernamePasswordAuthenticationToken(principal, credentials, authority);
@@ -111,7 +155,16 @@ public class RestAuthenticationProvider implements AuthenticationProvider {
     public void setElementServiceLocal(final ElementServiceLocal elementService) {
         this.elementService = elementService;
     }
-    private ServiceClient resolveClient(final HttpServletRequest request) {
+
+    public ServiceClientServiceLocal getServiceClientServiceLocal() {
+        return serviceClientServiceLocal;
+    }
+
+    public void setServiceClientServiceLocal(ServiceClientServiceLocal serviceClientServiceLocal) {
+        this.serviceClientServiceLocal = serviceClientServiceLocal;
+    }
+
+	private ServiceClient resolveClient(final HttpServletRequest request) {
         final String address = request.getRemoteAddr();
         String[] credentials = WebServiceHelper.getCredentials(request);
         if (credentials == null) {

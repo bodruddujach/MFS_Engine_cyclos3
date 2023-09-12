@@ -1,19 +1,19 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.mfs.entities.MfsGenericLimitConfig" abstract="true" table="mfs_generic_limit_config">
         <id name="id" type="long">
             <column name="id" sql-type="integer"/>
-            <generator class="native"/>
+            <generator class="identity"/>
         </id>
         <property name="name" column="name" type="string" not-null="true" length="50"/>
         <property name="description" column="description" type="string" not-null="true" length="200"/>
-        <property name="maxNumberOfTxnPerDay" column="max_number_of_txn_per_day" type="int" not-null="false"/>
-        <property name="maxNumberOfTxnPerMonth" column="max_number_of_txn_per_month" type="int" not-null="false"/>
+        <property name="maxNumberOfTxnPerDay" column="max_number_of_txn_per_day" type="long" not-null="false"/>
+        <property name="maxNumberOfTxnPerMonth" column="max_number_of_txn_per_month" type="long" not-null="false"/>
         <property name="maxAmountPerDay" column="max_amount_per_day" type="big_decimal" not-null="false"/>
         <property name="maxAmountPerMonth" column="max_amount_per_month" type="big_decimal" not-null="false"/>
         <property name="enable" column="enabled" type="boolean" not-null="true"/>
@@ -22,8 +22,8 @@
             <key>
                 <column name="generic_limit_id" sql-type="integer"/>
             </key>
-	        <one-to-many class="nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig"/>
-	    </bag>
+            <one-to-many class="nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig"/>
+        </bag>
         <many-to-one name="createdBy" class="nl.strohalm.cyclos.entities.access.User" >
             <column name="created_by" sql-type="integer" not-null="false"/>
         </many-to-one>

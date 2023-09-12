@@ -231,6 +231,9 @@ public class AccountTypeServiceImpl implements AccountTypeServiceLocal {
         AT saved = null;
         validate(accountType);
         SystemAccount systemAccount = null;
+        LoggedUser.AccessType accessType= LoggedUser.getAccessType();
+        Administrator defaultAdmin = new Administrator();
+        defaultAdmin.setId(1L);
         if (accountType.isTransient()) {
             saved = accountTypeDao.insert(accountType);
             if (saved instanceof SystemAccountType) {
@@ -245,7 +248,13 @@ public class AccountTypeServiceImpl implements AccountTypeServiceLocal {
                 systemAccount = accountDao.insert(systemAccount);
 
                 // Add permission to the admin group
-                AdminGroup group = (AdminGroup) LoggedUser.group();
+                AdminGroup group = null;
+                if (accessType == null) {
+                  group = new AdminGroup();
+                  group.setId(1L);
+                } else {
+                  group = (AdminGroup) LoggedUser.group();
+                }
                 group = groupDao.load(group.getId(), AdminGroup.Relationships.VIEW_INFORMATION_OF);
                 final Collection<SystemAccountType> systemAccountTypes = group.getViewInformationOf();
                 systemAccountTypes.add(systemAccountType);
@@ -285,7 +294,7 @@ public class AccountTypeServiceImpl implements AccountTypeServiceLocal {
                     // Generate the log
                     AccountLimitLog log = new AccountLimitLog();
                     log.setAccount(systemAccount);
-                    log.setBy((Administrator) LoggedUser.element());
+                    log.setBy(accessType!= null ? (Administrator) LoggedUser.element() : defaultAdmin);
                     log.setDate(Calendar.getInstance());
                     log.setCreditLimit(newLimit);
                     log.setUpperCreditLimit(newUpperLimit);

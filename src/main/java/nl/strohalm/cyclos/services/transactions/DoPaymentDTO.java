@@ -33,6 +33,7 @@ import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
 import nl.strohalm.cyclos.entities.customization.fields.PaymentCustomField;
 import nl.strohalm.cyclos.entities.customization.fields.PaymentCustomFieldValue;
 import nl.strohalm.cyclos.entities.members.Element;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnType;
 import nl.strohalm.cyclos.utils.CustomFieldsContainer;
 import nl.strohalm.cyclos.utils.DataObject;
 
@@ -73,6 +74,7 @@ public class DoPaymentDTO extends DataObject implements CustomFieldsContainer<Pa
     private String                              externalCustomer;//mfs_context
     private String                              systemWiseTxnId;//mfs_context
     private Calendar                            systemWiseReqTime;//mfs_context
+    private MfsTxnType                          mfsTxnType;//mfs_context
 
     public BigDecimal getAmount() {
         return amount;
@@ -299,5 +301,13 @@ public class DoPaymentDTO extends DataObject implements CustomFieldsContainer<Pa
 
 	public void setSystemWiseReqTime(Calendar systemWiseReqTime) {
 		this.systemWiseReqTime = systemWiseReqTime;
+	}
+
+	public MfsTxnType getMfsTxnType() {
+		return mfsTxnType;
+	}
+
+	public void setMfsTxnType(MfsTxnType mfsTxnType) {
+		this.mfsTxnType = mfsTxnType;
 	}
 }

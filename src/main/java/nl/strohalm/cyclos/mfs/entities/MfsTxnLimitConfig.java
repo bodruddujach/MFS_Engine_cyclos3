@@ -3,14 +3,15 @@ package nl.strohalm.cyclos.mfs.entities;
 import java.math.BigDecimal;
 import java.util.Calendar;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import nl.strohalm.cyclos.entities.Entity;
 import nl.strohalm.cyclos.entities.Relationship;
 import nl.strohalm.cyclos.entities.access.User;
 import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
+import nl.strohalm.cyclos.entities.groups.MemberGroup;
 import nl.strohalm.cyclos.utils.StringValuedEnum;
 
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
@@ -32,7 +33,7 @@ public class MfsTxnLimitConfig extends Entity {
 	}
 
 	public static enum Relationships implements Relationship {
-		TransferType("transferType"), MFS_GENERIC_LIMIT("genericLimit");
+		TransferType("transferType"), MFS_GENERIC_LIMIT("genericLimit"), GROUP("group");
 
 		private final String name;
 
@@ -58,15 +59,17 @@ public class MfsTxnLimitConfig extends Entity {
 
 	private BigDecimal maxAmountPerTxn;
 
-	private Integer maxNumberOfTxnPerDay;
+	private Long maxNumberOfTxnPerDay;
 
-	private Integer maxNumberOfTxnPerMonth;
+	private Long maxNumberOfTxnPerMonth;
 
 	private BigDecimal maxAmountPerDay;
 
 	private BigDecimal maxAmountPerMonth;
 
 	private LimitSubject applyOn;
+
+	private MemberGroup group;
 
 	private TransferType transferType;
 
@@ -130,19 +133,19 @@ public class MfsTxnLimitConfig extends Entity {
 		this.maxAmountPerTxn = maxAmountPerTxn;
 	}
 
-	public Integer getMaxNumberOfTxnPerDay() {
+	public Long getMaxNumberOfTxnPerDay() {
 		return maxNumberOfTxnPerDay;
 	}
 
-	public void setMaxNumberOfTxnPerDay(final Integer maxNumberOfTxnPerDay) {
+	public void setMaxNumberOfTxnPerDay(final Long maxNumberOfTxnPerDay) {
 		this.maxNumberOfTxnPerDay = maxNumberOfTxnPerDay;
 	}
 
-	public Integer getMaxNumberOfTxnPerMonth() {
+	public Long getMaxNumberOfTxnPerMonth() {
 		return maxNumberOfTxnPerMonth;
 	}
 
-	public void setMaxNumberOfTxnPerMonth(final Integer maxNumberOfTxnPerMonth) {
+	public void setMaxNumberOfTxnPerMonth(final Long maxNumberOfTxnPerMonth) {
 		this.maxNumberOfTxnPerMonth = maxNumberOfTxnPerMonth;
 	}
 
@@ -168,6 +171,14 @@ public class MfsTxnLimitConfig extends Entity {
 
 	public void setApplyOn(final LimitSubject applyOn) {
 		this.applyOn = applyOn;
+	}
+
+	public MemberGroup getGroup() {
+		return group;
+	}
+
+	public void setGroup(MemberGroup group) {
+		this.group = group;
 	}
 
 	@JsonIgnore
@@ -228,6 +239,7 @@ public class MfsTxnLimitConfig extends Entity {
 		this.lastModifiedDate = lastModifiedDate;
 	}
 
+	
 	@Override
 	public String toString() {
 		return "TxnLimitConfig{" + "minAmountPerTxn=" + minAmountPerTxn + ", maxAmountPerTxn=" + maxAmountPerTxn

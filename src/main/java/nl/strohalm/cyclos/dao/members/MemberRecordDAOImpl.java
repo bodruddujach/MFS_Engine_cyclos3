@@ -37,8 +37,8 @@ import nl.strohalm.cyclos.utils.lucene.LuceneUtils;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.queryParser.MultiFieldQueryParser;
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
@@ -66,7 +66,7 @@ public class MemberRecordDAOImpl extends IndexedDAOImpl<MemberRecord> implements
         Sort sort = null;
         if (keywords == null) {
             query = new MatchAllDocsQuery();
-            sort = new Sort(new SortField("date", SortField.STRING, true));
+            sort = new Sort(new SortField("date", SortField.Type.STRING, true));
         } else {
             try {
                 query = getQueryParser(analyzer).parse(keywords);

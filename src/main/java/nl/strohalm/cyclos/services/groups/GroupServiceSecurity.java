@@ -39,6 +39,7 @@ import nl.strohalm.cyclos.entities.groups.MemberGroup;
 import nl.strohalm.cyclos.entities.groups.OperatorGroup;
 import nl.strohalm.cyclos.entities.groups.SystemGroup;
 import nl.strohalm.cyclos.exceptions.PermissionDeniedException;
+import nl.strohalm.cyclos.mfs.entities.MfsAccountTypeGroup;
 import nl.strohalm.cyclos.services.BaseServiceSecurity;
 import nl.strohalm.cyclos.utils.access.LoggedUser;
 import nl.strohalm.cyclos.utils.validation.ValidationException;
@@ -231,4 +232,22 @@ public class GroupServiceSecurity extends BaseServiceSecurity implements GroupSe
             throw new PermissionDeniedException();
         }
     }
+
+    @Override
+    public MemberGroup getDefaultGroup(MemberAccountType at, Relationship... fetch) {
+        checkManageAccountSettings();
+        return getDefaultGroup(at, fetch);
+    }
+
+    @Override
+    public MfsAccountTypeGroup loadAccoutTypeGroupSetting(long accounTypeId, long groupId, Relationship... fetch) {
+        checkManageAccountSettings();
+        return loadAccoutTypeGroupSetting(accounTypeId, groupId, fetch);
+    }
+
+	@Override
+	public List<MfsAccountTypeGroup> loadAllAccoutTypeGroupSetting() {
+        checkManageAccountSettings();
+		return loadAllAccoutTypeGroupSetting();
+	}
 }

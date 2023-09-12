@@ -19,6 +19,7 @@
  */
 package nl.strohalm.cyclos.dao.accounts.transactions;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import nl.strohalm.cyclos.CyclosConfiguration;
 import nl.strohalm.cyclos.dao.BaseDAOImpl;
 import nl.strohalm.cyclos.dao.accounts.AccountDAO;
 import nl.strohalm.cyclos.entities.Relationship;
@@ -77,6 +79,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.SQLQuery;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.type.StandardBasicTypes;
 
 /**
@@ -95,12 +98,12 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
     @Override
     public WalletStatementResp searchStatement(StatementParams query) {
         String countQuery = searchStatementQuery(query, true);
-        SQLQuery countSql = appendStatementParameter(query, countQuery);
+        NativeQuery<?> countSql = appendStatementParameter(query, countQuery);
         countSql.addScalar("row_count", StandardBasicTypes.INTEGER);
         int count = ((Number) countSql.uniqueResult()).intValue();
 
         String selectQuery = searchStatementQuery(query, false);
-        SQLQuery selectSql = appendStatementParameter(query, selectQuery);
+        NativeQuery<?> selectSql = appendStatementParameter(query, selectQuery);
         selectSql.addScalar("id", StandardBasicTypes.LONG);
         selectSql.addScalar("parentId", StandardBasicTypes.INTEGER);
         selectSql.addScalar("amount", StandardBasicTypes.BIG_DECIMAL);
@@ -157,6 +160,10 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         return response;
     }
     private String searchStatementQuery(StatementParams query, boolean countOnly) {
+        String dbSchema = "CORE";
+        try {
+            dbSchema = CyclosConfiguration.getCyclosProperties().getProperty("hibernate.default_schema", "CORE");
+        }catch (IOException ioException){ }
         StringBuilder sql = new StringBuilder();
         if (countOnly) {
             sql.append("SELECT count(*) as row_count FROM ( ");
@@ -165,19 +172,19 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         }
         sql.append("SELECT t.id, t.parent_id AS parentId, ");
         sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN -1*t.amount ELSE t.amount END AS amount, ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN ta.owner_name ELSE fa.owner_name END AS 'fromWallet', ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN tm.name ELSE fm.name END AS 'fromName', ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN fa.owner_name ELSE ta.owner_name END AS 'toWallet', ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN fm.name ELSE tm.name END AS 'toName', ");
-        sql.append("t.process_date AS 'txnTime', ");
-        sql.append("t.type_id AS 'typeId', ");
-        sql.append("t.transaction_number AS 'transactionNumber', ");
-        sql.append("case when t.transaction_fee_id is null then ty.name else tf.name end AS 'typeName', ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN ta.owner_name ELSE fa.owner_name END AS fromWallet, ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN tm.name ELSE fm.name END AS fromName, ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN fa.owner_name ELSE ta.owner_name END AS toWallet, ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN fm.name ELSE tm.name END AS toName, ");
+        sql.append("t.process_date AS txnTime, ");
+        sql.append("t.type_id AS typeId, ");
+        sql.append("t.transaction_number AS transactionNumber, ");
+        sql.append("case when t.transaction_fee_id is null then ty.name else tf.name end AS typeName, ");
         sql.append("t.description, ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NULL AND t.chargedback_by_id IS NULL AND t.parent_id IS NULL THEN TRUE ELSE FALSE END AS 'canReverse', ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN TRUE ELSE FALSE END AS 'reversedTxn', ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN t.to_account_id ELSE t.from_account_id END AS 'fromAcId', ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN t.from_account_id ELSE t.to_account_id END AS 'toAcId' ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NULL AND t.chargedback_by_id IS NULL AND t.parent_id IS NULL THEN 1 ELSE 0 END AS canReverse, ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN TRUE ELSE FALSE END AS reversedTxn, ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN t.to_account_id ELSE t.from_account_id END AS fromAcId, ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN t.from_account_id ELSE t.to_account_id END AS toAcId ");
         sql.append("FROM transfers t ");
         sql.append("LEFT JOIN accounts fa ON t.from_account_id = fa.id ");
         sql.append("LEFT JOIN members fm ON fa.member_id = fm.id ");
@@ -214,17 +221,17 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         }
         return sql.toString();
     }
-    private SQLQuery appendStatementParameter(StatementParams query, String sql) {
-        SQLQuery sqlQuery = getSession().createSQLQuery(sql);
-        sqlQuery.setLong("accountId", query.getAccountNo());
+    private NativeQuery<?> appendStatementParameter(StatementParams query, String sql) {
+    	NativeQuery<?> sqlQuery = currentSession().createNativeQuery(sql);
+        sqlQuery.setParameter("accountId", query.getAccountNo());
         if (query.getBeginDate() != null) {
-            sqlQuery.setCalendar("fromDate", query.getBeginDate());
+            sqlQuery.setParameter("fromDate", query.getBeginDate());
         }
         if (query.getEndDate() != null) {
-            sqlQuery.setCalendar("endDate", query.getEndDate());
+            sqlQuery.setParameter("endDate", query.getEndDate());
         }
         if(StringUtils.isNotEmpty(query.getTxnId())){
-            sqlQuery.setString("txnId",query.getTxnId());
+            sqlQuery.setParameter("txnId",query.getTxnId());
         }
         return sqlQuery;
     }
@@ -741,7 +748,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         if (authorizer instanceof Administrator) {
             final Administrator administrator = (Administrator) authorizer;
             hql.append(" and l.authorizer in (:ADMIN, :BROKER)");
-            hql.append(" and :adminGroup in elements(l.adminGroups)");
+            hql.append(" and :adminGroup in (select ag from l.adminGroups ag)");
             namedParameters.put("adminGroup", administrator.getAdminGroup());
         } else if (authorizer instanceof Operator) {
             hql.append(" and ((l.authorizer = :RECEIVER and exists (");
@@ -854,7 +861,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "t.processDate", dto.getPeriod());
         // PaymentFilter
         if (dto.getPaymentFilter() != null) {
-            hql.append(" and exists (select 1 from " + PaymentFilter.class.getName() + " pf where pf = :filter and t.type in elements(pf.transferTypes)) ");
+            hql.append(" and exists (select 1 from " + PaymentFilter.class.getName() + " pf where pf = :filter and t.type in (select pftt from pf.transferTypes pftt)) ");
             namedParameters.put("filter", dto.getPaymentFilter());
         }
         // Members groups
@@ -986,7 +993,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
                     + " select 1"
                     + " from PaymentFilter pf"
                     + " where pf in (:pfs)"
-                    + " and tt in elements(pf.transferTypes))";
+                    + " and tt in (select pftt from pf.transferTypes pftt))";
             final List<TransferType> transferTypes = list(ttHql, Collections.singletonMap("pfs", paymentFilters));
 
             HibernateHelper.addInParameterToQuery(hql, namedParameters, "t.type", transferTypes);
@@ -1032,7 +1039,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
 
     private TransactionSummaryVO buildSummary(final Object object) {
         final Object[] row = (Object[]) object;
-        final int count = row[0] == null ? 0 : (Integer) row[0];
+        final long count = row[0] == null ? 0 : (Long) row[0];
         final BigDecimal amount = row[1] == null ? BigDecimal.ZERO : (BigDecimal) row[1];
         return new TransactionSummaryVO(count, amount);
     }

@@ -74,43 +74,43 @@ public class AdminNotificationPreferenceDAOImpl extends BaseDAOImpl<AdminNotific
             hql.append(" and p.systemInvoices = true");
         }
         if (query.getTransferType() != null) {
-            hql.append(" and :transferType in elements(p.transferTypes)");
+            hql.append(" and :transferType in (select ptt from p.transferTypes ptt)");
             namedParameters.put("transferType", query.getTransferType());
         }
         if (query.getNewMemberGroup() != null) {
-            hql.append(" and :newMemberGroup in elements(p.newMembers)");
+            hql.append(" and :newMemberGroup in (select nmg p.newMembers nmg)");
             namedParameters.put("newMemberGroup", query.getNewMemberGroup());
         }
         if (query.getNewPendingPayment() != null) {
-            hql.append(" and :newPendingPayment in elements(p.newPendingPayments)");
+            hql.append(" and :newPendingPayment in (select npp from p.newPendingPayments npp)");
             namedParameters.put("newPendingPayment", query.getNewPendingPayment());
         }
         if (query.getGuaranteeType() != null) {
-            hql.append(" and :guaranteeType in elements (p.guaranteeTypes)");
+            hql.append(" and :guaranteeType in (select gt from p.guaranteeTypes gt)");
             namedParameters.put("guaranteeType", query.getGuaranteeType());
         }
         if (query.getMessageCategory() != null) {
-            hql.append(" and :messageCategory in elements(p.messageCategories)");
-            hql.append(" and exists (select ag.id from AdminGroup ag where ag.id = a.group.id and :messageCategory in elements(ag.messageCategories))");
+            hql.append(" and :messageCategory in (select mc from p.messageCategories mc)");
+            hql.append(" and exists (select ag.id from AdminGroup ag where ag.id = a.group.id and :messageCategory in (select agmc from ag.messageCategories agmc))");
             namedParameters.put("messageCategory", query.getMessageCategory());
         }
         if (query.getSystemAlert() != null) {
-            hql.append(" and :systemAlertType in elements(p.systemAlerts)");
+            hql.append(" and :systemAlertType in (select sa from p.systemAlerts sa)");
             namedParameters.put("systemAlertType", query.getSystemAlert().getValue());
         }
         if (query.getMemberAlert() != null) {
-            hql.append(" and :memberAlertType in elements(p.memberAlerts)");
+            hql.append(" and :memberAlertType in (select ma from p.memberAlerts ma)");
             namedParameters.put("memberAlertType", query.getMemberAlert().getValue());
         }
         if (query.getMemberGroup() != null) {
-            hql.append(" and exists (select ag.id from AdminGroup ag where ag.id = a.group.id and :memberGroup in elements(ag.managesGroups))");
+            hql.append(" and exists (select ag.id from AdminGroup ag where ag.id = a.group.id and :memberGroup in (select agmc from ag.managesGroups agmc))");
             namedParameters.put("memberGroup", query.getMemberGroup());
         }
         if (CollectionUtils.isNotEmpty(query.getAccountTypes())) {
             int i = 0;
             for (final SystemAccountType accountType : query.getAccountTypes()) {
                 final String paramName = "accountType" + ++i;
-                hql.append(" and exists (select ag.id from AdminGroup ag where ag.id = a.group.id and :" + paramName + " in elements (ag.viewInformationOf))");
+                hql.append(" and exists (select ag.id from AdminGroup ag where ag.id = a.group.id and :" + paramName + " in (select at from ag.viewInformationOf at))");
                 namedParameters.put(paramName, accountType);
             }
         }

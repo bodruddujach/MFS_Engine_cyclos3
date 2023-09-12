@@ -9,6 +9,7 @@ public class ChangePinRequest {
   @NotNull
   @Size(min = 12, max = 12, message = "Invalid wallet number")
   String walletNo;
+ 
   @Size(min = 4, max = 6, message = "PIN length should be minimum 4 digits")
   @Digits(integer = 10, fraction = 0, message = "PIN should be numeric only")
   String oldPin;

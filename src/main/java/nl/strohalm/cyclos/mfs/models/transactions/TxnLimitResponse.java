@@ -23,9 +23,9 @@ public class TxnLimitResponse implements Serializable {
 
 	private BigDecimal maxAmountPerTxn;
 
-	private Integer maxNumberOfTxnPerDay;
+	private Long maxNumberOfTxnPerDay;
 
-	private Integer maxNumberOfTxnPerMonth;
+	private Long maxNumberOfTxnPerMonth;
 
 	private BigDecimal maxAmountPerDay;
 
@@ -34,6 +34,8 @@ public class TxnLimitResponse implements Serializable {
 	private LimitSubject applyOn;
 
 	private String coreTxnType;
+
+	private Long groupId;
 
 	private boolean enable;
 
@@ -93,19 +95,19 @@ public class TxnLimitResponse implements Serializable {
 		this.maxAmountPerTxn = maxAmountPerTxn;
 	}
 
-	public Integer getMaxNumberOfTxnPerDay() {
+	public Long getMaxNumberOfTxnPerDay() {
 		return maxNumberOfTxnPerDay;
 	}
 
-	public void setMaxNumberOfTxnPerDay(Integer maxNumberOfTxnPerDay) {
+	public void setMaxNumberOfTxnPerDay(Long maxNumberOfTxnPerDay) {
 		this.maxNumberOfTxnPerDay = maxNumberOfTxnPerDay;
 	}
 
-	public Integer getMaxNumberOfTxnPerMonth() {
+	public Long getMaxNumberOfTxnPerMonth() {
 		return maxNumberOfTxnPerMonth;
 	}
 
-	public void setMaxNumberOfTxnPerMonth(Integer maxNumberOfTxnPerMonth) {
+	public void setMaxNumberOfTxnPerMonth(Long maxNumberOfTxnPerMonth) {
 		this.maxNumberOfTxnPerMonth = maxNumberOfTxnPerMonth;
 	}
 
@@ -139,6 +141,14 @@ public class TxnLimitResponse implements Serializable {
 
 	public void setCoreTxnType(String coreTxnType) {
 		this.coreTxnType = coreTxnType;
+	}
+
+	public Long getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(Long groupId) {
+		this.groupId = groupId;
 	}
 
 	public boolean isEnable() {

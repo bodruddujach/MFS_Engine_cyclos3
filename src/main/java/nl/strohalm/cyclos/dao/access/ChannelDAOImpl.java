@@ -53,7 +53,7 @@ public class ChannelDAOImpl extends BaseDAOImpl<Channel> implements ChannelDAO {
 
     @Override
     public void importNewBuiltin(final Locale locale) {
-        CreateBasicData.createChannels(getSession(), Setup.getResourceBundle(locale));
+        CreateBasicData.createChannels(currentSession(), Setup.getResourceBundle(locale));
     }
 
     @Override

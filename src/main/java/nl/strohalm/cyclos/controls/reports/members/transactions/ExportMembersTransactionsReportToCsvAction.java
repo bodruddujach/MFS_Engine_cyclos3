@@ -64,7 +64,7 @@ public class ExportMembersTransactionsReportToCsvAction extends BaseCsvAction {
             final TransactionSummaryVO vo = map.get(paymentFilter);
             if (vo != null) {
                 if (isCount) {
-                    final int count = vo.getCount();
+                    final long count = vo.getCount();
                     string = "" + count;
                 } else {
                     final BigDecimal amount = vo.getAmount();
@@ -95,7 +95,7 @@ public class ExportMembersTransactionsReportToCsvAction extends BaseCsvAction {
             String string = "";
             if (vo != null) {
                 if (isCount) {
-                    final int count = vo.getCount();
+                    final long count = vo.getCount();
                     string = "" + count;
                 } else {
                     final BigDecimal amount = vo.getAmount();

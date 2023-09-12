@@ -53,7 +53,7 @@ public class AdInterestDAOImpl extends BaseDAOImpl<AdInterest> implements AdInte
         hql.append(" select m ");
         hql.append(" from Member m, Ad ad ");
         hql.append(" where ad = :ad ");
-        hql.append("   and :ownerGroup in elements(m.group.canViewAdsOfGroups) ");
+        hql.append("   and :ownerGroup in (select adg from m.group.canViewAdsOfGroups adg) ");
         hql.append("   and ad.owner <> m ");
         hql.append("   and exists ( ");
         hql.append("     select ai.id ");
@@ -71,7 +71,7 @@ public class AdInterestDAOImpl extends BaseDAOImpl<AdInterest> implements AdInte
         hql.append("       and (ai.groupFilter is null or exists ( ");
         hql.append("           select gf.id ");
         hql.append("           from GroupFilter gf ");
-        hql.append("           where m.group in elements(gf.groups) ");
+        hql.append("           where m.group in (select g from gf.groups g) ");
         hql.append("             and gf = ai.groupFilter ");
         hql.append("          ) ");
         hql.append("       ) ");

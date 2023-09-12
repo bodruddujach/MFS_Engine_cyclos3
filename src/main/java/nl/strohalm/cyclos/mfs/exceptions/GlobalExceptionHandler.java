@@ -3,8 +3,8 @@ package nl.strohalm.cyclos.mfs.exceptions;
 import nl.strohalm.cyclos.services.access.exceptions.InvalidCredentialsException;
 import nl.strohalm.cyclos.services.transactions.exceptions.NotEnoughCreditsException;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;

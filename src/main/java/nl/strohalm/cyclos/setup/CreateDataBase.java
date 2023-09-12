@@ -19,10 +19,17 @@
  */
 package nl.strohalm.cyclos.setup;
 
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.hibernate.tool.schema.TargetType;
 
 /**
  * Creates the database tables
@@ -42,9 +49,12 @@ public class CreateDataBase implements Runnable {
      * Create the database
      */
     public void run() {
+        ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
+        MetadataSources metadata = new MetadataSources(serviceRegistry);
+        EnumSet<TargetType> enumSet = EnumSet.of(TargetType.DATABASE);
         Setup.out.println(bundle.getString("create-database.start"));
-        final SchemaExport schemaExport = new SchemaExport(configuration);
-        schemaExport.create(false, true);
+        final SchemaExport schemaExport = new SchemaExport();
+        schemaExport.execute(enumSet, SchemaExport.Action.BOTH, metadata.buildMetadata());
         Setup.out.println(bundle.getString("create-database.end"));
     }
 

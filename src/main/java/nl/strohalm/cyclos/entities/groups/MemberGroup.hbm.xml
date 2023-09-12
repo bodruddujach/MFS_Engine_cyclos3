@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC 
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
     <subclass dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.groups.MemberGroup" extends="nl.strohalm.cyclos.entities.groups.SystemGroup" discriminator-value="M">
@@ -139,7 +139,21 @@
 			</key>
 			<one-to-many class="nl.strohalm.cyclos.entities.accounts.MemberGroupAccountSettings"/>
     	</bag>
-    	
+
+		<bag name="mfsAccountTypeSettings" inverse="true" cascade="delete">
+			<cache usage="read-write" />
+			<key>
+				<column name="group_id" sql-type="integer"/>
+			</key>
+			<one-to-many class="nl.strohalm.cyclos.mfs.entities.MfsAccountTypeGroup"/>
+    	</bag>
+		<bag name="groupTxnLimitConfigs" inverse="true" cascade="all-delete-orphan" fetch="select" >
+			<cache usage="read-write" />
+			<key>
+				<column name="group_id" sql-type="integer"/>
+			</key>
+			<one-to-many class="nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig"/>
+		</bag>	
         <bag name="canViewProfileOfGroups" table="group_view_profile_permissions">
 			<cache usage="read-write" />
 			<key>
@@ -322,12 +336,20 @@
 		<bag name="possibleInitialGroupOf" table="broker_groups_possible_initial_groups" inverse="true">
 			<cache usage="read-write" />
 			<key>
-			    <column name="possible_initial_group_id" sql-type="integer"/>
+				<column name="possible_initial_group_id" sql-type="integer"/>
 			</key>
 			<many-to-many class="nl.strohalm.cyclos.entities.groups.BrokerGroup">
 			    <column name="group_id" sql-type="integer"/>	
 			</many-to-many>
 		</bag>
-		
+		<bag name="toTransferTypes" table="to_groups_transfer_types" inverse="true">
+			<cache usage="read-write" />
+			<key>
+				<column name="group_id" sql-type="integer"/>
+			</key>
+			<many-to-many class="nl.strohalm.cyclos.entities.accounts.transactions.TransferType">
+				<column name="transfer_type_id" sql-type="integer"/>
+			</many-to-many>
+		</bag>
     </subclass>
 </hibernate-mapping>

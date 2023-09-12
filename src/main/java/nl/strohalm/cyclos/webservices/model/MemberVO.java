@@ -24,7 +24,7 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlType;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Member data for web services

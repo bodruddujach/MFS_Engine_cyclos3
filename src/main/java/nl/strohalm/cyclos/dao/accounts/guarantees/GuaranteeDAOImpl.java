@@ -82,7 +82,7 @@ public class GuaranteeDAOImpl extends BaseDAOImpl<Guarantee> implements Guarante
         final Map<String, Object> namedParameters = new HashMap<String, Object>();
         namedParameters.put("issuer_", issuer);
 
-        final StringBuilder hql = new StringBuilder("select distinct(seller) from Group seller, Group buyer, Group issuer where buyer in elements(issuer.canIssueCertificationToGroups) and seller in elements(buyer.canBuyWithPaymentObligationsFromGroups) and issuer = :issuer_");
+        final StringBuilder hql = new StringBuilder("select distinct(seller) from Group seller, Group buyer, Group issuer where buyer in (select cictg from issuer.canIssueCertificationToGroups cictg) and seller in (select cbpofg from buyer.canBuyWithPaymentObligationsFromGroups cbpofg) and issuer = :issuer_");
 
         return list(hql.toString(), namedParameters);
     }

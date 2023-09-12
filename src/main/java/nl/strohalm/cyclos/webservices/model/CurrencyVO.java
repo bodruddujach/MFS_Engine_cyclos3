@@ -21,7 +21,7 @@ package nl.strohalm.cyclos.webservices.model;
 
 import javax.xml.bind.annotation.XmlType;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Currency VO for web services

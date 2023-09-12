@@ -39,6 +39,7 @@ import nl.strohalm.cyclos.entities.customization.fields.PaymentCustomField;
 import nl.strohalm.cyclos.entities.groups.Group;
 import nl.strohalm.cyclos.entities.members.Member;
 import nl.strohalm.cyclos.entities.members.Reference.Level;
+import nl.strohalm.cyclos.mfs.entities.MfsAccountTxnLimitConfig;
 import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig;
 import nl.strohalm.cyclos.utils.StringValuedEnum;
 import nl.strohalm.cyclos.utils.TimePeriod;
@@ -99,7 +100,7 @@ public class TransferType extends Entity {
     }
 
     public static enum Relationships implements Relationship {
-        FROM("from"), GROUPS("groups"), GROUPS_AS_MEMBER("groupsAsMember"), TO("to"), TRANSACTION_FEES("transactionFees"), GENERATED_BY_TRANSACTION_FEES("generatedByTransactionFees"), GENERATED_BY_ACCOUNT_FEES("generatedByAccountFees"), PAYMENT_FILTERS("paymentFilters"), AUTHORIZATION_LEVELS("authorizationLevels"), CUSTOM_FIELDS("customFields"), LINKED_CUSTOM_FIELDS("linkedCustomFields"), CHANNELS("channels"), MFS_TRANSACTION_LIMIT_CONFIGS("mfsTransactionLimitConfigs");
+        FROM("from"), GROUPS("groups"), GROUPS_AS_MEMBER("groupsAsMember"), TO("to"), TRANSACTION_FEES("transactionFees"), GENERATED_BY_TRANSACTION_FEES("generatedByTransactionFees"), GENERATED_BY_ACCOUNT_FEES("generatedByAccountFees"), PAYMENT_FILTERS("paymentFilters"), AUTHORIZATION_LEVELS("authorizationLevels"), CUSTOM_FIELDS("customFields"), LINKED_CUSTOM_FIELDS("linkedCustomFields"), CHANNELS("channels"), MFS_TRANSACTION_LIMIT_CONFIGS("mfsTransactionLimitConfigs"), GROUPS_RESTRICTED_TO("groupsRestrictedTo");
         private final String name;
 
         private Relationships(final String name) {
@@ -154,10 +155,13 @@ public class TransferType extends Entity {
     private LoanParameters                       loan;
     private Collection<? extends TransactionFee> transactionFees;
     private Collection<? extends MfsTxnLimitConfig> mfsTransactionLimitConfigs;
+    private Collection<? extends MfsAccountTxnLimitConfig> mfsAccountTransactionLimitConfigs;
     private Collection<? extends TransactionFee> generatedByTransactionFees;
     private Collection<? extends AccountFee>     generatedByAccountFees;
     private Collection<? extends Group>          groups;
     private Collection<? extends Group>          groupsAsMember;
+    private boolean                              restrictedToAllGroups = true;
+    private Collection<? extends Group>          groupsRestrictedTo;
     private Collection<PaymentFilter>            paymentFilters;
     private boolean                              requiresAuthorization;
     private Collection<AuthorizationLevel>       authorizationLevels;
@@ -286,7 +290,24 @@ public class TransferType extends Entity {
         return groupsAsMember;
     }
 
-    public Collection<PaymentCustomField> getLinkedCustomFields() {
+    public Collection<? extends Group> getGroupsRestrictedTo() {
+        return groupsRestrictedTo;
+    }
+
+    public void setGroupsRestrictedTo(Collection<? extends Group> groupsRestrictedTo) {
+        this.groupsRestrictedTo = groupsRestrictedTo;
+    }
+
+    
+    public boolean isRestrictedToAllGroups() {
+        return restrictedToAllGroups;
+    }
+
+    public void setRestrictedToAllGroups(boolean restrictedToAllGroups) {
+        this.restrictedToAllGroups = restrictedToAllGroups;
+    }
+
+	public Collection<PaymentCustomField> getLinkedCustomFields() {
         return linkedCustomFields;
     }
 
@@ -342,7 +363,16 @@ public class TransferType extends Entity {
         return transactionHierarchyVisibility;
     }
 
-    public String getTransferListenerClass() {
+    public Collection<? extends MfsAccountTxnLimitConfig> getMfsAccountTransactionLimitConfigs() {
+        return mfsAccountTransactionLimitConfigs;
+    }
+
+    public void setMfsAccountTransactionLimitConfigs(
+        Collection<? extends MfsAccountTxnLimitConfig> mfsAccountTransactionLimitConfigs) {
+        this.mfsAccountTransactionLimitConfigs = mfsAccountTransactionLimitConfigs;
+    }
+
+	public String getTransferListenerClass() {
         return transferListenerClass;
     }
 

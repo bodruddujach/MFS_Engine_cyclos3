@@ -31,6 +31,9 @@
 				<hostname>machine3:5799</hostname>
 				<interface>192.168.1.0-7</interface> 	
 				<interface>192.168.1.21</interface> 
+                <member-list>
+                    <member>192.168.1.0</member>
+                </member-list>
 			</tcp-ip>
              -->
         </join>

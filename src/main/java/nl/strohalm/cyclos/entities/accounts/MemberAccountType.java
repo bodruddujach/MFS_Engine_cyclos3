@@ -23,6 +23,7 @@ import java.util.Collection;
 
 import nl.strohalm.cyclos.entities.Relationship;
 import nl.strohalm.cyclos.entities.accounts.fees.account.AccountFee;
+import nl.strohalm.cyclos.mfs.entities.MfsAccountTypeGroup;
 
 /**
  * Type for member accounts
@@ -31,7 +32,7 @@ import nl.strohalm.cyclos.entities.accounts.fees.account.AccountFee;
 public class MemberAccountType extends AccountType {
 
     public static enum Relationships implements Relationship {
-        ACCOUNTS("accounts"), SETTINGS("settings"), ACCOUNT_FEES("accountFees");
+        ACCOUNTS("accounts"), SETTINGS("settings"), ACCOUNT_FEES("accountFees"), MFS_ACCOUNT_TYPE_SETTINGS("mfsAccountTypeSettings");
         private final String name;
 
         private Relationships(final String name) {
@@ -47,6 +48,7 @@ public class MemberAccountType extends AccountType {
     private Collection<MemberAccount>              accounts;
     private Collection<AccountFee>                 accountFees;
     private Collection<MemberGroupAccountSettings> settings;
+    private Collection<MfsAccountTypeGroup> mfsAccountTypeSettings;
 
     public Collection<AccountFee> getAccountFees() {
         return accountFees;
@@ -81,4 +83,13 @@ public class MemberAccountType extends AccountType {
     public void setSettings(final Collection<MemberGroupAccountSettings> settings) {
         this.settings = settings;
     }
+
+    public Collection<MfsAccountTypeGroup> getMfsAccountTypeSettings() {
+        return mfsAccountTypeSettings;
+    }
+
+    public void setMfsAccountTypeSettings(Collection<MfsAccountTypeGroup> mfsAccountTypeSettings) {
+        this.mfsAccountTypeSettings = mfsAccountTypeSettings;
+    }
+
 }

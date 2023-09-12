@@ -7,7 +7,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="
-			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 			http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd"
 	   >
 
@@ -20,8 +20,11 @@
 				<value>/nl/strohalm/cyclos/mfs/entities/TxnLimitConfig.hbm.xml</value>
 				<value>/nl/strohalm/cyclos/mfs/entities/MfsGenericLimitConfig.hbm.xml</value>
 				<value>/nl/strohalm/cyclos/mfs/entities/MfsTxnLimitConfig.hbm.xml</value>
+				<value>/nl/strohalm/cyclos/mfs/entities/MfsAccountGenericLimitConfig.hbm.xml</value>
+				<value>/nl/strohalm/cyclos/mfs/entities/MfsAccountTxnLimitConfig.hbm.xml</value>
 				<value>/nl/strohalm/cyclos/mfs/entities/MFSMerchant.hbm.xml</value>
 				<value>/nl/strohalm/cyclos/mfs/entities/MFSLedgerAccount.hbm.xml</value>
+				<value>/nl/strohalm/cyclos/mfs/entities/MfsAccountTypeGroup.hbm.xml</value>
 				<value>/nl/strohalm/cyclos/dao/definitions.hbm.xml</value>
 				<value>/nl/strohalm/cyclos/entities/Application.hbm.xml</value>
 				<value>/nl/strohalm/cyclos/entities/IndexOperation.hbm.xml</value>
@@ -198,28 +201,28 @@
 			</list>
 		</property>
 		
-		<property name="eventListeners">
-			<map>
-				<entry key="post-update">
-					<ref bean="writeDetectEventListener"/>
-				</entry>
-				<entry key="post-insert">
-					<ref bean="writeDetectEventListener"/>
-				</entry>
-				<entry key="post-delete">
-					<ref bean="writeDetectEventListener"/>
-				</entry>
-				<entry key="post-collection-recreate">
-					<ref bean="writeDetectEventListener"/>
-				</entry>
-				<entry key="post-collection-remove">
-					<ref bean="writeDetectEventListener"/>
-				</entry>
-				<entry key="post-collection-update">
-					<ref bean="writeDetectEventListener"/>
-				</entry>
-			</map>
-		</property>
+<!-- 		<property name="eventListeners"> -->
+<!-- 			<map> -->
+<!-- 				<entry key="post-update"> -->
+<!-- 					<ref bean="writeDetectEventListener"/> -->
+<!-- 				</entry> -->
+<!-- 				<entry key="post-insert"> -->
+<!-- 					<ref bean="writeDetectEventListener"/> -->
+<!-- 				</entry> -->
+<!-- 				<entry key="post-delete"> -->
+<!-- 					<ref bean="writeDetectEventListener"/> -->
+<!-- 				</entry> -->
+<!-- 				<entry key="post-collection-recreate"> -->
+<!-- 					<ref bean="writeDetectEventListener"/> -->
+<!-- 				</entry> -->
+<!-- 				<entry key="post-collection-remove"> -->
+<!-- 					<ref bean="writeDetectEventListener"/> -->
+<!-- 				</entry> -->
+<!-- 				<entry key="post-collection-update"> -->
+<!-- 					<ref bean="writeDetectEventListener"/> -->
+<!-- 				</entry> -->
+<!-- 			</map> -->
+<!-- 		</property> -->
 	</bean>
 	
 	<bean id="writeDetectEventListener" class="nl.strohalm.cyclos.utils.hibernate.WriteDetectEventListener" />
@@ -231,7 +234,7 @@
 	<util:properties id="hibernateProperties" location="classpath:/cyclos.properties" />
 
 	<!-- Transaction related beans -->
-	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager"/>
+	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager"/>
 	<bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate"/>
 	
     <!-- Hibernate specific helpers -->

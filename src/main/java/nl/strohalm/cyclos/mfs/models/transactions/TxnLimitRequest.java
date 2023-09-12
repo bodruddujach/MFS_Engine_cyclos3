@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 
 import javax.validation.constraints.NotNull;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import com.google.common.base.MoreObjects;
 
@@ -23,9 +23,9 @@ public class TxnLimitRequest implements Serializable {
 
 	private BigDecimal maxAmountPerTxn;
 
-	private Integer maxNumberOfTxnPerDay;
+	private Long maxNumberOfTxnPerDay;
 
-	private Integer maxNumberOfTxnPerMonth;
+	private Long maxNumberOfTxnPerMonth;
 
 	private BigDecimal maxAmountPerDay;
 
@@ -33,10 +33,20 @@ public class TxnLimitRequest implements Serializable {
 
 	private LimitSubject applyOn;
 
+	private Long groupId;
+
 	@NotNull
 	private TransactionType txnType;
 
 	private String genericLimit;
+
+	public Long getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(Long groupId) {
+		this.groupId = groupId;
+	}
 
 	private boolean enable;
 
@@ -64,19 +74,19 @@ public class TxnLimitRequest implements Serializable {
 		this.maxAmountPerTxn = maxAmountPerTxn;
 	}
 
-	public Integer getMaxNumberOfTxnPerDay() {
+	public Long getMaxNumberOfTxnPerDay() {
 		return maxNumberOfTxnPerDay;
 	}
 
-	public void setMaxNumberOfTxnPerDay(Integer maxNumberOfTxnPerDay) {
+	public void setMaxNumberOfTxnPerDay(Long maxNumberOfTxnPerDay) {
 		this.maxNumberOfTxnPerDay = maxNumberOfTxnPerDay;
 	}
 
-	public Integer getMaxNumberOfTxnPerMonth() {
+	public Long getMaxNumberOfTxnPerMonth() {
 		return maxNumberOfTxnPerMonth;
 	}
 
-	public void setMaxNumberOfTxnPerMonth(Integer maxNumberOfTxnPerMonth) {
+	public void setMaxNumberOfTxnPerMonth(Long maxNumberOfTxnPerMonth) {
 		this.maxNumberOfTxnPerMonth = maxNumberOfTxnPerMonth;
 	}
 

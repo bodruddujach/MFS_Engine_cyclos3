@@ -1,10 +1,11 @@
 package nl.strohalm.cyclos.mfs.services;
 
 import nl.strohalm.cyclos.entities.accounts.Account;
-import nl.strohalm.cyclos.entities.accounts.AccountOwner;
 import nl.strohalm.cyclos.entities.accounts.AccountType;
-import nl.strohalm.cyclos.entities.accounts.MemberAccount;
+import nl.strohalm.cyclos.entities.accounts.AccountTypeQuery;
+import nl.strohalm.cyclos.entities.accounts.Currency;
 import nl.strohalm.cyclos.entities.accounts.SystemAccount;
+import nl.strohalm.cyclos.entities.accounts.SystemAccountType;
 import nl.strohalm.cyclos.entities.accounts.transactions.PaymentFilter;
 import nl.strohalm.cyclos.entities.accounts.transactions.PaymentFilterQuery;
 import nl.strohalm.cyclos.mfs.dao.MFSLedgerAccountDAO;
@@ -19,16 +20,20 @@ import nl.strohalm.cyclos.mfs.utils.MfsConstant;
 import nl.strohalm.cyclos.services.accounts.AccountDTO;
 import nl.strohalm.cyclos.services.accounts.AccountDateDTO;
 import nl.strohalm.cyclos.services.accounts.AccountServiceLocal;
+import nl.strohalm.cyclos.services.accounts.AccountTypeServiceLocal;
+import nl.strohalm.cyclos.services.accounts.SystemAccountTypeQuery;
 import nl.strohalm.cyclos.services.transactions.TransactionSummaryVO;
 import nl.strohalm.cyclos.services.transfertypes.PaymentFilterServiceLocal;
 import nl.strohalm.cyclos.utils.Period;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.List;
 
@@ -36,28 +41,71 @@ import java.util.List;
 public class LedgerService {
   @Autowired
   private MFSLedgerAccountDAO mfsLedgerAccountDAO;
+
   @Autowired
   AccountServiceLocal accountServiceLocal;
   @Autowired
   PaymentFilterServiceLocal paymentFilterServiceLocal;
+  @Autowired
+  AccountTypeServiceLocal accountTypeServiceLocal;
+  
 
   public MFSLedgerAccount loadMFSLedgerAccount(Long mFSLedgerAccountId) {
     return mfsLedgerAccountDAO.load(mFSLedgerAccountId);
   }
 
   @Transactional
-  public MFSLedgerAccount saveMFSLedgerAccount(MFSLedgerAccount mFSLedgerAccount) {
-    return mfsLedgerAccountDAO.insert(mFSLedgerAccount);
+  public MFSLedgerAccount saveMFSLedgerAccount(MFSLedgerAccount mfsLedgerAccount) {
+    if ("detail".equalsIgnoreCase(mfsLedgerAccount.getNature())) {
+      SystemAccountTypeQuery query = new SystemAccountTypeQuery();
+      query.setName(mfsLedgerAccount.getName());
+      query.setDescription(mfsLedgerAccount.getDescription());
+      List<SystemAccountType> systemAcoountTypes = (List<SystemAccountType>) accountTypeServiceLocal.search(query);
+      if (CollectionUtils.isEmpty(systemAcoountTypes)) {
+        AccountType systemAccountType = new SystemAccountType();
+        Currency currency = new Currency();
+        currency.setId(1L);
+        systemAccountType.setCurrency(currency);
+        systemAccountType.setName(mfsLedgerAccount.getName());
+//        systemAccountType.setDescription(mfsLedgerAccount.getDescription());
+        SystemAccountType savedSystemAccountType = (SystemAccountType) accountTypeServiceLocal.save(systemAccountType);
+        SystemAccount systemAccount = savedSystemAccountType.getAccount();
+        mfsLedgerAccount.setAccountId(systemAccount.getId());
+      } else {
+        SystemAccount existingSystemAccount = systemAcoountTypes.get(0).getAccount();
+        mfsLedgerAccount.setAccountId(existingSystemAccount.getId());
+      }
+    }
+    mfsLedgerAccount.setType("SYSTEM");
+    return mfsLedgerAccountDAO.insert(mfsLedgerAccount);
   }
 
   @Transactional
-  public MFSLedgerAccount updateMFSLedgerAccount(MFSLedgerAccount mFSLedgerAccount) {
-    return mfsLedgerAccountDAO.update(mFSLedgerAccount);
+  public MFSLedgerAccount updateMFSLedgerAccount(MFSLedgerAccount mfsLedgerAccount) {
+    MFSLedgerAccount ledgerToBeUpdated = mfsLedgerAccountDAO.load(mfsLedgerAccount.getId());
+    if ("detail".equalsIgnoreCase(ledgerToBeUpdated.getNature())) {
+      SystemAccount account = accountServiceLocal.load(ledgerToBeUpdated.getAccountId(), Account.Relationships.TYPE);
+      AccountType systemAccountTypeToBeUpdated = account.getType();
+      systemAccountTypeToBeUpdated.setName(mfsLedgerAccount.getName());
+      systemAccountTypeToBeUpdated.setDescription(mfsLedgerAccount.getDescription());
+      accountTypeServiceLocal.save(systemAccountTypeToBeUpdated);
+    }
+    ledgerToBeUpdated.setCode(mfsLedgerAccount.getCode());
+    ledgerToBeUpdated.setActive(mfsLedgerAccount.isActive());
+    ledgerToBeUpdated.setName(mfsLedgerAccount.getName());
+    ledgerToBeUpdated.setDescription(mfsLedgerAccount.getDescription());
+    return mfsLedgerAccountDAO.update(ledgerToBeUpdated);
   }
 
   @Transactional
-  public int deleteMFSLedgerAccount(Long mFSLedgerAccountId) {
-    return mfsLedgerAccountDAO.delete(mFSLedgerAccountId);
+  public int deleteMFSLedgerAccount(Long mfsLedgerAccountId) {
+    MFSLedgerAccount ledgerToBeUpdated = mfsLedgerAccountDAO.load(mfsLedgerAccountId);
+    if ("detail".equalsIgnoreCase(ledgerToBeUpdated.getNature())) {
+      SystemAccount account = accountServiceLocal.load(ledgerToBeUpdated.getAccountId(), Account.Relationships.TYPE);
+      AccountType systemAccountTypeToBeUpdated = account.getType();
+      accountTypeServiceLocal.remove(systemAccountTypeToBeUpdated.getId());
+    }
+    return mfsLedgerAccountDAO.delete(mfsLedgerAccountId);
   }
 
   public MFSLedgerAccount getLedgerByCode(String ledgerCode) {
@@ -82,21 +130,19 @@ public class LedgerService {
       throw new MFSCommonException(ErrorConstants.ACCOUNT_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.ACCOUNT_NOT_FOUND), HttpStatus.NOT_FOUND);
     }
     BalanceResponse balanceResponse = new BalanceResponse();
-    if (MFSLedgerAccount.LedgerType.SYSTEM.name().equalsIgnoreCase(mfsLedgerAccount.getType())) {
+    if (mfsLedgerAccount.getAccountId() != null && MFSLedgerAccount.LedgerType.SYSTEM.name().equalsIgnoreCase(mfsLedgerAccount.getType())) {
       Account account = new SystemAccount();
       account.setId(mfsLedgerAccount.getAccountId());
       AccountDateDTO dtoParams = new AccountDateDTO(account);
-      if (dtoParams != null) {
+      if (date != null) {
         dtoParams.setDate(date);
       }
       balanceResponse.setBalance(accountServiceLocal.getBalance(dtoParams));
-      balanceResponse.setStatus(MfsConstant.STATUS_SUCCESS);
-      balanceResponse.setAvailableBalance(balanceResponse.getBalance());
     } else {
-      // get all balance of that type
-
+      balanceResponse.setBalance(calculateLegerBalance(mfsLedgerAccount, date));
     }
-
+    balanceResponse.setStatus(MfsConstant.STATUS_SUCCESS);
+    balanceResponse.setAvailableBalance(balanceResponse.getBalance());
     return balanceResponse;
   }
 
@@ -133,4 +179,31 @@ public class LedgerService {
     response.setAmount(result.getAmount());
     return response;
   }
+
+  private BigDecimal calculateLegerBalance(MFSLedgerAccount rootLeger, Calendar date) {
+      if (rootLeger == null) {
+          return BigDecimal.ZERO;
+      }
+      if (rootLeger.isActive() && rootLeger.isLastLevel() && rootLeger.getAccountId()!= null && "detail".equalsIgnoreCase(rootLeger.getNature())) {
+          BalanceResponse balanceResponse = new BalanceResponse();
+          Account account = new SystemAccount();
+          account.setId(rootLeger.getAccountId());
+          AccountDateDTO dtoParams = new AccountDateDTO(account);
+          if (date != null) {
+              dtoParams.setDate(date);
+          }
+          balanceResponse.setBalance(accountServiceLocal.getBalance(dtoParams));
+          balanceResponse.setStatus(MfsConstant.STATUS_SUCCESS);
+          balanceResponse.setAvailableBalance(balanceResponse.getBalance());
+          return balanceResponse.getBalance();
+      }
+      BigDecimal rootLedgerBalance = BigDecimal.ZERO;
+      for (MFSLedgerAccount childLeger: rootLeger.getChildLedgers()) {
+          if (rootLeger.isActive()) {
+              rootLedgerBalance = rootLedgerBalance.add(calculateLegerBalance(childLeger, date));
+          }
+      }
+      return rootLedgerBalance;
+  }
+
 }

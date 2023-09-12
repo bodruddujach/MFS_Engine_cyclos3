@@ -26,8 +26,10 @@ import java.util.Properties;
 import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
+import org.hibernate.type.CustomType;
 import org.hibernate.type.Type;
 import org.hibernate.type.TypeFactory;
+import org.hibernate.type.spi.TypeConfiguration;
 import org.hibernate.usertype.ParameterizedType;
 import org.hibernate.usertype.UserType;
 
@@ -43,7 +45,18 @@ public abstract class AbstractEnumType<EnumType> implements UserType, Parameteri
     protected static <E extends AbstractEnumType<?>, T extends Enum<?>> Type getType(final Class<E> enumType, final Class<T> enumClass) {
         final Properties properties = new Properties();
         properties.setProperty("enumClassName", enumClass.getName());
-        return new TypeFactory().custom((Class) enumType, properties);
+        UserType userType = null;
+        TypeConfiguration typeConfiguration = new TypeConfiguration();
+        try {
+            userType = enumType.newInstance();
+            ( (ParameterizedType) userType ).setParameterValues( properties );
+        }
+        catch (Exception e) {
+            throw new MappingException( "Unable to instantiate custom type: " + enumType.getName(), e );
+        }
+        typeConfiguration.getBasicTypeRegistry().register(new CustomType(userType), new String[] {enumType.getName()});
+        return typeConfiguration.getBasicTypeRegistry().getRegisteredType(enumType.getName());
+//        return new TypeFactory().custom((Class) enumType, properties);
     }
 
     private Class<EnumType> enumType;

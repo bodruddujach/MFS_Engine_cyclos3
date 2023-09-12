@@ -145,6 +145,10 @@ public class JDBCWrapper {
         return connection.getMetaData().getDatabaseProductName().toLowerCase().startsWith("hsql");
     }
 
+    public boolean isOracleDB() throws SQLException {
+        return connection.getMetaData().getDatabaseProductName().toLowerCase().startsWith("oracle");
+    }
+
     /**
      * Execute a sql query, returning the open result set
      */

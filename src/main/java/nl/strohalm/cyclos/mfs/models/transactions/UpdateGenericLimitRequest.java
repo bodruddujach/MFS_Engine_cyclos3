@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import javax.validation.constraints.NotNull;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UpdateGenericLimitRequest {
@@ -16,9 +16,9 @@ public class UpdateGenericLimitRequest {
 
 	private String description;
 
-	private Integer maxNumberOfTxnPerDay;
+	private Long maxNumberOfTxnPerDay;
 
-	private Integer maxNumberOfTxnPerMonth;
+	private Long maxNumberOfTxnPerMonth;
 
 	private BigDecimal maxAmountPerDay;
 
@@ -52,19 +52,19 @@ public class UpdateGenericLimitRequest {
 		this.description = description;
 	}
 
-	public Integer getMaxNumberOfTxnPerDay() {
+	public Long getMaxNumberOfTxnPerDay() {
 		return maxNumberOfTxnPerDay;
 	}
 
-	public void setMaxNumberOfTxnPerDay(Integer maxNumberOfTxnPerDay) {
+	public void setMaxNumberOfTxnPerDay(Long maxNumberOfTxnPerDay) {
 		this.maxNumberOfTxnPerDay = maxNumberOfTxnPerDay;
 	}
 
-	public Integer getMaxNumberOfTxnPerMonth() {
+	public Long getMaxNumberOfTxnPerMonth() {
 		return maxNumberOfTxnPerMonth;
 	}
 
-	public void setMaxNumberOfTxnPerMonth(Integer maxNumberOfTxnPerMonth) {
+	public void setMaxNumberOfTxnPerMonth(Long maxNumberOfTxnPerMonth) {
 		this.maxNumberOfTxnPerMonth = maxNumberOfTxnPerMonth;
 	}
 

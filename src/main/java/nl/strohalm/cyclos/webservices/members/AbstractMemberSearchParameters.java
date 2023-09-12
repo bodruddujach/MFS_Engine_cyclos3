@@ -25,7 +25,7 @@ import nl.strohalm.cyclos.webservices.model.FieldValueVO;
 import nl.strohalm.cyclos.webservices.model.SearchParameters;
 import nl.strohalm.cyclos.webservices.utils.ObjectHelper;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Base parameters for searching members via web services

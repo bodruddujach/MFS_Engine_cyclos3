@@ -52,7 +52,7 @@ public class AccountFeeDAOImpl extends BaseDAOImpl<AccountFee> implements Accoun
         HibernateHelper.addParameterToQuery(hql, namedParameters, "af.hour", query.getHour());
         HibernateHelper.addParameterToQueryOperator(hql, namedParameters, "af.enabledSince", "<=", query.getEnabledBefore());
         if (query.getGroups() != null && !query.getGroups().isEmpty()) {
-            hql.append(" and exists (select g.id from MemberGroup g where g in (:groups) and g in elements(af.groups)) ");
+            hql.append(" and exists (select g.id from MemberGroup g where g in (:groups) and g in (select g from af.groups)) ");
             namedParameters.put("groups", query.getGroups());
         }
         if (!query.isReturnDisabled()) {

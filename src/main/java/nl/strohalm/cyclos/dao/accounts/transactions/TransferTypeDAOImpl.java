@@ -115,7 +115,7 @@ public class TransferTypeDAOImpl extends BaseDAOImpl<TransferType> implements Tr
 
         // Channel
         if (query.getChannel() != null) {
-            hql.append(" and exists (select c.id from Channel c where c in elements(tt.channels) and c.internalName = :channel) ");
+            hql.append(" and exists (select c.id from Channel c where c in (select ttc from tt.channels ttc) and c.internalName = :channel) ");
             namedParameters.put("channel", query.getChannel());
         }
 
@@ -226,10 +226,15 @@ public class TransferTypeDAOImpl extends BaseDAOImpl<TransferType> implements Tr
 
         // Group
         if (query.getGroup() != null) {
-            hql.append(" and :group in elements(tt.groups)");
+            hql.append(" and :group in (select g from tt.groups g)");
             namedParameters.put("group", query.getGroup());
         }
 
+        // toGroup Permission
+        if (!CollectionUtils.isEmpty(query.getToGroups())) {
+            hql.append(" and (tt.restrictedToAllGroups = true or :toGroup in (select tg from tt.groupsRestrictedTo tg))");
+            namedParameters.put("toGroup", query.getToGroups().stream().findFirst().get());
+        }
         // Flags
         if (query.isPriority()) {
             hql.append(" and tt.priority = true ");
@@ -250,7 +255,7 @@ public class TransferTypeDAOImpl extends BaseDAOImpl<TransferType> implements Tr
                     hql.append(" or exists (select l.id from AuthorizationLevel l where l.transferType = tt and l.authorizer = :" + name);
                     // It may also have an admin group for authorizations
                     if (authorizerGroup != null) {
-                        hql.append(" and :authorizerGroup in elements(l.adminGroups)");
+                        hql.append(" and :authorizerGroup in (select ag from l.adminGroups ag)");
                     }
                     hql.append(")");
                     namedParameters.put(name, authorizer);

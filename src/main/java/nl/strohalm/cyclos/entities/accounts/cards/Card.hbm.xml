@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC 
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 
     <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.entities.accounts.cards.Card" table="cards">
 		<id name="id" type="long">
 		    <column name="id" sql-type="integer"/>
-			<generator class="native"/>
+			<generator class="identity"/>
 		</id>
 		<many-to-one name="cardType" class="nl.strohalm.cyclos.entities.accounts.cards.CardType">
 		    <column name="card_type_id" sql-type="integer" not-null="true"/>

@@ -40,7 +40,7 @@ public class CyclosConfiguration {
     private static final String HIBERNATE_C3P0_MAX_POOL_SIZE         = "hibernate.c3p0.maxPoolSize";
 
     private static final int    HIBERNATE_C3P0_MAX_POOL_SIZE_DEFAULT = 20;
-
+    private static final String DB_SCHEMA                            = "hibernate.default_schema";
     public static final String  CYCLOS_PROPERTIES_FILE               = "/cyclos.properties";
 
     public static Properties getCyclosProperties() throws IOException {

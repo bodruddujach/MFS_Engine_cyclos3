@@ -72,7 +72,7 @@ public class MemberAccountFeeLogDAOImpl extends BaseDAOImpl<MemberAccountFeeLog>
         hql.append("   and l.success = true");
         hql.append("   and l.transfer.id is null");
         hql.append("   and l.invoice.id is null");
-        return this.<Integer> uniqueResult(hql.toString(), params);
+        return this.<Long> uniqueResult(hql.toString(), params).intValue();
     }
 
     @Override
@@ -134,7 +134,7 @@ public class MemberAccountFeeLogDAOImpl extends BaseDAOImpl<MemberAccountFeeLog>
     @Override
     @SuppressWarnings("unchecked")
     public List<Member> nextToCharge(final AccountFeeLog feeLog, final int count) {
-        return getSession().createFilter(feeLog.getPendingToCharge(), "where 1=1").setMaxResults(count).list();
+        return currentSession().createFilter(feeLog.getPendingToCharge(), "where 1=1").setMaxResults(count).list();
     }
 
     @Override

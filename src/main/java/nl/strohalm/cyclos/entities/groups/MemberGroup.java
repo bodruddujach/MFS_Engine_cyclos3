@@ -20,6 +20,7 @@
 package nl.strohalm.cyclos.entities.groups;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 
 import nl.strohalm.cyclos.entities.Relationship;
@@ -30,9 +31,12 @@ import nl.strohalm.cyclos.entities.accounts.MemberGroupAccountSettings;
 import nl.strohalm.cyclos.entities.accounts.cards.CardType;
 import nl.strohalm.cyclos.entities.accounts.fees.account.AccountFee;
 import nl.strohalm.cyclos.entities.accounts.fees.transaction.TransactionFee;
+import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
 import nl.strohalm.cyclos.entities.customization.fields.CustomField;
 import nl.strohalm.cyclos.entities.members.RegistrationAgreement;
 import nl.strohalm.cyclos.entities.members.messages.Message;
+import nl.strohalm.cyclos.mfs.entities.MfsAccountTypeGroup;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig;
 
 /**
  * A group of regular members
@@ -41,7 +45,7 @@ import nl.strohalm.cyclos.entities.members.messages.Message;
 public class MemberGroup extends SystemGroup {
 
     public static enum Relationships implements Relationship {
-        ACCOUNT_SETTINGS("accountSettings"), CAN_VIEW_PROFILE_OF_GROUPS("canViewProfileOfGroups"), CAN_VIEW_ADS_OF_GROUPS("canViewAdsOfGroups"), CAN_VIEW_INFORMATION_OF("canViewInformationOf"), ACCOUNT_FEES("accountFees"), MANAGED_BY_GROUPS("managedByGroups"), CUSTOM_FIELDS("customFields"), FROM_TRANSACTION_FEES("fromTransactionFees"), TO_TRANSACTION_FEES("toTransactionFees"), DEFAULT_MAIL_MESSAGES("defaultMailMessages"), SMS_MESSAGES("smsMessages"), DEFAULT_SMS_MESSAGES("defaultSmsMessages"), CHANNELS("channels"), DEFAULT_CHANNELS("defaultChannels"), REQUEST_PAYMENT_BY_CHANNELS("requestPaymentByChannels"), MEMBER_RECORD_TYPES("memberRecordTypes"), CAN_ISSUE_CERTIFICATION_TO_GROUPS("canIssueCertificationToGroups"), CAN_BUY_WITH_PAYMENT_OBLIGATIONS_FROM_GROUPS("canBuyWithPaymentObligationsFromGroups"), CAN_VIEW_GROUP_FILTERS("canViewGroupFilters"), POSSIBLE_INITIAL_GROUP_OF("possibleInitialGroupOf"), REGISTRATION_AGREEMENT("registrationAgreement"), CARD_TYPE("cardType");
+        ACCOUNT_SETTINGS("accountSettings"), CAN_VIEW_PROFILE_OF_GROUPS("canViewProfileOfGroups"), CAN_VIEW_ADS_OF_GROUPS("canViewAdsOfGroups"), CAN_VIEW_INFORMATION_OF("canViewInformationOf"), ACCOUNT_FEES("accountFees"), MANAGED_BY_GROUPS("managedByGroups"), CUSTOM_FIELDS("customFields"), FROM_TRANSACTION_FEES("fromTransactionFees"), TO_TRANSACTION_FEES("toTransactionFees"), DEFAULT_MAIL_MESSAGES("defaultMailMessages"), SMS_MESSAGES("smsMessages"), DEFAULT_SMS_MESSAGES("defaultSmsMessages"), CHANNELS("channels"), DEFAULT_CHANNELS("defaultChannels"), REQUEST_PAYMENT_BY_CHANNELS("requestPaymentByChannels"), MEMBER_RECORD_TYPES("memberRecordTypes"), CAN_ISSUE_CERTIFICATION_TO_GROUPS("canIssueCertificationToGroups"), CAN_BUY_WITH_PAYMENT_OBLIGATIONS_FROM_GROUPS("canBuyWithPaymentObligationsFromGroups"), CAN_VIEW_GROUP_FILTERS("canViewGroupFilters"), POSSIBLE_INITIAL_GROUP_OF("possibleInitialGroupOf"), REGISTRATION_AGREEMENT("registrationAgreement"), CARD_TYPE("cardType"), MFS_ACCOUNT_TYPE_SETTINGS("mfsAccountTypeSettings"), GROUP_TXN_LIMIT_CONFIGS("groupTxnLimitConfigs"), TO_TRANSFER_TYPES("toTransferTypes");
         private final String name;
 
         private Relationships(final String name) {
@@ -83,7 +87,10 @@ public class MemberGroup extends SystemGroup {
     private boolean                                defaultAcceptFreeMailing;
     private boolean                                defaultAcceptPaidMailing;
     private RegistrationAgreement                  registrationAgreement;
-
+    private Collection<MfsAccountTypeGroup> mfsAccountTypeSettings;
+    private Collection<MfsTxnLimitConfig> groupTxnLimitConfigs;
+    private Collection<TransferType>      toTransferTypes;
+    
     public Collection<AccountFee> getAccountFees() {
         return accountFees;
     }
@@ -334,4 +341,52 @@ public class MemberGroup extends SystemGroup {
     public void setToTransactionFees(final Collection<TransactionFee> toTransactionFees) {
         this.toTransactionFees = toTransactionFees;
     }
+
+    public Collection<MfsAccountTypeGroup> getMfsAccountTypeSettings() {
+        return mfsAccountTypeSettings;
+    }
+
+    public void setMfsAccountTypeSettings(Collection<MfsAccountTypeGroup> mfsAccountTypeSettings) {
+        this.mfsAccountTypeSettings = mfsAccountTypeSettings;
+    }
+
+    public Collection<MfsTxnLimitConfig> getGroupTxnLimitConfigs() {
+        return groupTxnLimitConfigs;
+    }
+
+    public void setGroupTxnLimitConfigs(Collection<MfsTxnLimitConfig> groupTxnLimitConfigs) {
+        this.groupTxnLimitConfigs = groupTxnLimitConfigs;
+    }
+
+    public void addGroupTxnLimitConfig(MfsTxnLimitConfig child){
+        if(child!=null){
+          this.groupTxnLimitConfigs.add(child);
+          child.setGroup(this);   
+        }
+   }
+
+   public void removeGroupTxnLimitConfig(MfsTxnLimitConfig child){
+        if(child!=null){
+          this.groupTxnLimitConfigs.remove(child);
+          child.setGroup(null);   
+        }
+   }
+
+   public void updateGroupTxnLimitConfigs(Collection<MfsTxnLimitConfig> children) {
+       for (MfsTxnLimitConfig c: groupTxnLimitConfigs) {
+           if(!children.contains(c)) {
+               this.removeGroupTxnLimitConfig(c);
+           }
+       }
+       children.forEach(this::addGroupTxnLimitConfig);
+   }
+
+   public Collection<TransferType> getToTransferTypes() {
+       return toTransferTypes;
+   }
+
+   public void setToTransferTypes(Collection<TransferType> toTransferTypes) {
+       this.toTransferTypes = toTransferTypes;
+   }
+   
 }

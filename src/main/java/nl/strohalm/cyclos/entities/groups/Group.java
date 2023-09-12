@@ -301,4 +301,8 @@ public abstract class Group extends Entity implements Comparable<Group> {
         return getId() + " - " + name;
     }
 
+    @Override
+    public int hashCode() {
+       return this.getId().intValue();
+    }
 }

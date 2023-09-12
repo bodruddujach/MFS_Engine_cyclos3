@@ -29,9 +29,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.connection.ConnectionProvider;
-import org.hibernate.engine.SessionFactoryImplementor;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.springframework.orm.hibernate5.HibernateCallback;
 
 /**
  * Implementation for application dao
@@ -49,7 +49,7 @@ public class ApplicationDAOImpl extends BaseDAOImpl<Application> implements Appl
     public Application read() {
         return getHibernateTemplate().execute(new HibernateCallback<Application>() {
             @Override
-            public Application doInHibernate(final Session session) throws HibernateException, SQLException {
+            public Application doInHibernate(final Session session) throws HibernateException {
                 return (Application) session.createCriteria(Application.class).uniqueResult();
             }
         });
@@ -58,9 +58,10 @@ public class ApplicationDAOImpl extends BaseDAOImpl<Application> implements Appl
     @Override
     public void shutdownDBIfNeeded() {
         SessionFactoryImplementor sessionFactory = (SessionFactoryImplementor) getSessionFactory();
-        ConnectionProvider connectionProvider = sessionFactory.getConnectionProvider();
+//        ConnectionProvider connectionProvider = sessionFactory.getConnectionProvider();
         try {
-            Connection connection = connectionProvider.getConnection();
+            Connection connection = sessionFactory.getSessionFactoryOptions().getServiceRegistry()
+                    .getService(ConnectionProvider.class).getConnection();
             try {
                 String dbName = connection.getMetaData().getDatabaseProductName();
                 if (dbName.startsWith("HSQL")) {
@@ -68,7 +69,8 @@ public class ApplicationDAOImpl extends BaseDAOImpl<Application> implements Appl
                     LOG.info("Shutdown on HSQL Database was successful");
                 }
             } finally {
-                connectionProvider.closeConnection(connection);
+                //connectionProvider.closeConnection(connection);
+                connection.close();
             }
         } catch (SQLException e) {
             LOG.warn("Error shutting down database connection", e);

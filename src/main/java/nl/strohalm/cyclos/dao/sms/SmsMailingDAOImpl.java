@@ -111,12 +111,12 @@ public class SmsMailingDAOImpl extends BaseDAOImpl<SmsMailing> implements SmsMai
     }
 
     public List<SmsMailing> listUnfinishedMailings() {
-        return list("from SmsMailing m where exists elements(m.pendingToSend)", null);
+        return list("from SmsMailing m where exists (select pm from m.pendingToSend pm)", null);
     }
 
     @Override
     public Member nextMemberToSend(final SmsMailing smsMailing) {
-        return (Member) getSession().createFilter(smsMailing.getPendingToSend(), "where 1=1").setMaxResults(1).uniqueResult();
+        return (Member) currentSession().createFilter(smsMailing.getPendingToSend(), "where 1=1").setMaxResults(1).uniqueResult();
     }
 
     @Override
@@ -152,7 +152,7 @@ public class SmsMailingDAOImpl extends BaseDAOImpl<SmsMailing> implements SmsMai
             hql.append(" or exists (");
             hql.append("     select g.id");
             hql.append("     from MemberGroup g");
-            hql.append("     where (g in elements(m.groups) and g in (:_groups_)) or m.by.group in (:_groups_)");
+            hql.append("     where (g in (select g from m.groups) and g in (:_groups_)) or m.by.group in (:_groups_)");
             namedParameters.put("_groups_", query.getGroups());
             hql.append(" ))");
         }

@@ -205,12 +205,12 @@ public class AccountDAOImpl extends BaseDAOImpl<Account> implements AccountDAO {
         hql.append(" and ma.type = :type ");
         hql.append(" and ma.action = :action ");
 
-        return this.<Integer> uniqueResult(hql.toString(), params);
+        return this.<Long> uniqueResult(hql.toString(), params).intValue();
     }
 
     @Override
     public int delete(final boolean flush, final Long... ids) {
-        getSession()
+        currentSession()
                 .createQuery("delete from AccountLock l where l.id in (:ids)")
                 .setParameterList("ids", ids)
                 .executeUpdate();
@@ -305,9 +305,9 @@ public class AccountDAOImpl extends BaseDAOImpl<Account> implements AccountDAO {
     @Override
     public <T extends Account> T insert(final T entity, final boolean flush) throws UnexpectedEntityException, DaoException {
         final T account = super.insert(entity, false);
-        getSession().persist(new AccountLock(account));
+        currentSession().persist(new AccountLock(account));
         if (flush) {
-            getSession().flush();
+            currentSession().flush();
         }
         return account;
     }
@@ -355,7 +355,7 @@ public class AccountDAOImpl extends BaseDAOImpl<Account> implements AccountDAO {
         sql.append(" ) d ");
         sql.append(" group by type, date(d.date) ");
         sql.append(" order by date(d.date) ");
-        SQLQuery query = getSession().createSQLQuery(sql.toString());
+        SQLQuery query = currentSession().createSQLQuery(sql.toString());
         query.addScalar("type", StandardBasicTypes.STRING);
         query.addScalar("date", StandardBasicTypes.CALENDAR_DATE);
         query.addScalar("amount", StandardBasicTypes.BIG_DECIMAL);
@@ -416,7 +416,7 @@ public class AccountDAOImpl extends BaseDAOImpl<Account> implements AccountDAO {
                 Long groupId = dto.getGroup().getId();
 
                 // Fist, mark for activation all accounts which where already there but are inactive
-                if (jdbc.isHSQLDB()) {
+                if (jdbc.isHSQLDB() || jdbc.isOracleDB()) {
                     // this is because HSQLDB (e.g.: used by Cyclos Standalone) doesn't support join in update statements
                     sql.append("update accounts a");
                     sql.append(" set member_action = 'A'");
@@ -543,7 +543,7 @@ public class AccountDAOImpl extends BaseDAOImpl<Account> implements AccountDAO {
         sql.append(" order by m.name, u.username, h.account_type_name, h.date desc, h.transfer_id desc");
 
         // Prepare the query
-        final SQLQuery query = getSession().createSQLQuery(sql.toString());
+        final SQLQuery query = currentSession().createSQLQuery(sql.toString());
         final Map<String, Type> columns = new LinkedHashMap<String, Type>();
         columns.put("username", StandardBasicTypes.STRING);
         columns.put("name", StandardBasicTypes.STRING);
@@ -629,7 +629,7 @@ public class AccountDAOImpl extends BaseDAOImpl<Account> implements AccountDAO {
         sql.append(" group by member_id");
         sql.append(" order by ").append(order == MemberResultDisplay.NAME ? "member_name, member_id" : "username");
 
-        final SQLQuery query = getSession().createSQLQuery(sql.toString());
+        final SQLQuery query = currentSession().createSQLQuery(sql.toString());
         query.addScalar("member_id", StandardBasicTypes.LONG);
         query.addScalar("count", StandardBasicTypes.INTEGER);
         query.addScalar("amount", StandardBasicTypes.BIG_DECIMAL);
@@ -714,7 +714,7 @@ public class AccountDAOImpl extends BaseDAOImpl<Account> implements AccountDAO {
 
     private TransactionSummaryVO buildSummary(final Object object) {
         final Object[] row = (Object[]) object;
-        final int count = row[0] == null ? 0 : (Integer) row[0];
+        final long count = row[0] == null ? 0 : (Long) row[0];
         final BigDecimal amount = row[1] == null ? BigDecimal.ZERO : (BigDecimal) row[1];
         return new TransactionSummaryVO(count, amount);
     }

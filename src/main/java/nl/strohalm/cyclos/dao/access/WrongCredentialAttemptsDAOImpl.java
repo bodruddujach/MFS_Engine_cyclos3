@@ -72,7 +72,7 @@ public class WrongCredentialAttemptsDAOImpl extends BaseDAOImpl<WrongCredentialA
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("limit", limit);
         params.put("card", card);
-        return this.<Integer> uniqueResult("select count(*) from WrongCredentialAttempt a where a.date >= :limit and a.card = :card", params);
+        return this.<Long> uniqueResult("select count(*) from WrongCredentialAttempt a where a.date >= :limit and a.card = :card", params).intValue();
     }
 
     @Override
@@ -80,7 +80,7 @@ public class WrongCredentialAttemptsDAOImpl extends BaseDAOImpl<WrongCredentialA
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("limit", limit);
         params.put("memberPos", memberPos);
-        return this.<Integer> uniqueResult("select count(*) from WrongCredentialAttempt a where a.date >= :limit and a.memberPos = :memberPos", params);
+        return this.<Long> uniqueResult("select count(*) from WrongCredentialAttempt a where a.date >= :limit and a.memberPos = :memberPos", params).intValue();
     }
 
     @Override
@@ -89,7 +89,7 @@ public class WrongCredentialAttemptsDAOImpl extends BaseDAOImpl<WrongCredentialA
         params.put("limit", limit);
         params.put("user", user);
         params.put("credentialType", credentialType);
-        return this.<Integer> uniqueResult("select count(*) from WrongCredentialAttempt a where a.date >= :limit and a.user = :user and a.credentialType = :credentialType", params);
+        return this.<Long> uniqueResult("select count(*) from WrongCredentialAttempt a where a.date >= :limit and a.user = :user and a.credentialType = :credentialType", params).intValue();
     }
 
     @Override

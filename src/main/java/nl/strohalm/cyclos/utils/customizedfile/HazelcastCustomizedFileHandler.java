@@ -27,9 +27,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ITopic;
-import com.hazelcast.core.Message;
-import com.hazelcast.core.MessageListener;
+import com.hazelcast.topic.ITopic;
+import com.hazelcast.topic.Message;
+import com.hazelcast.topic.MessageListener;
 
 /**
  * A customized file handler which broadcasts operations using Hazelcast

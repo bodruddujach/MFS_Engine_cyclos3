@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Collection;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import nl.strohalm.cyclos.entities.Entity;
 import nl.strohalm.cyclos.entities.Relationship;
@@ -35,9 +35,9 @@ public class MfsGenericLimitConfig extends Entity {
 
 	private String description;
 
-	private Integer maxNumberOfTxnPerDay;
+	private Long maxNumberOfTxnPerDay;
 
-	private Integer maxNumberOfTxnPerMonth;
+	private Long maxNumberOfTxnPerMonth;
 
 	private BigDecimal maxAmountPerDay;
 
@@ -72,19 +72,19 @@ public class MfsGenericLimitConfig extends Entity {
 		this.description = description;
 	}
 
-	public Integer getMaxNumberOfTxnPerDay() {
+	public Long getMaxNumberOfTxnPerDay() {
 		return maxNumberOfTxnPerDay;
 	}
 
-	public void setMaxNumberOfTxnPerDay(final Integer maxNumberOfTxnPerDay) {
+	public void setMaxNumberOfTxnPerDay(final Long maxNumberOfTxnPerDay) {
 		this.maxNumberOfTxnPerDay = maxNumberOfTxnPerDay;
 	}
 
-	public Integer getMaxNumberOfTxnPerMonth() {
+	public Long getMaxNumberOfTxnPerMonth() {
 		return maxNumberOfTxnPerMonth;
 	}
 
-	public void setMaxNumberOfTxnPerMonth(final Integer maxNumberOfTxnPerMonth) {
+	public void setMaxNumberOfTxnPerMonth(final Long maxNumberOfTxnPerMonth) {
 		this.maxNumberOfTxnPerMonth = maxNumberOfTxnPerMonth;
 	}
 

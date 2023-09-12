@@ -25,9 +25,12 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import nl.strohalm.cyclos.utils.JDBCWrapper;
 import nl.strohalm.cyclos.utils.conversion.LocaleConverter;
@@ -40,8 +43,10 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
-import org.hibernate.connection.ConnectionProvider;
-import org.hibernate.connection.DatasourceConnectionProvider;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl;
 
 /**
  * Class used to manage database configuration, validate the connection, generate the database when in embedded mode and apply automatic schema
@@ -52,6 +57,7 @@ public class DataBaseConfiguration {
     public static boolean       SKIP = false;
     private static final Log    LOG  = LogFactory.getLog(DataBaseConfiguration.class);
     private final Configuration configuration;
+    private StandardServiceRegistry builder;
     private SessionFactory      sessionFactory;
     private final TaskRunner    taskRunner;
     private Class<?>            driverToUnregister;
@@ -119,8 +125,8 @@ public class DataBaseConfiguration {
         String connectionLocation;
         if (dataSource != null) {
             // Use Hibernate's own DatasourceConnectionProvider when using a JNDI datasource
-            final ConnectionProvider provider = new DatasourceConnectionProvider();
-            provider.configure(properties);
+            final DatasourceConnectionProviderImpl provider = new DatasourceConnectionProviderImpl();
+            provider.configure(streamConvert(properties));
             try {
                 connection = provider.getConnection();
             } catch (final SQLException e) {
@@ -202,7 +208,8 @@ public class DataBaseConfiguration {
             if (embedded) {
                 final boolean smsEmbedded = Boolean.valueOf(properties.getProperty("cyclos.embedded.sms.enable", "false"));
                 LOG.info("Database is empty. Running setup to populate it");
-                sessionFactory = configuration.buildSessionFactory();
+                builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
+                sessionFactory = configuration.buildSessionFactory(builder);
                 final Locale locale = LocaleConverter.instance().valueOf(properties.getProperty("cyclos.embedded.locale", "en_US"));
                 final Setup setup = new Setup(configuration, sessionFactory);
                 setup.setLocale(locale);
@@ -231,7 +238,7 @@ public class DataBaseConfiguration {
         if (secondLevelCacheEnabled) {
             // The second level cache provider
             if (StringUtils.isEmpty(properties.getProperty("hibernate.cache.region.factory_class"))) {
-                properties.setProperty("hibernate.cache.region.factory_class", "net.sf.ehcache.hibernate.EhCacheRegionFactory");
+                properties.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
             }
         }
 
@@ -416,7 +423,7 @@ public class DataBaseConfiguration {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(url, username, password);
-            connection.setAutoCommit(false);
+            connection.setAutoCommit(true);
         } catch (final SQLException e) {
             final String msg = "Error connecting to database at " + url;
             LOG.error(msg);
@@ -450,5 +457,14 @@ public class DataBaseConfiguration {
                 LOG.warn("Property '" + key + "' has trailing spaces. Its value is : '" + value + "'");
             }
         }
+    }
+
+    public Map<String, String> streamConvert(Properties prop) {
+        return prop.entrySet().stream().collect(
+          Collectors.toMap(
+            e -> String.valueOf(e.getKey()),
+            e -> String.valueOf(e.getValue()),
+            (prev, next) -> next, HashMap::new
+        ));
     }
 }

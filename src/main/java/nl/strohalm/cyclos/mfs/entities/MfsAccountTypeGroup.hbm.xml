@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class dynamic-insert="true" dynamic-update="true" name="nl.strohalm.cyclos.mfs.entities.MfsAccountTypeGroup" table="mfs_account_type_member_group_mapping">
+        <cache usage="read-write"/>
+        <id name="id" type="long">
+            <column name="id" sql-type="integer"/>
+            <generator class="identity"/>
+        </id>
+        <many-to-one name="group" class="nl.strohalm.cyclos.entities.groups.MemberGroup">
+            <column name="group_id" not-null="true" sql-type="integer"/>
+        </many-to-one>
+        <many-to-one name="accountType" class="nl.strohalm.cyclos.entities.accounts.MemberAccountType">
+            <column name="account_type_id" not-null="true" sql-type="integer"/>
+        </many-to-one>
+        <property name="groupName" column="group_name" type="string" not-null="false"/>
+        <property name="accountTypeName" column="account_type_name" type="string" not-null="false"/>
+        <property name="defaultGroup" column="default_group" type="boolean" not-null="true"/>
+        <property name="createdAt" column="create_date" type="calendar" not-null="true" />
+        <property name="modifiedAt" column="updated_date" type="calendar" not-null="false" />
+    </class>
+    
+</hibernate-mapping>

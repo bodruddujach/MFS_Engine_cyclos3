@@ -21,7 +21,7 @@ package nl.strohalm.cyclos.webservices.model;
 
 import java.util.Calendar;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Just like AdVO, but hides some properties when converted to JSON

@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -61,7 +62,7 @@ public class ResettableHttpServletResponse implements HttpServletResponse, Reset
     private ServletOutputStream     servletOutputStream;
     private File                    contents;
     private Set<String>             headerNames;
-    private Integer                 status;
+    private int                 status;
     private boolean                 stateApplied;
 
     public ResettableHttpServletResponse(final HttpServletResponse response) {
@@ -228,7 +229,7 @@ public class ResettableHttpServletResponse implements HttpServletResponse, Reset
         return servletOutputStream;
     }
 
-    public Integer getStatus() {
+    public int getStatus() {
         return status;
     }
 
@@ -272,7 +273,6 @@ public class ResettableHttpServletResponse implements HttpServletResponse, Reset
 
     @Override
     public void resetState() {
-        status = null;
         operations.clear();
         headerNames.clear();
         charset = wrapped.getCharacterEncoding();
@@ -431,5 +431,20 @@ public class ResettableHttpServletResponse implements HttpServletResponse, Reset
             }
         });
     }
+
+	@Override
+	public String getHeader(String name) {
+		return wrapped.getHeader(name);
+	}
+
+	@Override
+	public Collection<String> getHeaders(String name) {
+		return wrapped.getHeaders(name);
+	}
+
+	@Override
+	public Collection<String> getHeaderNames() {
+		return wrapped.getHeaderNames();
+	}
 
 }

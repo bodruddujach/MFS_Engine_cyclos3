@@ -27,7 +27,7 @@ import net.sf.ehcache.distribution.CacheReplicator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.hazelcast.core.ITopic;
+import com.hazelcast.topic.ITopic;
 
 /**
  * Replicates cache events

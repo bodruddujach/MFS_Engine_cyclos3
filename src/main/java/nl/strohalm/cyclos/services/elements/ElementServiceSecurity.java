@@ -471,4 +471,14 @@ public class ElementServiceSecurity extends BaseServiceSecurity implements Eleme
         }
         return groups;
     }
+
+    @Override
+    public <E extends Element> E changeGroupInMfsContext(final E element, final Group newGroup, final String comments) throws MemberHasBalanceException, MemberHasOpenInvoicesException, ValidationException {
+        checkChangeGroup(element);
+        // No matter what, an admin cannot change his own group. Also, the new group must be visible
+        if (LoggedUser.element().equals(element) || !permissionService.getAllVisibleGroups().contains(newGroup)) {
+            throw new PermissionDeniedException();
+        }
+        return elementService.changeGroupInMfsContext(element, newGroup, comments);
+    }
 }

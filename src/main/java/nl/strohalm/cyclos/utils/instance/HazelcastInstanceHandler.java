@@ -24,7 +24,7 @@ import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.Properties;
 
-import org.hibernate.util.StringHelper;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -32,7 +32,7 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.UrlXmlConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.Member;
+import com.hazelcast.cluster.Member;
 
 /**
  * An instance handler which uses Hazelcast
@@ -53,7 +53,7 @@ public class HazelcastInstanceHandler implements InstanceHandler, InitializingBe
         }
         Config config = new UrlXmlConfig(xml);
         String instanceName = cyclosProperties == null ? null : cyclosProperties.getProperty("cyclos.instanceHandler.instanceName");
-        if (StringHelper.isEmpty(instanceName)) {
+        if (StringUtils.isEmpty(instanceName)) {
             instanceName = "cyclos";
         }
         config.setInstanceName(instanceName);
@@ -72,7 +72,7 @@ public class HazelcastInstanceHandler implements InstanceHandler, InitializingBe
 
     @Override
     public String getId() {
-        InetSocketAddress addr = member.getInetSocketAddress();
+        InetSocketAddress addr = member.getSocketAddress();
         return addr.getAddress().getHostAddress() + ":" + addr.getPort();
     }
 

@@ -2,6 +2,7 @@ package nl.strohalm.cyclos.mfs.controllers;
 
 import nl.strohalm.cyclos.entities.accounts.MemberAccount;
 import nl.strohalm.cyclos.mfs.models.accounts.AccountActivationRequest;
+import nl.strohalm.cyclos.mfs.models.accounts.AccountTypeDTO;
 import nl.strohalm.cyclos.mfs.models.accounts.BalanceResponse;
 import nl.strohalm.cyclos.mfs.models.accounts.ChangePinRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.CheckPinRequest;
@@ -69,6 +70,13 @@ public class AccountController {
     return accountService.updateWalletInformation(userRequest);
   }
 
+  @RequestMapping(value = "/category", method = RequestMethod.PUT, headers = HEADER_JSON)
+  @ResponseBody
+  public Response updateWalletAccountCategory(@Validated @RequestBody UpdateAccountRequest userRequest)
+    throws Exception {
+    return accountService.updateWalletInformation(userRequest);
+  }
+
   @RequestMapping(value = "/check/pin", method = RequestMethod.POST, headers = HEADER_JSON)
   @ResponseBody
   public LoginResponse loginUser(@Validated @RequestBody CheckPinRequest checkPinRequest) {
@@ -123,4 +131,11 @@ public class AccountController {
   public List<AccountLimitData> getWalletUsageAndLimitsInfo(@PathVariable String walletNo) {
     return accountService.getWalletUsageAndLimitsInfo(walletNo);
   }
+
+  @RequestMapping(value = "/account-type/category/all", method = RequestMethod.GET, headers = HEADER_JSON)
+  @ResponseBody
+  public List<AccountTypeDTO> getAllTypeWiseAccountCategories() {
+    return accountService.getAccoutCategoriesgroupByAccounttype();
+  }
+
 }

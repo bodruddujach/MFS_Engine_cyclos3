@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import nl.strohalm.cyclos.webservices.utils.ObjectHelper;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Custom field data for web services
