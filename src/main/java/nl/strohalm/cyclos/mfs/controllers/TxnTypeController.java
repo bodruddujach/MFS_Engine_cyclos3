@@ -17,7 +17,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 @Controller
-@RequestMapping("v1/api/txnType")
+@RequestMapping("v1/api/txn-type")
 public class TxnTypeController {
 
   @Autowired
