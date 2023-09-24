@@ -81,6 +81,7 @@ import nl.strohalm.cyclos.entities.settings.AccessSettings;
 import nl.strohalm.cyclos.exceptions.PermissionDeniedException;
 import nl.strohalm.cyclos.mfs.dao.MfsAccountTypeGroupDao;
 import nl.strohalm.cyclos.mfs.entities.MfsAccountTypeGroup;
+import nl.strohalm.cyclos.mfs.entities.MfsTxnLimitConfig;
 import nl.strohalm.cyclos.scheduling.polling.AccountActivationPollingTask;
 import nl.strohalm.cyclos.services.access.ChannelServiceLocal;
 import nl.strohalm.cyclos.services.accounts.AccountServiceLocal;
@@ -1495,6 +1496,12 @@ public class GroupServiceImpl implements GroupServiceLocal {
                 }
                 memberGroup.setManagedByGroups(managedByGroups);
 
+                
+                final List<MfsTxnLimitConfig> groupTxnLimitConfigs = new ArrayList<>();
+                if (currentMemberGroup.getGroupTxnLimitConfigs() != null) {
+                    groupTxnLimitConfigs.addAll(currentMemberGroup.getGroupTxnLimitConfigs());
+                }
+                memberGroup.setGroupTxnLimitConfigs(groupTxnLimitConfigs);
                 // "defaultMailMessages" is updated at edit group screen, so it doesn't need to be copied
                 // "smsMessages" is updated at edit group screen, so it doesn't need to be copied
                 // "defaultSmsMessages" is updated at edit group screen, so it doesn't need to be copied
