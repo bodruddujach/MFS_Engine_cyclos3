@@ -446,9 +446,11 @@ public class TransactionService {
         throw paymentResult.getException();
       }
       txnResultList.add(txnResult);
-      if (mainTxnRequestId.equals(txnRequest.getRequestId()) && StringUtils.isNotBlank(txnRequest.getRequestId()) && dynamicFeesAndCommissions.containsKey(txnRequest.getRequestId())) {
-        updateDynamicFeeInfo(txnRequest, txnResult, mfsBulkTxnTypes, dynamicFeesAndCommissions.get(txnRequest.getRequestId()));
-        dynamicResponse = txnResult;
+      if (StringUtils.isNotBlank(txnRequest.getRequestId()) && mainTxnRequestId.equals(txnRequest.getRequestId())) {
+          dynamicResponse = txnResult;
+          if (dynamicFeesAndCommissions.containsKey(txnRequest.getRequestId())) {
+            updateDynamicFeeInfo(txnRequest, dynamicResponse, mfsBulkTxnTypes, dynamicFeesAndCommissions.get(txnRequest.getRequestId()));
+          }
       }
     }
     includeBalances(mainTxnRequest, dynamicResponse, mfsBulkTxnTypes.get(mainTxnRequest.getTxnType()));
