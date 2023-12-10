@@ -29,6 +29,7 @@ public class WalletStatementDetail implements Serializable {
   private Boolean isReversedTxn;
   private String description;
   private String txnType;
+  private String mfsTxnType;
   private String invoiceNo;
   private String customerRefId;
   private String note;
@@ -229,6 +230,14 @@ public class WalletStatementDetail implements Serializable {
     this.toAcId = toAcId;
   }
 
+  public String getMfsTxnType() {
+    return mfsTxnType;
+  }
+
+  public void setMfsTxnType(String mfsTxnType) {
+    this.mfsTxnType = mfsTxnType;
+  }
+
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
@@ -243,6 +252,7 @@ public class WalletStatementDetail implements Serializable {
         .add("transactionNumber", transactionNumber)
         .add("parentTransactionNumber", parentTransactionNumber)
         .add("typeName", typeName)
+            .add("mfsTxnType", mfsTxnType)
         .add("canReverse", canReverse)
         .add("isReversedTxn", isReversedTxn)
         .add("description", description)

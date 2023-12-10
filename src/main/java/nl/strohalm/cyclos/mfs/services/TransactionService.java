@@ -15,7 +15,7 @@ import nl.strohalm.cyclos.mfs.exceptions.MFSCommonException;
 import nl.strohalm.cyclos.mfs.middleware.CyclosMiddleware;
 import nl.strohalm.cyclos.mfs.models.accounts.BalanceResponse;
 import nl.strohalm.cyclos.mfs.models.accounts.CheckPinRequest;
-
+import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementDetail;
 import nl.strohalm.cyclos.mfs.models.accounts.WalletStatementResp;
 import nl.strohalm.cyclos.mfs.models.enums.TransactionType;
 import nl.strohalm.cyclos.mfs.models.transactions.BulkTxnRequest;
@@ -61,6 +61,8 @@ public class TransactionService {
   @Autowired
   private TransactionFeeServiceLocal transactionFeeService;
 
+  @Autowired
+  private MfsTxnTypeService mfsTxnTypeService;
   //todo autowire limit service
 
   public TxnResponse processTransaction(TxnRequest request) {
@@ -200,7 +202,14 @@ public class TransactionService {
 //  }
 
   public WalletStatementResp getTxnDetail(String txnId) {
-    return paymentServiceLocal.getTransactionDetails(txnId);
+	WalletStatementResp statementResponse = paymentServiceLocal.getTransactionDetails(txnId);
+	if (!CollectionUtils.isEmpty(statementResponse.getWalletStatementDetailList())) {
+		for (WalletStatementDetail detail: statementResponse.getWalletStatementDetailList()) {
+			MfsTxnType mfsTxnType = mfsTxnTypeService.findByCoreId(detail.getTypeId().longValue());
+            detail.setMfsTxnType(mfsTxnType != null ? mfsTxnType.getName() : "");
+		}
+	}
+	return statementResponse;
   }
 
   public TxnResponse estimate(TxnRequest request) {
