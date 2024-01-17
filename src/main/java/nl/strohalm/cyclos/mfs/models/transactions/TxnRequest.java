@@ -3,7 +3,6 @@ package nl.strohalm.cyclos.mfs.models.transactions;
 import com.google.common.base.MoreObjects;
 
 import nl.strohalm.cyclos.mfs.entities.MfsTxnType.TxnTypeTag;
-import nl.strohalm.cyclos.mfs.models.enums.TransactionType;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -52,6 +51,7 @@ public class TxnRequest implements Serializable {
   private String parentRequestId;
   private TxnTypeTag txnTypeTag;
   private String traceData;
+  private boolean scheduledPayment;
 
   public String getFromAc() {
     return fromAc;
@@ -281,13 +281,21 @@ public class TxnRequest implements Serializable {
     this.txnTypeTag = txnTypeTag;
   }
   
-public String getTraceData() {
-	return traceData;
-}
+  public String getTraceData() {
+    return traceData;
+  }
 
-public void setTraceData(String traceData) {
-	this.traceData = traceData;
-}
+  public void setTraceData(String traceData) {
+    this.traceData = traceData;
+  }
+
+  public boolean isScheduledPayment() {
+    return scheduledPayment;
+  }
+
+  public void setScheduledPayment(boolean scheduledPayment) {
+    this.scheduledPayment = scheduledPayment;
+  }
 
 @Override
   public String toString() {

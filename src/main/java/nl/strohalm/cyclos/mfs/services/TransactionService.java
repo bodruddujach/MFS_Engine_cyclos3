@@ -538,7 +538,8 @@ public class TransactionService {
         vaidateRequestedPinInput(request);
         accountService.loginUser(new CheckPinRequest(request.getByAc(), request.getPin()));
     }
-    else if (!"SYSTEM".equalsIgnoreCase(request.getFromAc()) && txnType.isFromAcPinEnabled()) {
+    else if (!"SYSTEM".equalsIgnoreCase(request.getFromAc()) && txnType.isFromAcPinEnabled() 
+            && (!request.isScheduledPayment() || !txnType.isScheduledPayment())) {
         vaidateRequestedPinInput(request);
         accountService.loginUser(new CheckPinRequest(request.getFromAc(), request.getPin()));
     }
