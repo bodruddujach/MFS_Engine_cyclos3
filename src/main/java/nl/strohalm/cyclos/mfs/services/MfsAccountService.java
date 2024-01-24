@@ -410,13 +410,7 @@ public class MfsAccountService {
 
 	    for (WalletStatementDetail statementDetail : response.getWalletStatementDetailList()) {
 	      MfsTxnType mfsTxnType = mfsTxnTypeService.findByCoreId(statementDetail.getTypeId().longValue());
-	      TransactionType type = null;
-	      if (mfsTxnType != null) {
-	        type = TransactionType.valueOf(mfsTxnType.getName());
-	      }
-
-	      statementDetail.setTxnType(type != null ? type.name() : "");
-
+	      statementDetail.setTxnType(mfsTxnType != null ? mfsTxnType.getDescription() : "");
 	      if (!StringUtils.isEmpty(statementRequest.getWalletNo())) {
 	        if (statementRequest.getWalletNo().equalsIgnoreCase(statementDetail.getFromWallet())) {
 	          statementDetail.setActionType(WalletStatementDetail.TxnActionType.DEBIT);

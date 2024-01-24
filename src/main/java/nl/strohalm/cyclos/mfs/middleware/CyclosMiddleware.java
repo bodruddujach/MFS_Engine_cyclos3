@@ -14,6 +14,8 @@ import nl.strohalm.cyclos.entities.accounts.transactions.Transfer;
 import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
 import nl.strohalm.cyclos.entities.customization.fields.MemberCustomField;
 import nl.strohalm.cyclos.entities.customization.fields.MemberCustomFieldValue;
+import nl.strohalm.cyclos.entities.customization.fields.PaymentCustomField;
+import nl.strohalm.cyclos.entities.customization.fields.PaymentCustomFieldValue;
 import nl.strohalm.cyclos.entities.exceptions.EntityNotFoundException;
 import nl.strohalm.cyclos.entities.groups.Group;
 import nl.strohalm.cyclos.entities.groups.MemberGroup;
@@ -43,6 +45,7 @@ import nl.strohalm.cyclos.services.accounts.AccountServiceLocal;
 import nl.strohalm.cyclos.services.accounts.AccountTypeServiceLocal;
 import nl.strohalm.cyclos.services.accounts.MemberAccountTypeQuery;
 import nl.strohalm.cyclos.services.customization.MemberCustomFieldServiceLocal;
+import nl.strohalm.cyclos.services.customization.PaymentCustomFieldServiceLocal;
 import nl.strohalm.cyclos.services.elements.ElementServiceLocal;
 import nl.strohalm.cyclos.services.groups.GroupServiceLocal;
 import nl.strohalm.cyclos.services.transactions.DoPaymentDTO;
@@ -50,7 +53,9 @@ import nl.strohalm.cyclos.services.transactions.TransactionContext;
 import nl.strohalm.cyclos.services.transfertypes.TransferTypeServiceLocal;
 import nl.strohalm.cyclos.utils.CustomFieldHelper;
 import nl.strohalm.cyclos.utils.RelationshipHelper;
+import nl.strohalm.cyclos.webservices.model.FieldValueVO;
 import nl.strohalm.cyclos.webservices.model.RegistrationFieldValueVO;
+import nl.strohalm.cyclos.webservices.utils.PaymentHelper;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -95,6 +100,10 @@ public class CyclosMiddleware {
   MemberCustomFieldServiceLocal memberCustomFieldServiceLocal;
   @Autowired
   CustomFieldHelper customFieldHelper;
+  @Autowired
+  private PaymentHelper paymentHelper;
+  @Autowired
+  private PaymentCustomFieldServiceLocal paymentCustomFieldServiceLocal;
 
   public DoPaymentDTO getValidateCyclosDoPaymentDTO(TxnRequest txnRequest, MfsTxnType mfsTxnType) {
     DoPaymentDTO doPaymentDTO = new DoPaymentDTO();
@@ -186,6 +195,7 @@ public class CyclosMiddleware {
       doPaymentDTO.setMfsTransactionType(txnRequest.getTxnType().toString());
       doPaymentDTO.setExternalCustomer(txnRequest.getExternalCustomer());
       doPaymentDTO.setSystemWiseTxnId(txnRequest.getRequestId());
+      doPaymentDTO.setCustomValues(populatePaymentCustomValues(txnRequest.getFields(), transferType));
       return doPaymentDTO;
     } catch (EntityNotFoundException e) {
       throw new MFSCommonException(ErrorConstants.FROM_AC_NOT_FOUND, e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -448,6 +458,14 @@ public class CyclosMiddleware {
         throw new MFSCommonException(ErrorConstants.INVALID_AC_CATEGORY, ErrorConstants.ERROR_MAP.get(ErrorConstants.INVALID_AC_CATEGORY), HttpStatus.BAD_REQUEST);
       }
       return accountTypeGroupMapping.getGroup();
+  }
+
+  private Collection<PaymentCustomFieldValue> populatePaymentCustomValues(List<FieldValueVO> fieldValues, TransferType transferType) {
+    final List<FieldValueVO> fieldValueVOs = fieldValues;
+    if (CollectionUtils.isEmpty(fieldValueVOs)) return null;
+    List<PaymentCustomField> allowedFields = paymentCustomFieldServiceLocal.list(transferType, true);
+    final Collection<PaymentCustomFieldValue> customValues = customFieldHelper.toValueCollection(allowedFields, fieldValueVOs);
+    return customValues;
   }
   
 }

@@ -3,11 +3,14 @@ package nl.strohalm.cyclos.mfs.models.transactions;
 import com.google.common.base.MoreObjects;
 
 import nl.strohalm.cyclos.mfs.entities.MfsTxnType.TxnTypeTag;
+import nl.strohalm.cyclos.webservices.model.FieldValueVO;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -52,6 +55,7 @@ public class TxnRequest implements Serializable {
   private TxnTypeTag txnTypeTag;
   private String traceData;
   private boolean scheduledPayment;
+  private List<FieldValueVO> fields;
 
   public String getFromAc() {
     return fromAc;
@@ -295,6 +299,14 @@ public class TxnRequest implements Serializable {
 
   public void setScheduledPayment(boolean scheduledPayment) {
     this.scheduledPayment = scheduledPayment;
+  }
+
+  public List<FieldValueVO> getFields() {
+    return fields;
+  }
+
+  public void setFields(List<FieldValueVO> fields) {
+    this.fields = fields;
   }
 
 @Override
