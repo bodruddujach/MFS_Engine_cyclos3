@@ -278,7 +278,9 @@ public class MfsAccountService {
     member = cyclosMiddleware.prepareMemberCustomFiledstoUpdate(member, updateAccountRequest);
 //    member.setName(updateAccountRequest.getName());
 //    elementDAO.update(member);
-    elementServiceLocal.changeGroupInMfsContext(member, newGroup, "Test comment");
+    if (newGroup != null && newGroup.getId() != member.getGroup().getId()) {
+      elementServiceLocal.changeGroupInMfsContext(member, newGroup, "Test comment");
+    }
     elementServiceLocal.changeMemberProfile(member);
     response.setStatus(MfsConstant.STATUS_SUCCESS);
     response.setMessage("Wallet updated successfully");
