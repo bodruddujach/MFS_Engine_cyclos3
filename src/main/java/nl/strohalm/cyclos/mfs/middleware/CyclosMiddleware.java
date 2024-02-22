@@ -420,7 +420,7 @@ public class CyclosMiddleware {
     return account;
   }
 
-  private TransferType resolveCoreTxnType(MfsTxnType mfsTxnType) { 
+  public TransferType resolveCoreTxnType(MfsTxnType mfsTxnType) { 
     TransferType transferType = transferTypeServiceLocal.load(mfsTxnType.getCoreTxnTypeId());
     if (transferType == null) {
       throw new MFSCommonException(ErrorConstants.TXN_TYPE_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.TXN_TYPE_NOT_FOUND), HttpStatus.BAD_REQUEST);

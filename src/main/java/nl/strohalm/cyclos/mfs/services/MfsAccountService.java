@@ -10,6 +10,7 @@ import nl.strohalm.cyclos.entities.accounts.MemberAccount;
 import nl.strohalm.cyclos.entities.accounts.MemberAccountType;
 import nl.strohalm.cyclos.entities.accounts.SystemAccount;
 import nl.strohalm.cyclos.entities.accounts.transactions.Transfer;
+import nl.strohalm.cyclos.entities.accounts.transactions.TransferType;
 import nl.strohalm.cyclos.entities.exceptions.EntityNotFoundException;
 import nl.strohalm.cyclos.entities.groups.Group;
 import nl.strohalm.cyclos.entities.members.Member;
@@ -337,20 +338,17 @@ public class MfsAccountService {
     query.setPageSize(statementRequest.getPageSize());
     query.setReverseOrder(statementRequest.getReverseOrder());
     if (statementRequest.getTxnTypes() != null && statementRequest.getTxnTypes().size() > 0) {
-      query.setTxnTypes(new ArrayList<String>());
-      for (TransactionType type : statementRequest.getTxnTypes()) {
-        query.getTxnTypes().add(type.name());
-      }
+        query.setTxnTypes(new ArrayList<>());
+        for (String type : statementRequest.getTxnTypes()) {
+          MfsTxnType mfsTxnType = mfsTxnTypeService.findByName(type);
+          TransferType transferType = cyclosMiddleware.resolveCoreTxnType(mfsTxnType);
+          query.getTxnTypes().add(transferType.getName());
+        }
     }
     WalletStatementResp response = paymentServiceLocal.searchStatement(query);
     for (WalletStatementDetail statementDetail : response.getWalletStatementDetailList()) {
       MfsTxnType mfsTxnType = mfsTxnTypeService.findByCoreId(statementDetail.getTypeId().longValue());
-      TransactionType type = null;
-      if (mfsTxnType != null) {
-        type = TransactionType.valueOf(mfsTxnType.getName());
-      }
-
-      statementDetail.setTxnType(type != null ? type.name() : "");
+      statementDetail.setTxnType(mfsTxnType != null ? mfsTxnType.getDescription() : "");
 
       if (!StringUtils.isEmpty(statementRequest.getWalletNo())) {
         if (statementRequest.getWalletNo().equalsIgnoreCase(statementDetail.getFromWallet())) {
@@ -412,12 +410,7 @@ public class MfsAccountService {
 
 	    for (WalletStatementDetail statementDetail : response.getWalletStatementDetailList()) {
 	      MfsTxnType mfsTxnType = mfsTxnTypeService.findByCoreId(statementDetail.getTypeId().longValue());
-	      TransactionType type = null;
-	      if (mfsTxnType != null) {
-	        type = TransactionType.valueOf(mfsTxnType.getName());
-	      }
-
-	      statementDetail.setTxnType(type != null ? type.name() : "");
+	      statementDetail.setTxnType(mfsTxnType != null ? mfsTxnType.getDescription() : "");
 
 	      if (!StringUtils.isEmpty(statementRequest.getWalletNo())) {
 	        if (statementRequest.getWalletNo().equalsIgnoreCase(statementDetail.getFromWallet())) {

@@ -14,7 +14,7 @@ public class WalletStatementRequest {
   private Boolean reverseOrder = false;
   private Integer currentPage = 0;
   private Integer pageSize;
-  private List<TransactionType> txnTypes;
+  private List<String> txnTypes;
 
   public String getWalletNo() {
     return walletNo;
@@ -72,11 +72,11 @@ public class WalletStatementRequest {
     this.pageSize = pageSize;
   }
 
-  public List<TransactionType> getTxnTypes() {
+  public List<String> getTxnTypes() {
     return txnTypes;
   }
 
-  public void setTxnTypes(List<TransactionType> txnTypes) {
+  public void setTxnTypes(List<String> txnTypes) {
     this.txnTypes = txnTypes;
   }
 
