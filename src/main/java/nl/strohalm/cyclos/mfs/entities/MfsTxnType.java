@@ -7,7 +7,6 @@ import nl.strohalm.cyclos.utils.StringValuedEnum;
 
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
@@ -92,6 +91,7 @@ public class MfsTxnType extends Entity {
   private boolean includeToAcBalanceInResponse;
   private boolean fromAcPinEnabled;
   private boolean byAcPinEnabled;
+  private boolean scheduledPayment;
   private TypeCategory typeCategory;
   private MfsTxnType parentType;
   private Collection<MfsTxnType> childTypes;
@@ -241,8 +241,15 @@ public class MfsTxnType extends Entity {
   public void setByAcPinEnabled(boolean byAcPinEnabled) {
     this.byAcPinEnabled = byAcPinEnabled;
   }
-
   
+  public boolean isScheduledPayment() {
+    return scheduledPayment;
+  }
+
+  public void setScheduledPayment(boolean scheduledPayment) {
+    this.scheduledPayment = scheduledPayment;
+  }
+
   public TypeCategory getTypeCategory() {
     return typeCategory;
   }
@@ -273,4 +280,5 @@ public class MfsTxnType extends Entity {
   public String toString() {
     return name;
   }
+
 }

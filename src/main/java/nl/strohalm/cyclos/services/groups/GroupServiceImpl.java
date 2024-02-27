@@ -1496,8 +1496,7 @@ public class GroupServiceImpl implements GroupServiceLocal {
                 }
                 memberGroup.setManagedByGroups(managedByGroups);
 
-                
-                final List<MfsTxnLimitConfig> groupTxnLimitConfigs = new ArrayList<>();
+                final List<MfsTxnLimitConfig> groupTxnLimitConfigs = new ArrayList<MfsTxnLimitConfig>();
                 if (currentMemberGroup.getGroupTxnLimitConfigs() != null) {
                     groupTxnLimitConfigs.addAll(currentMemberGroup.getGroupTxnLimitConfigs());
                 }

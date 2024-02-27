@@ -1,9 +1,13 @@
 package nl.strohalm.cyclos.mfs.controllers;
 
 import nl.strohalm.cyclos.entities.accounts.MemberAccount;
+import nl.strohalm.cyclos.mfs.exceptions.ErrorConstants;
+import nl.strohalm.cyclos.mfs.exceptions.MFSCommonException;
+import nl.strohalm.cyclos.mfs.models.accounts.AcRegRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.AccountActivationRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.AccountTypeDTO;
 import nl.strohalm.cyclos.mfs.models.accounts.BalanceResponse;
+import nl.strohalm.cyclos.mfs.models.accounts.BillerRegRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.ChangePinRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.CheckPinRequest;
 import nl.strohalm.cyclos.mfs.models.accounts.LoginResponse;
@@ -19,7 +23,9 @@ import nl.strohalm.cyclos.mfs.models.transactions.AccountLimitData;
 import nl.strohalm.cyclos.mfs.models.transactions.Response;
 import nl.strohalm.cyclos.mfs.services.MfsAccountService;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +33,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import static nl.strohalm.cyclos.mfs.exceptions.ErrorConstants.ERROR_MAP;
 
 import java.util.Calendar;
 import java.util.List;
@@ -47,6 +55,17 @@ public class AccountController {
   public RegResponse doRegister(@Validated @RequestBody MerchantRegRequest regRequest, HttpServletRequest servletRequest) {
     RegResponse regResponse = null;
     regResponse = accountService.processRegistration(regRequest);
+    return regResponse;
+  }
+
+  @RequestMapping(value = "/register/biller", method = RequestMethod.POST, headers = HEADER_JSON)
+  @ResponseBody
+  public RegResponse doRegisterBiller(@Validated @RequestBody BillerRegRequest regRequest, HttpServletRequest servletRequest) {
+    RegResponse regResponse = null;
+    if (StringUtils.isBlank(regRequest.getAccountType()) || !"biller".equalsIgnoreCase(regRequest.getAccountType())) {
+    	throw new MFSCommonException(ErrorConstants.INVALID_AC_TYPE, "Account Type must be 'BILLER'", HttpStatus.BAD_REQUEST);
+    }
+    regResponse = accountService.processRegistration(convertBillerRequestToAccountRequest(regRequest));
     return regResponse;
   }
 
@@ -138,4 +157,17 @@ public class AccountController {
     return accountService.getAccoutCategoriesgroupByAccounttype();
   }
 
+  private AcRegRequest convertBillerRequestToAccountRequest(BillerRegRequest biller) {
+	  AcRegRequest acRequest = new AcRegRequest();
+	  acRequest.setWalletNo(biller.getWalletNo());
+	  acRequest.setFullName(biller.getFullName());
+	  acRequest.setMobile(biller.getMobile());
+	  acRequest.setAccountType(biller.getAccountType());
+	  acRequest.setAccountCategory(biller.getAccountCategory());
+	  acRequest.setPin(biller.getPin());
+	  acRequest.setPassword(biller.getPassword());
+	  acRequest.setAccountStatus(biller.getAccountStatus());
+	  acRequest.setFields(biller.getFields());
+	  return acRequest;
+  }
 }

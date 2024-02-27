@@ -278,7 +278,9 @@ public class MfsAccountService {
     member = cyclosMiddleware.prepareMemberCustomFiledstoUpdate(member, updateAccountRequest);
 //    member.setName(updateAccountRequest.getName());
 //    elementDAO.update(member);
-    elementServiceLocal.changeGroupInMfsContext(member, newGroup, "Test comment");
+    if (newGroup != null && newGroup.getId() != member.getGroup().getId()) {
+      elementServiceLocal.changeGroupInMfsContext(member, newGroup, "Test comment");
+    }
     elementServiceLocal.changeMemberProfile(member);
     response.setStatus(MfsConstant.STATUS_SUCCESS);
     response.setMessage("Wallet updated successfully");
@@ -533,7 +535,7 @@ public class MfsAccountService {
   }
 
   private void isValidPin(String pin) {
-    if (StringUtils.isEmpty(pin) || pin.length() < 4) {
+    if (StringUtils.isEmpty(pin) || pin.length() != 6) {
       throw new MFSCommonException(ErrorConstants.INVALID_PIN, ERROR_MAP.get(ErrorConstants.INVALID_PIN), HttpStatus.BAD_REQUEST);
     }
   }

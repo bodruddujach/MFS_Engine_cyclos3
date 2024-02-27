@@ -25,6 +25,7 @@
         <jackson.version>2.14.3</jackson.version>
         <log4j.version>2.17.1</log4j.version>
         <oracle.jdbc.version>21.1.0.0</oracle.jdbc.version>
+        <jaxb.version>2.3.2</jaxb.version>
     </properties>
 
     <dependencies>
@@ -42,6 +43,17 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
             <version>${spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-tx</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -54,7 +66,6 @@
             <artifactId>spring-security-core</artifactId>
             <version>${spring.security}</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
@@ -399,9 +410,27 @@
             <artifactId>guava</artifactId>
             <version>27.0-jre</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>${jaxb.version}</version>
+        </dependency>
+
+        <!-- Runtime, com.sun.xml.bind module -->
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>${jaxb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-ri</artifactId>
+            <version>2.3.2</version>
+            <type>pom</type>
+        </dependency>
     </dependencies>
     <build>
-        <finalName>mfs-core</finalName>
+        <finalName>dfs-core</finalName>
         <resources>
             <resource>
                 <directory>src/main/java</directory>
@@ -413,10 +442,10 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>3.8.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
             </plugin>
             <plugin>

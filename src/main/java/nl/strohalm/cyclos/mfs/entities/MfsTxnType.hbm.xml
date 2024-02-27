@@ -39,6 +39,7 @@
         <property name="includeToAcBalanceInResponse" column="to_ac_balance_in_response" type="boolean" not-null="true"/>
         <property name="fromAcPinEnabled" column="from_ac_pin_enabled" type="boolean" not-null="true"/>
         <property name="byAcPinEnabled" column="by_ac_pin_enabled" type="boolean" not-null="true"/>
+        <property name="scheduledPayment" column="scheduled_payment" type="boolean" not-null="true"/>
         <property name="typeCategory" column="type_category" length="100" not-null="true">
             <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">
                 <param name="enumClassName">nl.strohalm.cyclos.mfs.entities.MfsTxnType$TypeCategory</param>

@@ -215,7 +215,7 @@ public class DataBaseConfiguration {
                 setup.setLocale(locale);
                 setup.setCreateDataBase(true);
                 setup.setCreateBasicData(true);
-                setup.setCreateInitialData(true);
+                setup.setCreateInitialData(false);
                 setup.setCreateSmsData(smsEmbedded);
                 setup.setForce(true);
                 setup.execute();

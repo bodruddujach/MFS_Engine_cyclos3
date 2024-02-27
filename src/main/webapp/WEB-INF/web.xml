@@ -402,14 +402,14 @@
 		<filter-name>restFilter</filter-name>
 		<servlet-name>rest</servlet-name>
 	</filter-mapping>
-<!--	<filter>-->
-<!--		<filter-name>springSecurityFilterChain</filter-name>-->
-<!--		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>-->
-<!--	</filter>-->
-<!--	<filter-mapping>-->
-<!--		<filter-name>springSecurityFilterChain</filter-name>-->
-<!--		<servlet-name>rest</servlet-name>-->
-<!--	</filter-mapping>-->
+<!-- 	<filter> -->
+<!-- 		<filter-name>springSecurityFilterChain</filter-name> -->
+<!-- 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class> -->
+<!-- 	</filter> -->
+<!-- 	<filter-mapping> -->
+<!-- 		<filter-name>springSecurityFilterChain</filter-name> -->
+<!-- 		<servlet-name>rest</servlet-name> -->
+<!-- 	</filter-mapping> -->
 
 	<!-- MIME mappings for WAP bitmaps -->
 	<mime-mapping>
