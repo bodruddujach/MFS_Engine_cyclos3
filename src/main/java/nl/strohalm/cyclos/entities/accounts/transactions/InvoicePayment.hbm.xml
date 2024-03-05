@@ -13,7 +13,7 @@
 		<many-to-one name="invoice" update="false" class="nl.strohalm.cyclos.entities.accounts.transactions.Invoice">
 		    <column name="invoice_id" sql-type="integer"/>
 		</many-to-one>
-		<property name="date" column="datetime" update="false" not-null="true" type="calendar"/>
+		<property name="date" column="date" update="false" not-null="true" type="calendar"/>
 		<property name="amount" column="amount" update="false" not-null="true" type="big_decimal" precision="15" scale="6"/>
 		<many-to-one name="transfer" class="nl.strohalm.cyclos.entities.accounts.transactions.Transfer">
 		    <column name="transfer_id" sql-type="bigint"/>

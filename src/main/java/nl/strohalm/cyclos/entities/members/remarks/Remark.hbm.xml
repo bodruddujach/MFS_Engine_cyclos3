@@ -17,7 +17,7 @@
 		<many-to-one name="writer" class="nl.strohalm.cyclos.entities.members.Element">
 		    <column name="writer_id" sql-type="integer"/>
 		</many-to-one>
-		<property name="date" column="datetime" type="calendar" not-null="true" />
+		<property name="date" column="date" type="calendar" not-null="true" />
 		<property name="comments" column="comments" type="text" />
     </class>
 

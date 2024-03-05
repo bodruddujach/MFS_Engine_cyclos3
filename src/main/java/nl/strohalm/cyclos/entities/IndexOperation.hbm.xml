@@ -10,7 +10,7 @@
 			<generator class="identity"/>
 		</id>
 		<property name="date" type="calendar">
-			<column name="datetime" not-null="true" index="ix_indexops_date"/>
+			<column name="date" not-null="true" index="ix_indexops_date"/>
 		</property>
     	<property name="entityType" column="entity_type" length="3" not-null="true">
             <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">

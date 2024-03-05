@@ -19,7 +19,7 @@
 		    <column name="member_id" sql-type="integer" not-null="false"/>
 		</many-to-one>
 		
-		<property name="date" update="false" column="datetime" type="calendar" not-null="true"/>
+		<property name="date" update="false" column="date" type="calendar" not-null="true"/>
 		<property name="text" column="text" type="string" not-null="true"/>
 		<property name="free" column="free" type="boolean" not-null="true"/>
 		<property name="sentSms" column="sent_sms" type="int" not-null="true"/>

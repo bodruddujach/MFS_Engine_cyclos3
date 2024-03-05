@@ -10,7 +10,7 @@
 			<column name="id" sql-type="integer"/>
 			<generator class="identity"/>
 		</id>
-		<property name="date" update="false" column="datetime" type="calendar" not-null="true" />
+		<property name="date" update="false" column="date" type="calendar" not-null="true" />
 		<property name="subject" update="false" column="subject" type="string" not-null="true" />
         <property name="type" update="false" column="type" length="3" not-null="true">
             <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">

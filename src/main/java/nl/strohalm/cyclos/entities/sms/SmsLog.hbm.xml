@@ -19,7 +19,7 @@
 		<many-to-one name="smsType" update="false" class="nl.strohalm.cyclos.entities.sms.SmsType">
 			<column name="sms_type_id" sql-type="integer" />
 		</many-to-one>
-		<property name="date" update="false" column="datetime" type="calendar" not-null="true"/>
+		<property name="date" update="false" column="date" type="calendar" not-null="true"/>
 		<many-to-one name="smsMailing" update="false" class="nl.strohalm.cyclos.entities.sms.SmsMailing">
 			<column name="sms_mailing_id" sql-type="integer" />
 		</many-to-one>

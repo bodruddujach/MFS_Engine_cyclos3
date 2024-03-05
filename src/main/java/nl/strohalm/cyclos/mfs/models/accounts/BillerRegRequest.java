@@ -24,7 +24,7 @@ public class BillerRegRequest implements Serializable {
 	private String mobile;
 	private String email;
 	private String password;
-	@Size(min = 6, max = 6, message = "PIN length should be 6 digits")
+	@Size(min = 4, max = 4, message = "PIN length should be 4 digits")
 	@Digits(integer = 10, fraction = 0, message = "PIN should be numeric only")
 	private String pin;
 	private String gender;

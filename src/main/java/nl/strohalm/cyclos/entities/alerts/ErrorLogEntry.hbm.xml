@@ -10,7 +10,7 @@
 		    <column name="id" sql-type="integer"/>
             <generator class="identity"/>
         </id>
-		<property name="date" not-null="true" column="datetime" type="calendar"/>
+		<property name="date" not-null="true" column="date" type="calendar"/>
 		<property name="path" not-null="true" column="path" type="string" length="200"/>
 		<property name="removed" column="removed" type="boolean" not-null="true"/>
 		<many-to-one name="loggedUser" class="nl.strohalm.cyclos.entities.access.User">

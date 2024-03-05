@@ -535,7 +535,7 @@ public class MfsAccountService {
   }
 
   private void isValidPin(String pin) {
-    if (StringUtils.isEmpty(pin) || pin.length() != 6) {
+    if (StringUtils.isEmpty(pin) || pin.length() != 4) {
       throw new MFSCommonException(ErrorConstants.INVALID_PIN, ERROR_MAP.get(ErrorConstants.INVALID_PIN), HttpStatus.BAD_REQUEST);
     }
   }

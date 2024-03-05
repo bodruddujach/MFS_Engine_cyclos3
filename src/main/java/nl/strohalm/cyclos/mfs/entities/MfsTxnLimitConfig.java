@@ -173,6 +173,7 @@ public class MfsTxnLimitConfig extends Entity {
 		this.applyOn = applyOn;
 	}
 
+	@JsonIgnore
 	public MemberGroup getGroup() {
 		return group;
 	}

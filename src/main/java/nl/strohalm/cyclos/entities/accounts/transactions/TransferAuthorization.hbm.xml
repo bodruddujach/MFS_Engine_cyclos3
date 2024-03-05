@@ -13,7 +13,7 @@
 		<many-to-one name="by" update="false" class="nl.strohalm.cyclos.entities.members.Element">
 		    <column name="by_id" sql-type="integer"/>
 		</many-to-one>
-		<property name="date" update="false" column="datetime" not-null="true" type="calendar"/>
+		<property name="date" update="false" column="date" not-null="true" type="calendar"/>
         <property name="action" update="false" column="action" length="1" not-null="true">
             <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">
                 <param name="enumClassName">nl.strohalm.cyclos.entities.accounts.transactions.TransferAuthorization$Action</param>

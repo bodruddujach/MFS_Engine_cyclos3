@@ -296,16 +296,16 @@
             <artifactId>jtidy</artifactId>
             <version>r938</version>
         </dependency>
-<!--         <dependency> -->
-<!--             <groupId>mysql</groupId> -->
-<!--             <artifactId>mysql-connector-java</artifactId> -->
-<!--             <version>8.0.33</version> -->
-<!--         </dependency> -->
-        <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
-            <version>${oracle.jdbc.version}</version>
-        </dependency>
+         <dependency> 
+             <groupId>mysql</groupId> 
+             <artifactId>mysql-connector-java</artifactId> 
+             <version>8.0.33</version> 
+         </dependency> 
+<!--        <dependency>-->
+<!--            <groupId>com.oracle.database.jdbc</groupId>-->
+<!--            <artifactId>ojdbc8</artifactId>-->
+<!--            <version>${oracle.jdbc.version}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.google.code</groupId>
             <artifactId>kaptcha</artifactId>
@@ -430,7 +430,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>dfs-core</finalName>
+        <finalName>mfs-core</finalName>
         <resources>
             <resource>
                 <directory>src/main/java</directory>

@@ -21,11 +21,11 @@ public class CheckPinRequest implements Serializable {
   }
 
   @NotNull
-  @Size(min = 11, max = 11, message = "Invalid wallet number")
+  @Size(min = 12, max = 12, message = "Invalid wallet number format")
   private String walletNo;
 
   @NotNull
-  @Size(min = 6, max = 6, message = "PIN length should be minimum 6 digits")
+  @Size(min = 4, max = 4, message = "PIN length should be minimum 4 digits")
   @Digits(integer = 10, fraction = 0, message = "PIN should be numeric only")
   private String pin;
 

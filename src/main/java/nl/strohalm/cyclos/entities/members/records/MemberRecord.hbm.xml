@@ -22,7 +22,7 @@
 		<many-to-one name="modifiedBy" class="nl.strohalm.cyclos.entities.members.Element">
 		    <column name="modified_by_id" sql-type="integer" />
 		</many-to-one>
-		<property name="date" column="datetime" type="calendar" not-null="true" update="false"/>
+		<property name="date" column="date" type="calendar" not-null="true" update="false"/>
 		<property name="lastModified" column="last_modified" type="calendar" />
 		<bag name="customValues" cascade="delete" inverse="true">
             <key> 

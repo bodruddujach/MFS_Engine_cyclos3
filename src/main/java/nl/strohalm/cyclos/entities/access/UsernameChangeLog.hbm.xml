@@ -9,7 +9,7 @@
 		    <column name="id" sql-type="integer"/>
             <generator class="identity"/>
         </id>
-		<property name="date" column="datetime" type="calendar" not-null="true" update="false"/>
+		<property name="date" column="date" type="calendar" not-null="true" update="false"/>
 		<many-to-one name="by" class="nl.strohalm.cyclos.entities.members.Element" update="false">
 		    <column name="by_id" sql-type="integer" not-null="true"/>
 		</many-to-one>

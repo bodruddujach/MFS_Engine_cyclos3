@@ -72,7 +72,7 @@ public class AccountFeeLogDAOImpl extends BaseDAOImpl<AccountFeeLog> implements 
 
     @Override
     public AccountFeeLog nextToCharge() {
-        return uniqueResult("from AccountFeeLog l where l.date <= CURRENT_TIMESTAMP and l.finishDate is null or l.rechargingFailed = true", null);
+        return uniqueResult("from AccountFeeLog l where l.date <= now() and l.finishDate is null or l.rechargingFailed = true", null);
     }
 
     @Override

@@ -12,7 +12,7 @@
 			<generator class="identity"/>
 		</id>
 		
-	    <property name="date" column="datetime" type="calendar" not-null="true"/>
+	    <property name="date" column="date" type="calendar" not-null="true"/>
         
         <property name="posStatus" column="pos_status" length="1" not-null="true">
             <type name="nl.strohalm.cyclos.utils.hibernate.StringValuedEnumType">

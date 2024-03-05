@@ -160,9 +160,9 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         return response;
     }
     private String searchStatementQuery(StatementParams query, boolean countOnly) {
-        String dbSchema = "CORE";
+        String dbSchema = "profino";
         try {
-            dbSchema = CyclosConfiguration.getCyclosProperties().getProperty("hibernate.default_schema", "CORE");
+            dbSchema = CyclosConfiguration.getCyclosProperties().getProperty("hibernate.default_schema", "profino");
         }catch (IOException ioException){ }
         StringBuilder sql = new StringBuilder();
         if (countOnly) {
@@ -181,8 +181,8 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         sql.append("t.transaction_number AS transactionNumber, ");
         sql.append("case when t.transaction_fee_id is null then ty.name else tf.name end AS typeName, ");
         sql.append("t.description, ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NULL AND t.chargedback_by_id IS NULL AND t.parent_id IS NULL THEN 1 ELSE 0 END AS canReverse, ");
-        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN 1 ELSE 0 END AS reversedTxn, ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NULL AND t.chargedback_by_id IS NULL AND t.parent_id IS NULL THEN TRUE ELSE FALSE END AS canReverse, ");
+        sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN TRUE ELSE FALSE END AS reversedTxn, ");
         sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN t.to_account_id ELSE t.from_account_id END AS fromAcId, ");
         sql.append("CASE WHEN t.chargeback_of_id IS NOT NULL THEN t.from_account_id ELSE t.to_account_id END AS toAcId ");
         sql.append("FROM "+dbSchema+".transfers t ");
@@ -211,7 +211,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
             sql.deleteCharAt(sql.length()-1);
             sql.append(")");
         }
-        sql.append(")");
+        sql.append(") as statement ");
         if (!countOnly) {
             if (query.getReverseOrder()) {
                 sql.append("ORDER BY txnTime DESC, id DESC ");
@@ -597,7 +597,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
             hql.append(" and (t.by = :by or t.receiver = :by)");
             namedParams.put("by", operator);
         }
-        HibernateHelper.addPeriodParameterToQuery(hql, namedParams, "NVL(t.processDate,t.date)", period);
+        HibernateHelper.addPeriodParameterToQuery(hql, namedParams, "ifnull(t.processDate,t.date)", period);
 
         TransactionSummaryVO txnSummary = buildSummary(uniqueResult(hql.toString(), namedParams));
         return txnSummary;
@@ -873,7 +873,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
             hql.append("      and ghl.group in (:groups) ");
             hql.append("      and ghl.period.begin < :end ");
             hql.append("      and (ghl.period.end is null or ghl.period.end >= :begin) ");
-            hql.append("      and t.processDate between ghl.period.begin and NVL(ghl.period.end, t.processDate) ");
+            hql.append("      and t.processDate between ghl.period.begin and ifnull(ghl.period.end, t.processDate) ");
             hql.append("    ) ");
             namedParameters.put("groups", dto.getGroups());
             namedParameters.put("begin", dto.getPeriod().getBegin());
@@ -891,7 +891,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.loanPayment", query.getLoanPayment());
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.parent", query.getParent());
         HibernateHelper.addParameterToQuery(hql, namedParameters, "t.type", query.getTransferType());
-        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "NVL(t.processDate, t.date)", query.getPeriod());
+        HibernateHelper.addPeriodParameterToQuery(hql, namedParameters, "ifnull(t.processDate, t.date)", query.getPeriod());
         if (query.isRootOnly()) {
             hql.append(" and t.parent is null");
         }
@@ -1018,7 +1018,7 @@ public class TransferDAOImpl extends BaseDAOImpl<Transfer> implements TransferDA
             final List<String> orders = new ArrayList<String>();
 
             // Order by date ...
-            String order = "NVL(t.processDate, t.date)";
+            String order = "ifnull(t.processDate, t.date)";
             if (query.isReverseOrder()) {
                 order += " desc";
             }

@@ -63,13 +63,13 @@ public class SessionDAOImpl extends BaseDAOImpl<Session> implements SessionDAO {
     @Override
     public boolean isLoggedIn(final User user) {
         Map<String, ?> params = Collections.singletonMap("user", user);
-        List<?> list = list(ResultType.LIST, "select s.id from Session s where s.user = :user and s.expirationDate > CURRENT_TIMESTAMP", params, PageParameters.max(1));
+        List<?> list = list(ResultType.LIST, "select s.id from Session s where s.user = :user and s.expirationDate > now()", params, PageParameters.max(1));
         return !list.isEmpty();
     }
 
     @Override
     public IteratorList<User> listLoggedUsers() {
-        Iterator<User> iterator = this.iterate("select distinct s.user from Session s where s.expirationDate > CURRENT_TIMESTAMP", null);
+        Iterator<User> iterator = this.iterate("select distinct s.user from Session s where s.expirationDate > now()", null);
         return new IteratorListImpl<User>(iterator);
     }
 
@@ -86,7 +86,7 @@ public class SessionDAOImpl extends BaseDAOImpl<Session> implements SessionDAO {
         hql.append("   left join fetch m.group mg");
         hql.append(" where s.identifier = :identifier");
         if (!allowExpired) {
-            hql.append(" and s.expirationDate > CURRENT_TIMESTAMP");
+            hql.append(" and s.expirationDate > now()");
         }
         Session session = uniqueResult(hql.toString(), params);
         if (session == null) {
@@ -97,7 +97,7 @@ public class SessionDAOImpl extends BaseDAOImpl<Session> implements SessionDAO {
 
     @Override
     public void purgeExpired() {
-        bulkUpdate("delete from Session where expirationDate <= CURRENT_TIMESTAMP", null);
+        bulkUpdate("delete from Session where expirationDate <= now()", null);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class SessionDAOImpl extends BaseDAOImpl<Session> implements SessionDAO {
         StringBuilder hql = new StringBuilder();
         hql.append(" select s ");
         hql.append(" from Session s left join fetch s.user u left join fetch u.element e left join fetch e.group g ");
-        hql.append(" where s.expirationDate > CURRENT_TIMESTAMP ");
+        hql.append(" where s.expirationDate > now() ");
 
         // Filter by nature - use the discriminator directly
         Collection<Nature> natures = query.getNatures();
