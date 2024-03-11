@@ -52,10 +52,10 @@ public class TxnTypeController {
         throw new MFSCommonException(ErrorConstants.TXN_TYPE_NOT_FOUND, ErrorConstants.ERROR_MAP.get(ErrorConstants.TXN_TYPE_NOT_FOUND), HttpStatus.BAD_REQUEST);
     mfsTxnType.setFromTypeId(coreType.getFrom().getId());
     mfsTxnType.setFromTypeName(coreType.getFrom().getName());
-    mfsTxnType.setFromTypeNature(AccountTypeNature.valueOf(coreType.getFrom().getNature().getValue()));
+    mfsTxnType.setFromTypeNature(AccountTypeNature.valueOf(coreType.getFrom().getNature().name()));
     mfsTxnType.setToTypeId(coreType.getTo().getId());
     mfsTxnType.setToTypeName(coreType.getTo().getName());
-    mfsTxnType.setToTypeNature(AccountTypeNature.valueOf(coreType.getTo().getNature().getValue()));
+    mfsTxnType.setToTypeNature(AccountTypeNature.valueOf(coreType.getFrom().getNature().name()));
     return mfsTxnTypeService.create(mfsTxnType);
   }
 
